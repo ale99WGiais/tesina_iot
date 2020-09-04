@@ -339,7 +339,11 @@ Il \textit{meta server} contatta separatamente tutti i \textit{data server} cont
 
 \subsection{transfer}
 
-(TODO fai tutto)
+La richiesta di tipo \textit{transfer} richiede la copia di un file (uid) da un \textit{data server} ad un altro. Viene usata dal \textit{meta server} per trasferire i dati tra i nodi e gestire la ridondanza.
+
+Inizialmente, come nel caso di una \textit{push}, il meta server contatta il \textit{data server} di destinazione (\textit{DATA2}) tramite una richiesta \textit{create(uid)}, per inizializzarlo a ricevere il file. Se non ci sono errori il \textit{data server} risponde con \textit{ack}. La connessione viene chiusa. 
+
+A questo punto il \textit{meta server} invia al \textit{data server} di origine (\textit{DATA1}) una richiesta \textit{transfer(uid, to)} per ordinare il trasferimento. Se \textit{DATA1} riesce a connettersi con successo a \textit{DATA2}, risponde a \textit{META} con \textit{begin\_transfer(uid)}. \textit{META1} invia a \textit{META2} una richiesta di tipo \textit{push(uid)} e da luogo al trasferimento. Al termine \textit{DATA1} invia un messaggio \textit{end\_transfer(uid)} a \textit{META} per notificare l'avvenuto trasferimento.
 
 
 \begin{figure}[H]
@@ -355,6 +359,19 @@ Il \textit{meta server} contatta separatamente tutti i \textit{data server} cont
 \section{Logging}
 
 Tutte le operazioni prima di essere eseguite vengono registrate in appositi database di log. In questo modo, se un'operazione viene interrotta per qualsiasi motivo, può essere analizzata e rieseguita, in modo da non lasciare spazzatura. 
+
+
+
+
+
+\section{Sicurezza ed autenticazione}
+
+Tutte le connessioni vengono cifrate tramite protocollo TLS over TCP. In questo modo la cifratura è invisibile alla logica dell'application e può in ogni momento essere modificata dal programmatore. Inoltre, essendo una tecnologia ampiamente diffusa e collaudata, presenta una vulnerabilità minima. 
+
+L'autenticazione da client a server avviene tramite coppia \textit{(username, password)} all'inizio della connessione. La password di ciascun utente può essere cambiata in ogni momento dall'utente stesso, dopo essersi loggato. 
+
+L'autenticazione da server a server avviene tramite certificato digitale. 
+
 
 
 
