@@ -5,15 +5,14 @@
 \BOOKMARK [2][-]{subsection.2.3}{Cloud backup}{section.2}% 5
 \BOOKMARK [2][-]{subsection.2.4}{Server as distributed database}{section.2}% 6
 \BOOKMARK [2][-]{subsection.2.5}{Meta+Data server}{section.2}% 7
-\BOOKMARK [2][-]{subsection.2.6}{Meta+Data server, direct config}{section.2}% 8
+\BOOKMARK [2][-]{subsection.2.6}{Meta+Data server 2}{section.2}% 8
 \BOOKMARK [2][-]{subsection.2.7}{Meta server as distributed system}{section.2}% 9
-\BOOKMARK [1][-]{section.3}{Comandi}{}% 10
-\BOOKMARK [2][-]{subsection.3.1}{Comandi del client}{section.3}% 11
-\BOOKMARK [2][-]{subsection.3.2}{Metadati dei path}{section.3}% 12
-\BOOKMARK [1][-]{section.4}{Protocollo comunicazione}{}% 13
-\BOOKMARK [2][-]{subsection.4.1}{get}{section.4}% 14
-\BOOKMARK [2][-]{subsection.4.2}{push}{section.4}% 15
-\BOOKMARK [2][-]{subsection.4.3}{rem}{section.4}% 16
-\BOOKMARK [2][-]{subsection.4.4}{transfer}{section.4}% 17
-\BOOKMARK [1][-]{section.5}{Logging}{}% 18
-\BOOKMARK [1][-]{section.6}{Sicurezza ed autenticazione}{}% 19
+\BOOKMARK [1][-]{section.3}{Comandi del client}{}% 10
+\BOOKMARK [1][-]{section.4}{Metadati dei path}{}% 11
+\BOOKMARK [1][-]{section.5}{Protocollo comunicazione}{}% 12
+\BOOKMARK [2][-]{subsection.5.1}{get}{section.5}% 13
+\BOOKMARK [2][-]{subsection.5.2}{push}{section.5}% 14
+\BOOKMARK [2][-]{subsection.5.3}{rem}{section.5}% 15
+\BOOKMARK [2][-]{subsection.5.4}{transfer}{section.5}% 16
+\BOOKMARK [1][-]{section.6}{Logging}{}% 17
+\BOOKMARK [1][-]{section.7}{Sicurezza ed autenticazione}{}% 18
