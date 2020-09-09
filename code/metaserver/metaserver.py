@@ -11,12 +11,13 @@ class MetaServerHandler(StreamRequestHandler):
     def handle(self):
         print("handle request from " + str(self.client_address))
 
-        data = self.rfile.readline().strip()
-        self.wfile.write(data.upper())
+        data = self.rfile.read()
+        print(data)
+        self.wfile.write(bytes("ok\n", "utf-8"))
 
 
 HOST = "localhost"
-PORT = 10000
+PORT = 10002
 
 
 

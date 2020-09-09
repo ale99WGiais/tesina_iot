@@ -4,18 +4,43 @@ print("starting client...")
 from socket import *
 import sys
 
-HOST, PORT = "localhost", 10000
-data = "ciao come stai?"
+HOST, PORT = "localhost", 10002
+data = "ciao come stai?\n"
+
+import os
+print(os.getcwd())
+
+
+def sendFile(socket, file):
+    pass
 
 # Create a socket (SOCK_STREAM means a TCP socket)
-with socket(AF_INET, SOCK_STREAM) as sock:
-    # Connect to server and send data
-    sock.connect((HOST, PORT))
-    sock.sendall(bytes(data+"\n", "utf-8"))
+class Client:
+    def __init__(self):
+        self.rbufsize = -1
+        self.wbufsize = 0
 
-    # Receive data from the server and shut down
-    received = str(sock.recv(1024), "utf-8")
+    def run(self):
+        with socket(AF_INET, SOCK_STREAM) as sock:
+            print("connected to " + str(sock))
 
-print("Sent:     {}".format(data))
-print("Received: {}".format(received))
+            #Connect to server and send data
+            sock.connect((HOST, PORT))
 
+            rfile = sock.makefile('rb', self.rbufsize)
+            wfile = sock.makefile('wb', self.wbufsize)
+
+            wfile.write(bytes(data, "utf-8"))
+
+            with open('../small_file.txt', 'rb') as f:
+                sock.sendfile(f, 0)
+
+            sock.shutdown(SHUT_WR)
+
+            # Receive data from the server and shut down
+            received = rfile.readline().strip()
+
+            print("Sent:     {}".format(data))
+            print("Received: {}".format(received))
+
+Client().run()
