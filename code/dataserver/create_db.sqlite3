@@ -1,0 +1,17 @@
+
+create table object(
+    uid text primary key,
+    local_path text,
+    size integer,
+    complete integer,
+    checksum text
+);
+
+create table transfer(
+    id text primary key,
+    uid integer,
+    dest text,
+    last_pos integer,
+    request_time text
+);
+
