@@ -7,17 +7,18 @@ create table dataserver(
 	server text,
 	capacity bigint,
 	remaining_capacity bigint,
-	available_load int,
+	available_down float,
+	available_up float,
 	primary key(server)
 );
 
 
-insert into dataserver(server, capacity, remaining_capacity, available_load)
-values ('localhost:10010', 1000000, 1000000, 100);
-insert into dataserver(server, capacity, remaining_capacity, available_load)
-values ('localhost:10011', 1000000, 1000000, 100);
-insert into dataserver(server, capacity, remaining_capacity, available_load)
-values ('localhost:10012', 1000000, 1000000, 100);
+insert into dataserver(server)
+values ('localhost:10010');
+insert into dataserver(server)
+values ('localhost:10011');
+insert into dataserver(server)
+values ('localhost:10012');
 
 create table object(
     uid uuid,

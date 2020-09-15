@@ -6,9 +6,14 @@ from uuid import uuid4, UUID
 from datetime import datetime
 import socket
 import random
+import schedule
+import psutil
+import _thread
+import time
 
 #res = session.execute("select * from system.local;").all()
 #print(res)
+
 
 def addrFromString(addr):
     ip, port = addr.split(":")
@@ -53,6 +58,13 @@ class Database:
     def getDataServers(self):
         return self.session.execute("select * from dataserver").all()
 
+    def updateDataServerStatus(self, addr, remaining_capacity, capacity, available_down, available_up):
+        self.session.execute("update dataserver "
+                             "set capacity=%s, remaining_capacity=%s, available_down=%s, "
+                             "available_up=%s where server=%s",
+                             (capacity, remaining_capacity,
+                              available_down, available_up, addr))
+
     def removeStoredObject(self, uid, server):
         self.session.execute("delete from stored_object where uid = %s and server = %s", (uid, server))
 
@@ -75,6 +87,43 @@ class Database:
         print("path", path)
         path = str(path)
         return self.session.execute("select * from pathToObject where path = %s", (path, )).one()
+
+def onDataServerDisconnect(database, addr):
+    print("server", addr, "disconnected")
+
+def monitorDataServers():
+    database = Database()
+    for server in database.getDataServers():
+        try:
+            addr = server.server
+            print("monitor", addr)
+            conn = Connection(addr)
+            conn.write("status")
+            res = conn.readline()
+            conn.close()
+            print(res)
+            status, reservedCapacity, totCapacity, downSpeed, bandDown, upspeed, bandUp = res
+            reservedCapacity = int(reservedCapacity)
+            totCapacity = int(totCapacity)
+            downSpeed = float(downSpeed)
+            bandDown = float(bandDown)
+            upspeed = float(upspeed)
+            bandUp = float(bandUp)
+            database.updateDataServerStatus(addr, totCapacity - reservedCapacity, totCapacity, downSpeed-bandDown, upspeed-bandUp)
+        except ConnectionRefusedError as err:
+            print(err)
+            onDataServerDisconnect(database, addr)
+
+
+schedule.every(5).seconds.do(monitorDataServers)
+
+
+def monitorDataServersLoop(_):
+    while True:
+        schedule.run_pending()
+        time.sleep(0.1)
+
+_thread.start_new_thread(monitorDataServersLoop, (None,))
 
 class MetaServer(ThreadingTCPServer):
     def server_activate(self):

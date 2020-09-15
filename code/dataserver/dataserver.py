@@ -4,10 +4,37 @@ import sqlite3
 import os
 import sys
 import socket
+import schedule
+import psutil
+import _thread
+import time
 
 NAME = "dataserver10010"
 HOST = "localhost"
 PORT = 10010
+
+#bandup and banddown in MB/s
+performances = {"sent": 0, "recv": 0, "lastTime" : 0, "bandup" : 0, "banddown" : 0}
+
+def getPerformance():
+    res = psutil.net_io_counters()
+    curtime = time.time()
+    delta = curtime - performances["lastTime"]
+    performances["lastTime"] = curtime
+    performances["bandup"] = (res.bytes_sent - performances["sent"]) / delta / 1000000
+    performances["banddown"] = (res.bytes_recv - performances["recv"]) / delta / 1000000
+    performances["sent"] = res.bytes_sent
+    performances["recv"] = res.bytes_recv
+    print(performances)
+
+schedule.every(5).seconds.do(getPerformance)
+
+def monitorPerformanceLoop(_):
+    while True:
+        schedule.run_pending()
+        time.sleep(0.1)
+
+_thread.start_new_thread(monitorPerformanceLoop, (None, ))
 
 #set env
 if len(sys.argv) > 2:
@@ -51,6 +78,15 @@ class Database:
         print("getObject ------>", (str(uid), ))
         self.cursor.execute("select * from object where uid = ?", (str(uid), ))
         return self.cursor.fetchone()
+
+    def nodeStats(self):
+        return self.cursor.execute("select * from stats").fetchone()
+
+    def reservedSpace(self):
+        res = self.cursor.execute("select sum(size) from object").fetchone()[0]
+        if res is None:
+            res = 0
+        return res
 
     def addObject(self, uid, local_path, size, checksum):
         complete = 0
@@ -136,6 +172,12 @@ class DataServerHandler(StreamRequestHandler):
 
         self.write("ok")
 
+    def status(self, args):
+        global performances
+        reservedCapacity = self.database.reservedSpace()
+        totCapacity, downSpeed, upspeed = self.database.nodeStats()
+        self.write("ok", reservedCapacity, totCapacity, downSpeed, performances["banddown"], upspeed, performances["bandup"])
+
     def pushUid(self, args):
         uid, = args
 
@@ -215,7 +257,8 @@ class DataServerHandler(StreamRequestHandler):
             "pushUid": self.pushUid,
             "getUid": self.getUid,
             "transfer": self.transfer,
-            "test": self.test
+            "test": self.test,
+            "status": self.status
         }
 
         print("handle request from " + str(self.client_address))

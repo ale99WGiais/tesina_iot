@@ -14,3 +14,11 @@ create table transfer(
     request_time text
 );
 
+create table stats(
+    storage int,
+    downspeed int,
+    upspeed int
+);
+
+insert into stats(storage, downspeed, upspeed) values (100000000, 50, 10);
+
