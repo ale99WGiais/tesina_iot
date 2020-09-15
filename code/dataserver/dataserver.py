@@ -3,6 +3,7 @@ from socketserver import *
 import sqlite3
 import os
 import sys
+import socket
 
 NAME = "dataserver1"
 HOST = "localhost"
@@ -58,6 +59,33 @@ class DataServer(ThreadingTCPServer):
         ThreadingTCPServer.server_activate(self)
         print("starting dataserver at " + str(self.server_address))
 
+class Connection:
+    def __init__(self, endpoint):
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.s.connect(endpoint)
+
+        self.wfile = self.s.makefile('wb', 0)
+        self.rfile = self.s.makefile('rb', -1)
+
+    def write(self, *args):
+        res = ";".join([str(i) for i in args]).strip() + "\n"
+        print("write" , res)
+        self.wfile.write(res.encode())
+
+    def readline(self):
+        return self.rfile.readline().strip().decode().split(";")
+
+    def readfile(self, len):
+        data = self.rfile.read(len)
+        print(data)
+
+    def sendFile(self, filepath):
+        with open(filepath) as file:
+            self.s.sendfile(file)
+
+    def close(self):
+        self.s.close()
+
 class DataServerHandler(StreamRequestHandler):
     def write(self, *args):
         res = ";".join([str(i) for i in args]).strip() + "\n"
@@ -66,6 +94,10 @@ class DataServerHandler(StreamRequestHandler):
 
     def readline(self):
         return self.rfile.readline().strip().decode().split(";")
+
+    def sendFile(self, filepath):
+        with open(filepath, "rb") as file:
+            self.connection.sendfile(file)
 
     def readfile(self, len):
         data = self.rfile.read(len)
@@ -101,14 +133,41 @@ class DataServerHandler(StreamRequestHandler):
 
         self.database.setComplete(uid)
 
+        metaConn = Connection(("localhost", 10000))
+        metaConn.write("pushComplete", uid, "localhost:10010")
+        res = metaConn.readline()
+        print(res)
+        metaConn.close()
+
         self.write("ok")
+
+    def getUid(self, args):
+        uid, = args
+
+        res = self.database.getObject(uid)
+
+        if res is None:
+            self.write("err", "specified uid not present")
+            return False
+
+        print(res)
+
+        uid, localPath, size, complete, checksum = res
+
+        if not complete:
+            self.write("err", "not complete")
+            return False
+
+        self.write("ok", size)
+        self.sendFile(localPath)
 
     def handle(self):
         self.database = Database()
 
         switcher = {
             "createUid": self.createUid,
-            "pushUid": self.pushUid
+            "pushUid": self.pushUid,
+            "getUid": self.getUid
         }
 
         print("handle request from " + str(self.client_address))

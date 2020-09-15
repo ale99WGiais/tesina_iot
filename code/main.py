@@ -25,9 +25,11 @@ class Connection:
     def readline(self):
         return self.rfile.readline().strip().decode().split(";")
 
-    def readfile(self, len):
-        data = self.rfile.read(len)
+    def readfile(self, size, outFile):
+        size = int(size)
+        data = self.rfile.read(size)
         print(data)
+        outFile.write(data)
 
     def sendFile(self, filepath):
         with open(filepath, "rb") as file:
@@ -75,4 +77,28 @@ def list(path=""):
         print(uid, path)
     conn.close()
 
-list("")
+list("ale")
+
+def get(localPath = "testin.txt", remotePath = "ale/file1"):
+    conn = Connection((HOST, PORT))
+    conn.write("getPath", remotePath)
+    res = conn.readline()
+    conn.close()
+
+    print(res)
+    status, uid, addr = res
+    ip, port = addr.split(":")
+    port = int(port)
+
+    conn = Connection((ip, port))
+    conn.write("getUid", uid)
+    res = conn.readline()
+    print(res)
+    status, size = res
+
+    with open(localPath, "wb") as out:
+        conn.readfile(size, out)
+
+    conn.close()
+
+get()

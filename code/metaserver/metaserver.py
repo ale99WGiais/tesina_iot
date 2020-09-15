@@ -18,8 +18,8 @@ class Database:
         self.statements = {}
         self.statements["addObject"] = self.session.prepare(
             "insert into object(uid, path, created, owner, size, min_copies) values (?, ?, ?, ?, ?, ?)")
-        self.statements["addSharedObject"] = self.session.prepare(
-            "insert into stored_object(id, uid, server, created, complete) values (?, ?, ?, ?, ?)")
+        self.statements["addStoredObject"] = self.session.prepare(
+            "insert into stored_object(uid, server, created, complete) values (?, ?, ?, ?)")
         self.statements["listFilter"] = self.session.prepare("select uid, path from object where path like ?")
         self.statements["list"] = self.session.prepare("select uid, path from object")
         #print(self.session)
@@ -33,10 +33,9 @@ class Database:
 
     def addStoredObject(self, uid, server):
         #uid = UUID(uid)
-        id = uuid4()
         created = datetime.now()
         complete = False
-        self.session.execute(self.statements["addSharedObject"], (id, uid, server, created, complete))
+        self.session.execute(self.statements["addStoredObject"], (uid, server, created, complete))
         return id
 
     def list(self, path):
@@ -46,6 +45,28 @@ class Database:
             path = path + "%"
             return self.session.execute(self.statements["listFilter"], (path, )).all()
 
+    def removeStoredObject(self, uid, server):
+        self.session.execute("delete from stored_object where uid = %s and server = %s", (uid, server))
+
+    def removeObject(self, uid):
+        self.session.execute("delete from object where uid = %s", (uid, ))
+
+    def getServersForUid(self, uid, complete=False):
+        if complete:
+            return self.session.execute(
+                "select server from stored_object where uid = %s and complete = true allow filtering", (uid, )).all()
+        else:
+            return self.session.execute(
+                "select server from stored_object where uid = %s allow filtering", (uid, )).all()
+
+    def setComplete(self, uid, server):
+        uid = UUID(uid)
+        self.session.execute("update stored_object set complete = true where uid = %s and server = %s", (uid, server))
+
+    def getUidForPath(self, path):
+        print("path", path)
+        path = str(path)
+        return self.session.execute("select * from pathToObject where path = %s", (path, )).one()
 
 class MetaServer(ThreadingTCPServer):
     def server_activate(self):
@@ -94,8 +115,27 @@ class MetaServerHandler(StreamRequestHandler):
         print(data)
 
     def getPath(self, args):
-        uid = args[0]
-        #object = self.database.getPath(uid)
+        path, = args
+
+        res = self.database.getUidForPath(path)
+
+        if not res:
+            self.write("err", "path not found")
+            return False
+
+        uid = res.uid
+        print("uid", uid)
+
+        res = self.database.getServersForUid(uid, complete=True)
+        print("servers", res)
+
+        if len(res) == 0:
+            self.write("err", "no copies available")
+            return False
+
+        addr = res[0].server
+
+        self.write("ok", uid, addr)
 
     def pushPath(self, args):
         path, size, checksum = args
@@ -118,6 +158,13 @@ class MetaServerHandler(StreamRequestHandler):
         addr = "localhost:10010"
         self.write("ok", uid, addr)
 
+    def pushComplete(self, args):
+        uid, addr = args
+
+        self.database.setComplete(uid, addr)
+
+        self.write("ok")
+
     def list(self, args):
         path, = args
         res = self.database.list(path)
@@ -132,7 +179,9 @@ class MetaServerHandler(StreamRequestHandler):
         switcher = {
             "getPath": self.getPath,
             "pushPath": self.pushPath,
-            "list": self.list
+            "list": self.list,
+            "getPath": self.getPath,
+            "pushComplete": self.pushComplete
         }
 
         print("handle request from " + str(self.client_address))
