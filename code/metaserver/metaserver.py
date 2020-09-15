@@ -10,6 +10,7 @@ import schedule
 import psutil
 import _thread
 import time
+import hashlib
 
 #res = session.execute("select * from system.local;").all()
 #print(res)

@@ -3,12 +3,29 @@ import socket
 from os.path import getsize
 import os
 import time
+import hashlib
 
 HOST = 'localhost'    # The remote host
 PORT = 10000            # The same port as used by the server
 
 os.chdir("code")
 print(os.getcwd())
+
+
+def hash_bytestr_iter(bytesiter, hasher, ashexstr=True):
+    for block in bytesiter:
+        hasher.update(block)
+    return hasher.hexdigest() if ashexstr else hasher.digest()
+
+def file_as_blockiter(afile, blocksize=65536):
+    with afile:
+        block = afile.read(blocksize)
+        while len(block) > 0:
+            yield block
+            block = afile.read(blocksize)
+
+def hashFile(path):
+    return hash_bytestr_iter(file_as_blockiter(open(path, 'rb')), hashlib.sha1())
 
 class Connection:
     def __init__(self, endpoint):
@@ -50,7 +67,9 @@ def sendFile(localPath = "small_file.txt", remotePath="testfile.txt", priority=1
     size = getsize(localPath)
     print("file size", size)
 
-    conn.write("pushPath", remotePath, size, "abcdef123456", priority)
+    checksum = hashFile(localPath)
+
+    conn.write("pushPath", remotePath, size, checksum, priority)
     res = conn.readline()
 
     if res[0] != "ok":
@@ -119,6 +138,7 @@ def sendTestFiles():
     sendFile("small_file.txt", "ale/file1")
     sendFile("small_file.txt", "ale/file2")
     sendFile("small_file.txt", "ale/file3")
+
 
 sendTestFiles()
 list()

@@ -7,6 +7,7 @@ import socket
 import schedule
 import psutil
 import _thread
+import hashlib
 import time
 
 NAME = "dataserver10010"
@@ -35,6 +36,21 @@ def monitorPerformanceLoop(_):
         time.sleep(0.1)
 
 _thread.start_new_thread(monitorPerformanceLoop, (None, ))
+
+def hash_bytestr_iter(bytesiter, hasher, ashexstr=True):
+    for block in bytesiter:
+        hasher.update(block)
+    return hasher.hexdigest() if ashexstr else hasher.digest()
+
+def file_as_blockiter(afile, blocksize=65536):
+    with afile:
+        block = afile.read(blocksize)
+        while len(block) > 0:
+            yield block
+            block = afile.read(blocksize)
+
+def hashFile(path):
+    return hash_bytestr_iter(file_as_blockiter(open(path, 'rb')), hashlib.sha1())
 
 #set env
 if len(sys.argv) > 2:
@@ -78,6 +94,9 @@ class Database:
         print("getObject ------>", (str(uid), ))
         self.cursor.execute("select * from object where uid = ?", (str(uid), ))
         return self.cursor.fetchone()
+
+    def deleteUid(self, uid):
+        self.cursor.execute("delete from object where uid = ?", (uid, ))
 
     def nodeStats(self):
         return self.cursor.execute("select * from stats").fetchone()
@@ -178,6 +197,11 @@ class DataServerHandler(StreamRequestHandler):
         totCapacity, downSpeed, upspeed = self.database.nodeStats()
         self.write("ok", reservedCapacity, totCapacity, downSpeed, performances["banddown"], upspeed, performances["bandup"])
 
+    def deleteUid(self, args):
+        uid, = args
+        self.database.deleteUid(uid)
+        self.write("ok")
+
     def pushUid(self, args):
         uid, = args
 
@@ -193,6 +217,15 @@ class DataServerHandler(StreamRequestHandler):
 
         with open(localpath, "wb") as out:
             self.readfile(int(size), out)
+
+        file_checksum = hashFile(localpath)
+
+        print("checksum", checksum, "file_checksum", file_checksum)
+
+        if file_checksum != checksum:
+            print("ERROR checksum do not match")
+            self.write("err", "checksum do not match")
+            return False
 
         self.database.setComplete(uid)
 
@@ -257,7 +290,8 @@ class DataServerHandler(StreamRequestHandler):
             "getUid": self.getUid,
             "transfer": self.transfer,
             "test": self.test,
-            "status": self.status
+            "status": self.status,
+            "deleteUid": self.deleteUid
         }
 
         print("handle request from " + str(self.client_address))
