@@ -26,7 +26,7 @@ class Database:
         self.session = self.cluster.connect("metaserver")
         self.statements = {}
         self.statements["addObject"] = self.session.prepare(
-            "insert into object(uid, path, created, owner, size, priority, checksum) values (?, ?, ?, ?, ?, ?, ?)")
+            "insert into object(uid, path, created, owner, size, priority, checksum, deleted) values (?, ?, ?, ?, ?, ?, ?, false)")
         self.statements["addStoredObject"] = self.session.prepare(
             "insert into stored_object(uid, server, created, complete) values (?, ?, ?, ?)")
         self.statements["listFilter"] = self.session.prepare("select * from object where path like ?")
@@ -95,6 +95,10 @@ class Database:
     def setComplete(self, uid, server):
         uid = UUID(uid)
         self.session.execute("update stored_object set complete = true where uid = %s and server = %s", (uid, server))
+
+    def markDeleted(self, path):
+        res = self.getUidForPath(path)
+        self.session.execute("update object set deleted = true where uid = %s and created = %s", (res.uid, res.created))
 
     def getUidForPath(self, path):
         print("path", path)
@@ -221,6 +225,13 @@ class MetaServerHandler(StreamRequestHandler):
 
         self.write("ok", uid, addr)
 
+    def deletePath(self, args):
+        path, = args
+
+        self.database.markDeleted(path)
+
+        self.write("ok")
+
     def pushPath(self, args):
         path, size, checksum, priority = args
         uid = uuid4()
@@ -239,6 +250,7 @@ class MetaServerHandler(StreamRequestHandler):
             self.write("err", response)
             return False
 
+        self.database.markDeleted(path)
         self.database.addObject(uid, path, "root", size, priority, checksum)
         self.database.addStoredObject(uid, addr)
 
@@ -309,7 +321,8 @@ class MetaServerHandler(StreamRequestHandler):
             "pushPath": self.pushPath,
             "list": self.list,
             "pushComplete": self.pushComplete,
-            "test": self.test
+            "test": self.test,
+            "deletePath": self.deletePath
         }
 
         print("handle request from " + str(self.client_address))

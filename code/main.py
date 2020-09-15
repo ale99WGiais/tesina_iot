@@ -45,7 +45,7 @@ class Connection:
         self.s.close()
 
 
-def sendFile(localPath = "small_file.txt", remotePath="testfile.txt", priority=2):
+def sendFile(localPath = "small_file.txt", remotePath="testfile.txt", priority=1):
     conn = Connection((HOST, PORT))
     size = getsize(localPath)
     print("file size", size)
@@ -108,19 +108,27 @@ def test():
     conn.write("test")
     conn.close()
 
+def deletePath(path):
+    conn = Connection((HOST, PORT))
+    conn.write("deletePath", path)
+    print(conn.readline())
+    conn.close()
+
+
 def sendTestFiles():
     sendFile("small_file.txt", "ale/file1")
     sendFile("small_file.txt", "ale/file2")
     sendFile("small_file.txt", "ale/file3")
 
-#sendTestFiles()
-#list()
-#get(remotePath="ale/file3")
+sendTestFiles()
+list()
+get(remotePath="ale/file3")
 #test()
 
 sendFile(remotePath="testPriority2", priority=2)
-time.sleep(10)
-get(remotePath="testPriority3")
-get(remotePath="testPriority3")
-get(remotePath="testPriority3")
-get(remotePath="testPriority3")
+time.sleep(3)
+get(remotePath="testPriority2")
+get(remotePath="testPriority2")
+get(remotePath="testPriority2")
+get(remotePath="testPriority2")
+deletePath("ale/file2")
