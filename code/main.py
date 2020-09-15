@@ -77,7 +77,7 @@ def list(path=""):
         print(uid, path)
     conn.close()
 
-list("ale")
+#list("ale")
 
 def get(localPath = "testin.txt", remotePath = "ale/file1"):
     conn = Connection((HOST, PORT))
@@ -101,4 +101,4 @@ def get(localPath = "testin.txt", remotePath = "ale/file1"):
 
     conn.close()
 
-get()
+#get()

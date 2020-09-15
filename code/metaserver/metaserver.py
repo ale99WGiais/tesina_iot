@@ -45,6 +45,9 @@ class Database:
             path = path + "%"
             return self.session.execute(self.statements["listFilter"], (path, )).all()
 
+    def getDataServers(self):
+        return self.session.execute("select * from dataserver").all()
+
     def removeStoredObject(self, uid, server):
         self.session.execute("delete from stored_object where uid = %s and server = %s", (uid, server))
 
@@ -173,6 +176,11 @@ class MetaServerHandler(StreamRequestHandler):
         for line in res:
             self.write(line[0], line[1])
 
+    def test(self, args):
+        print("test")
+
+        pass
+
     def handle(self):
         self.database = Database()
 
@@ -181,7 +189,8 @@ class MetaServerHandler(StreamRequestHandler):
             "pushPath": self.pushPath,
             "list": self.list,
             "getPath": self.getPath,
-            "pushComplete": self.pushComplete
+            "pushComplete": self.pushComplete,
+            "test": self.test
         }
 
         print("handle request from " + str(self.client_address))

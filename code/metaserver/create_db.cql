@@ -3,7 +3,6 @@ drop keyspace metaserver;
 create keyspace metaserver with replication = {'class' : 'SimpleStrategy', 'replication_factor' : 3};
 use metaserver;
 
-
 create table dataserver(
 	server text,
 	capacity bigint,
@@ -12,9 +11,13 @@ create table dataserver(
 	primary key(server)
 );
 
-insert into dataserver(server, capacity, remaining_capacity, available_load) values
-('localhost:10010', 1000000, 1000000, 100);
 
+insert into dataserver(server, capacity, remaining_capacity, available_load)
+values ('localhost:10010', 1000000, 1000000, 100);
+insert into dataserver(server, capacity, remaining_capacity, available_load)
+values ('localhost:10011', 1000000, 1000000, 100);
+insert into dataserver(server, capacity, remaining_capacity, available_load)
+values ('localhost:10012', 1000000, 1000000, 100);
 
 create table object(
     uid uuid,

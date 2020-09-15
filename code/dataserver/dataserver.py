@@ -5,18 +5,28 @@ import os
 import sys
 import socket
 
-NAME = "dataserver1"
+NAME = "dataserver10010"
 HOST = "localhost"
 PORT = 10010
 
+#set env
 if len(sys.argv) > 2:
     NAME = sys.argv[1]
     PORT = int(sys.argv[2])
 
 print("dataserver " + str((NAME, HOST, PORT)))
 
-os.chdir("../data/" + NAME)
+workingDir = "../data/" + NAME
+if not os.path.exists(workingDir):
+    os.makedirs(workingDir)
+os.chdir(workingDir)
 print("work on " + str(os.getcwd()))
+
+#create db if not exists
+if not os.path.exists("database.db"):
+    with sqlite3.connect('database.db') as conn:
+        with open("../../dataserver/create_db.sqlite3", "r") as sql:
+            conn.executescript(sql.read())
 
 class Database:
     def __init__(self):
@@ -141,6 +151,26 @@ class DataServerHandler(StreamRequestHandler):
 
         self.write("ok")
 
+    def transfer(self, args):
+        uid, server = args
+
+        res = self.database.getObject(uid)
+        if res is None:
+            self.write("err", "uid not found")
+            return False
+
+        _, localPath, _, _, _ = res
+
+        host, port = server.split(":")
+        port = int(port)
+        target = Connection((host, port))
+        target.write("pushUid", uid)
+        print(target.readline())
+        target.sendFile(localPath)
+        target.close()
+
+        self.write("ok")
+
     def getUid(self, args):
         uid, = args
 
@@ -161,13 +191,20 @@ class DataServerHandler(StreamRequestHandler):
         self.write("ok", size)
         self.sendFile(localPath)
 
+    def test(self, args):
+        print("test")
+
+        pass
+
     def handle(self):
         self.database = Database()
 
         switcher = {
             "createUid": self.createUid,
             "pushUid": self.pushUid,
-            "getUid": self.getUid
+            "getUid": self.getUid,
+            "transfer": self.transfer,
+            "test": self.test
         }
 
         print("handle request from " + str(self.client_address))
