@@ -27,9 +27,14 @@ class Connection:
 
     def readfile(self, size, outFile):
         size = int(size)
-        data = self.rfile.read(size)
-        print(data)
-        outFile.write(data)
+        pos = 0
+        while pos != size:
+            chunk = min(1024, size - pos)
+            #print("read", chunk, "bytes")
+            data = self.rfile.read(chunk)
+            outFile.write(data)
+            pos += len(data)
+
 
     def sendFile(self, filepath):
         with open(filepath, "rb") as file:
@@ -39,12 +44,12 @@ class Connection:
         self.s.close()
 
 
-def sendFile(localPath = "small_file.txt", remotePath="testfile.txt"):
+def sendFile(localPath = "small_file.txt", remotePath="testfile.txt", priority=2):
     conn = Connection((HOST, PORT))
     size = getsize(localPath)
     print("file size", size)
 
-    conn.write("pushPath", remotePath, size, "abcdef123456")
+    conn.write("pushPath", remotePath, size, "abcdef123456", priority)
     res = conn.readline()
 
     if res[0] != "ok":
@@ -64,20 +69,14 @@ def sendFile(localPath = "small_file.txt", remotePath="testfile.txt"):
     print(conn.readline())
     conn.close()
 
-#sendFile("small_file.txt", "ale/file1")
-#sendFile("small_file.txt", "ale/file2")
-#sendFile("small_file.txt", "ale/file3")
-
 def list(path=""):
     conn = Connection((HOST, PORT))
     conn.write("list", path)
     state, lines = conn.readline()
     for l in range(int(lines)):
-        uid, path = conn.readline()
-        print(uid, path)
+        res = conn.readline()
+        print(*res)
     conn.close()
-
-#list("ale")
 
 def get(localPath = "testin.txt", remotePath = "ale/file1"):
     conn = Connection((HOST, PORT))
@@ -101,4 +100,19 @@ def get(localPath = "testin.txt", remotePath = "ale/file1"):
 
     conn.close()
 
-#get()
+
+
+def test():
+    conn = Connection((HOST, PORT))
+    conn.write("test")
+    conn.close()
+
+def sendTestFiles():
+    sendFile("small_file.txt", "ale/file1")
+    sendFile("small_file.txt", "ale/file2")
+    sendFile("small_file.txt", "ale/file3")
+
+sendTestFiles()
+list()
+get(remotePath="ale/file3")
+#test()

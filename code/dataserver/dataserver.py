@@ -14,6 +14,8 @@ if len(sys.argv) > 2:
     NAME = sys.argv[1]
     PORT = int(sys.argv[2])
 
+SERVER = str(HOST) + ":" + str(PORT)
+
 print("dataserver " + str((NAME, HOST, PORT)))
 
 workingDir = "../data/" + NAME
@@ -85,9 +87,15 @@ class Connection:
     def readline(self):
         return self.rfile.readline().strip().decode().split(";")
 
-    def readfile(self, len):
-        data = self.rfile.read(len)
-        print(data)
+    def readfile(self, size, outFile):
+        size = int(size)
+        pos = 0
+        while pos != size:
+            chunk = min(1024, size - pos)
+            # print("read", chunk, "bytes")
+            data = self.rfile.read(chunk)
+            outFile.write(data)
+            pos += len(data)
 
     def sendFile(self, filepath):
         with open(filepath) as file:
@@ -109,10 +117,15 @@ class DataServerHandler(StreamRequestHandler):
         with open(filepath, "rb") as file:
             self.connection.sendfile(file)
 
-    def readfile(self, len):
-        data = self.rfile.read(len)
-        print(data)
-        return data
+    def readfile(self, size, outFile):
+        size = int(size)
+        pos = 0
+        while pos != size:
+            chunk = min(1024, size - pos)
+            # print("read", chunk, "bytes")
+            data = self.rfile.read(chunk)
+            outFile.write(data)
+            pos += len(data)
 
     def createUid(self, args):
         uid, size, checksum = args
@@ -136,15 +149,13 @@ class DataServerHandler(StreamRequestHandler):
 
         uid, localpath, size, complete, checksum = objinfo
 
-        data = self.readfile(int(size))
-
         with open(localpath, "wb") as out:
-            out.write(data)
+            self.readfile(int(size), out)
 
         self.database.setComplete(uid)
 
         metaConn = Connection(("localhost", 10000))
-        metaConn.write("pushComplete", uid, "localhost:10010")
+        metaConn.write("pushComplete", uid, SERVER)
         res = metaConn.readline()
         print(res)
         metaConn.close()

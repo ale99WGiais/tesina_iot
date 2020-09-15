@@ -5,10 +5,14 @@ from cassandra.cluster import Cluster
 from uuid import uuid4, UUID
 from datetime import datetime
 import socket
+import random
 
 #res = session.execute("select * from system.local;").all()
 #print(res)
 
+def addrFromString(addr):
+    ip, port = addr.split(":")
+    return (ip, int(port))
 
 class Database:
     def __init__(self):
@@ -17,18 +21,19 @@ class Database:
         self.session = self.cluster.connect("metaserver")
         self.statements = {}
         self.statements["addObject"] = self.session.prepare(
-            "insert into object(uid, path, created, owner, size, min_copies) values (?, ?, ?, ?, ?, ?)")
+            "insert into object(uid, path, created, owner, size, priority) values (?, ?, ?, ?, ?, ?)")
         self.statements["addStoredObject"] = self.session.prepare(
             "insert into stored_object(uid, server, created, complete) values (?, ?, ?, ?)")
-        self.statements["listFilter"] = self.session.prepare("select uid, path from object where path like ?")
-        self.statements["list"] = self.session.prepare("select uid, path from object")
+        self.statements["listFilter"] = self.session.prepare("select * from object where path like ?")
+        self.statements["list"] = self.session.prepare("select * from object")
+
         #print(self.session)
 
-    def addObject(self, uid, path, owner, size, min_copies):
+    def addObject(self, uid, path, owner, size, priority):
         created = datetime.now()
         size = int(size)
-        min_copies = int(min_copies)
-        self.session.execute(self.statements["addObject"], (uid, path, created, owner, size, min_copies))
+        priority = int(priority)
+        self.session.execute(self.statements["addObject"], (uid, path, created, owner, size, priority))
         return uid
 
     def addStoredObject(self, uid, server):
@@ -79,7 +84,7 @@ class MetaServer(ThreadingTCPServer):
 class Connection:
     def __init__(self, endpoint):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.s.connect(endpoint)
+        self.s.connect(addrFromString(endpoint))
 
         self.wfile = self.s.makefile('wb', 0)
         self.rfile = self.s.makefile('rb', -1)
@@ -92,9 +97,15 @@ class Connection:
     def readline(self):
         return self.rfile.readline().strip().decode().split(";")
 
-    def readfile(self, len):
-        data = self.rfile.read(len)
-        print(data)
+    def readfile(self, size, outFile):
+        size = int(size)
+        pos = 0
+        while pos != size:
+            chunk = min(1024, size - pos)
+            # print("read", chunk, "bytes")
+            data = self.rfile.read(chunk)
+            outFile.write(data)
+            pos += len(data)
 
     def sendFile(self, filepath):
         with open(filepath) as file:
@@ -113,9 +124,15 @@ class MetaServerHandler(StreamRequestHandler):
     def readline(self):
         return self.rfile.readline().strip().decode().split(";")
 
-    def readfile(self, len):
-        data = self.rfile.read(len)
-        print(data)
+    def readfile(self, size, outFile):
+        size = int(size)
+        pos = 0
+        while pos != size:
+            chunk = min(1024, size - pos)
+            # print("read", chunk, "bytes")
+            data = self.rfile.read(chunk)
+            outFile.write(data)
+            pos += len(data)
 
     def getPath(self, args):
         path, = args
@@ -141,9 +158,12 @@ class MetaServerHandler(StreamRequestHandler):
         self.write("ok", uid, addr)
 
     def pushPath(self, args):
-        path, size, checksum = args
+        path, size, checksum, priority = args
         uid = uuid4()
-        addr = ("localhost", 10010)
+
+        dataservers = self.database.getDataServers()
+        i = random.randint(0, len(dataservers) - 1)
+        addr = dataservers[i].server
 
         dataServer = Connection(addr)
         dataServer.write("createUid", uid, size, checksum)
@@ -155,10 +175,9 @@ class MetaServerHandler(StreamRequestHandler):
             self.write("err", response)
             return False
 
-        self.database.addObject(uid, path, "root", size, 1)
-        self.database.addStoredObject(uid, "localhost:10010")
+        self.database.addObject(uid, path, "root", size, priority)
+        self.database.addStoredObject(uid, addr)
 
-        addr = "localhost:10010"
         self.write("ok", uid, addr)
 
     def pushComplete(self, args):
@@ -174,10 +193,19 @@ class MetaServerHandler(StreamRequestHandler):
         print(res)
         self.write("ok", len(res))
         for line in res:
-            self.write(line[0], line[1])
+            self.write(*line)
 
     def test(self, args):
         print("test")
+
+        dataservers = self.database.getDataServers()
+
+        print(dataservers)
+
+        i = random.randint(0, len(dataservers)-1)
+        addr = dataservers[i].server
+
+        print(addr)
 
         pass
 

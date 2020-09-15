@@ -25,7 +25,7 @@ create table object(
     created timestamp,
     owner text,
     size bigint,
-    min_copies int,
+    priority int,
     primary key(uid, created)
 );
 
@@ -54,3 +54,5 @@ WITH OPTIONS = {'analyzer_class': 'org.apache.cassandra.index.sasi.analyzer.Stan
 create materialized view pathToObject as select * from object where path is not null and created is not null
 primary key (path, created, uid)
 with clustering order by (created desc);
+
+
