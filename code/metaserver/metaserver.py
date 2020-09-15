@@ -26,7 +26,7 @@ class Database:
         self.session = self.cluster.connect("metaserver")
         self.statements = {}
         self.statements["addObject"] = self.session.prepare(
-            "insert into object(uid, path, created, owner, size, priority) values (?, ?, ?, ?, ?, ?)")
+            "insert into object(uid, path, created, owner, size, priority, checksum) values (?, ?, ?, ?, ?, ?, ?)")
         self.statements["addStoredObject"] = self.session.prepare(
             "insert into stored_object(uid, server, created, complete) values (?, ?, ?, ?)")
         self.statements["listFilter"] = self.session.prepare("select * from object where path like ?")
@@ -34,19 +34,28 @@ class Database:
 
         #print(self.session)
 
-    def addObject(self, uid, path, owner, size, priority):
+    def addObject(self, uid, path, owner, size, priority, checksum):
+        if type(uid) == "str":
+            uid = UUID(uid)
         created = datetime.now()
         size = int(size)
         priority = int(priority)
-        self.session.execute(self.statements["addObject"], (uid, path, created, owner, size, priority))
+        self.session.execute(self.statements["addObject"], (uid, path, created, owner, size, priority, checksum))
         return uid
 
     def addStoredObject(self, uid, server):
+        uid = str(uid)
+        uid = UUID(uid)
         #uid = UUID(uid)
         created = datetime.now()
+        assert created is not None
         complete = False
         self.session.execute(self.statements["addStoredObject"], (uid, server, created, complete))
         return id
+
+    def getObjectByUid(self, uid):
+        uid = UUID(uid)
+        return self.session.execute("select * from object where uid = %s", (uid, )).one()
 
     def list(self, path):
         if path == "":
@@ -66,12 +75,16 @@ class Database:
                               available_down, available_up, addr))
 
     def removeStoredObject(self, uid, server):
+        uid = UUID(uid)
         self.session.execute("delete from stored_object where uid = %s and server = %s", (uid, server))
 
     def removeObject(self, uid):
+        uid = UUID(uid)
         self.session.execute("delete from object where uid = %s", (uid, ))
 
     def getServersForUid(self, uid, complete=False):
+        uid = str(uid)
+        uid = UUID(uid)
         if complete:
             return self.session.execute(
                 "select server from stored_object where uid = %s and complete = true allow filtering", (uid, )).all()
@@ -96,12 +109,12 @@ def monitorDataServers():
     for server in database.getDataServers():
         try:
             addr = server.server
-            print("monitor", addr)
+            #print("monitor", addr)
             conn = Connection(addr)
             conn.write("status")
             res = conn.readline()
             conn.close()
-            print(res)
+            #print(res)
             status, reservedCapacity, totCapacity, downSpeed, bandDown, upspeed, bandUp = res
             reservedCapacity = int(reservedCapacity)
             totCapacity = int(totCapacity)
@@ -115,7 +128,7 @@ def monitorDataServers():
             onDataServerDisconnect(database, addr)
 
 
-schedule.every(5).seconds.do(monitorDataServers)
+schedule.every(60).seconds.do(monitorDataServers)
 
 
 def monitorDataServersLoop(_):
@@ -157,7 +170,7 @@ class Connection:
             pos += len(data)
 
     def sendFile(self, filepath):
-        with open(filepath) as file:
+        with open(filepath, "rb") as file:
             self.s.sendfile(file)
 
     def close(self):
@@ -202,6 +215,8 @@ class MetaServerHandler(StreamRequestHandler):
             self.write("err", "no copies available")
             return False
 
+        random.shuffle(res)
+
         addr = res[0].server
 
         self.write("ok", uid, addr)
@@ -224,7 +239,7 @@ class MetaServerHandler(StreamRequestHandler):
             self.write("err", response)
             return False
 
-        self.database.addObject(uid, path, "root", size, priority)
+        self.database.addObject(uid, path, "root", size, priority, checksum)
         self.database.addStoredObject(uid, addr)
 
         self.write("ok", uid, addr)
@@ -233,6 +248,34 @@ class MetaServerHandler(StreamRequestHandler):
         uid, addr = args
 
         self.database.setComplete(uid, addr)
+
+        serversContaining = {x.server for x in self.database.getServersForUid(uid)}
+        numCopies = len(serversContaining)
+
+        print("serversContaining", serversContaining)
+        availableServers = [x.server for x in self.database.getDataServers() if x.server not in serversContaining]
+
+        res = self.database.getObjectByUid(uid)
+        print(res)
+        priority = res.priority
+        size = res.size
+        checksum = res.checksum
+        print("priority", priority)
+
+        if len(availableServers) > 0 and numCopies < priority:
+            random.shuffle(availableServers)
+
+            target = availableServers[0]
+            self.database.addStoredObject(uid, target)
+            conn = Connection(target)
+            conn.write("createUid", uid, size, checksum)
+            print(conn.readline())
+            conn.close()
+
+            conn = Connection(addr)
+            conn.write("transfer", uid, target)
+            print(conn.readline())
+            conn.close()
 
         self.write("ok")
 
@@ -265,7 +308,6 @@ class MetaServerHandler(StreamRequestHandler):
             "getPath": self.getPath,
             "pushPath": self.pushPath,
             "list": self.list,
-            "getPath": self.getPath,
             "pushComplete": self.pushComplete,
             "test": self.test
         }

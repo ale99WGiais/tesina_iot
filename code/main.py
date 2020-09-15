@@ -2,6 +2,7 @@
 import socket
 from os.path import getsize
 import os
+import time
 
 HOST = 'localhost'    # The remote host
 PORT = 10000            # The same port as used by the server
@@ -112,7 +113,14 @@ def sendTestFiles():
     sendFile("small_file.txt", "ale/file2")
     sendFile("small_file.txt", "ale/file3")
 
-sendTestFiles()
-list()
-get(remotePath="ale/file3")
+#sendTestFiles()
+#list()
+#get(remotePath="ale/file3")
 #test()
+
+sendFile(remotePath="testPriority2", priority=2)
+time.sleep(10)
+get(remotePath="testPriority3")
+get(remotePath="testPriority3")
+get(remotePath="testPriority3")
+get(remotePath="testPriority3")

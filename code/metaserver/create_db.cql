@@ -27,6 +27,7 @@ create table object(
     owner text,
     size bigint,
     priority int,
+    checksum text,
     primary key(uid, created)
 );
 

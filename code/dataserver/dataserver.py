@@ -25,7 +25,7 @@ def getPerformance():
     performances["banddown"] = (res.bytes_recv - performances["recv"]) / delta / 1000000
     performances["sent"] = res.bytes_sent
     performances["recv"] = res.bytes_recv
-    print(performances)
+    #print(performances)
 
 schedule.every(5).seconds.do(getPerformance)
 
@@ -134,7 +134,7 @@ class Connection:
             pos += len(data)
 
     def sendFile(self, filepath):
-        with open(filepath) as file:
+        with open(filepath, "rb") as file:
             self.s.sendfile(file)
 
     def close(self):
@@ -218,7 +218,6 @@ class DataServerHandler(StreamRequestHandler):
         port = int(port)
         target = Connection((host, port))
         target.write("pushUid", uid)
-        print(target.readline())
         target.sendFile(localPath)
         target.close()
 
