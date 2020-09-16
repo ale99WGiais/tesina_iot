@@ -100,15 +100,17 @@ class Database:
             path = path + "%"
             return self.session.execute(self.statements["listFilter"], (path, )).all()
 
-    def getDataServers(self):
+    def getDataServers(self, online=True):
+        if online:
+            return self.session.execute("select * from dataserver where online=true allow filtering").all()
         return self.session.execute("select * from dataserver").all()
 
-    def updateDataServerStatus(self, addr, remaining_capacity, capacity, available_down, available_up):
+    def updateDataServerStatus(self, addr, online, remaining_capacity=0, capacity=0, available_down=.0, available_up=.0):
         self.session.execute("update dataserver "
                              "set capacity=%s, remaining_capacity=%s, available_down=%s, "
-                             "available_up=%s where server=%s",
+                             "available_up=%s, online=%s where server=%s",
                              (capacity, remaining_capacity,
-                              available_down, available_up, addr))
+                              available_down, available_up, online, addr))
 
     def removeStoredObject(self, uid, server):
         uid = UUID(uid)
@@ -118,15 +120,22 @@ class Database:
         uid = UUID(uid)
         self.session.execute("delete from object where uid = %s", (uid, ))
 
-    def getServersForUid(self, uid, complete=False):
+    def getServersForUid(self, uid, complete=True, online=True):
         uid = str(uid)
         uid = UUID(uid)
         if complete:
-            return self.session.execute(
+            res = self.session.execute(
                 "select server from stored_object where uid = %s and complete = true allow filtering", (uid, )).all()
         else:
-            return self.session.execute(
+            res = self.session.execute(
                 "select server from stored_object where uid = %s allow filtering", (uid, )).all()
+        print("getServersForUid res", res)
+        if online:
+            def f(srv):
+                return self.session.execute("select online from dataserver where server = %s", (srv.server, )).one().online
+            res = list(filter(f, res))
+            print("after filter", res)
+        return res
 
     def setComplete(self, uid, server):
         uid = UUID(uid)
@@ -143,11 +152,12 @@ class Database:
         return self.session.execute("select * from pathToObject where path = %s", (path, )).one()
 
 def onDataServerDisconnect(database, addr):
+    database.updateDataServerStatus(addr, False)
     print("server", addr, "disconnected")
 
 def monitorDataServers():
     database = Database()
-    for server in database.getDataServers():
+    for server in database.getDataServers(online=False):
         try:
             addr = server.server
             #print("monitor", addr)
@@ -163,13 +173,14 @@ def monitorDataServers():
             bandDown = float(bandDown)
             upspeed = float(upspeed)
             bandUp = float(bandUp)
-            database.updateDataServerStatus(addr, totCapacity - reservedCapacity, totCapacity, downSpeed-bandDown, upspeed-bandUp)
+            database.updateDataServerStatus(addr, True, totCapacity - reservedCapacity, totCapacity,
+                                            downSpeed-bandDown, upspeed-bandUp)
         except ConnectionRefusedError as err:
             print(err)
             onDataServerDisconnect(database, addr)
 
 
-schedule.every(60).seconds.do(monitorDataServers)
+schedule.every(10).seconds.do(monitorDataServers)
 schedule.run_all()
 
 def monitorDataServersLoop(_):
@@ -204,7 +215,7 @@ class MetaServerHandler(StreamRequestHandler):
             pos += len(data)
 
     def _getServerForUid(self, uid):
-        res = self.database.getServersForUid(uid, complete=True)
+        res = self.database.getServersForUid(uid)
         print("servers", res)
 
         if len(res) == 0:

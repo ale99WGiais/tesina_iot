@@ -82,8 +82,6 @@ def sendFile(localPath = "small_file.txt", remotePath="testfile.txt", priority=1
     state, uid, addr = res
     conn.close()
 
-    addr = addr.split(":")
-    addr = (addr[0], int(addr[1]))
     conn = Connection(addr)
 
     conn.write("pushUid", uid)
@@ -109,10 +107,8 @@ def get(localPath = "testin.txt", remotePath = "ale/file1"):
 
     print(res)
     status, uid, addr = res
-    ip, port = addr.split(":")
-    port = int(port)
 
-    conn = Connection((ip, port))
+    conn = Connection(addr)
     conn.write("getUid", uid)
     res = conn.readline()
     print(res)
@@ -153,15 +149,14 @@ def getUid(uid):
     print(conn.readline())
     conn.close()
 
-test()
+
+get(remotePath="testPriority2")
 
 exit()
 
 addDataServer("localhost:10010")
 addDataServer("localhost:10011")
 addDataServer("localhost:10012")
-
-getUid("12ec1c78-f03f-4398-ac7f-e7182ca0d046")
 
 sendTestFiles()
 list()
@@ -174,5 +169,4 @@ get(remotePath="testPriority2")
 get(remotePath="testPriority2")
 get(remotePath="testPriority2")
 get(remotePath="testPriority2")
-deletePath("ale/file2")
 
