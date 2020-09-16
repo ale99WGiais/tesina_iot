@@ -5,6 +5,7 @@ use metaserver;
 
 create table dataserver(
 	server text,
+	online boolean,
 	capacity bigint,
 	remaining_capacity bigint,
 	available_down float,

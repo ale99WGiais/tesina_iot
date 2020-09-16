@@ -4,6 +4,7 @@ create table object(
     local_path text,
     size integer,
     complete integer,
+    created text,
     checksum text
 );
 

@@ -5,8 +5,7 @@ import os
 import time
 import hashlib
 
-HOST = 'localhost'    # The remote host
-PORT = 10000            # The same port as used by the server
+METASERVER = "localhost:10000"
 
 os.chdir("code")
 print(os.getcwd())
@@ -27,10 +26,14 @@ def file_as_blockiter(afile, blocksize=65536):
 def hashFile(path):
     return hash_bytestr_iter(file_as_blockiter(open(path, 'rb')), hashlib.sha1())
 
+def addrFromString(addr):
+    ip, port = addr.split(":")
+    return (ip, int(port))
+
 class Connection:
     def __init__(self, endpoint):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.s.connect(endpoint)
+        self.s.connect(addrFromString(endpoint))
 
         self.wfile = self.s.makefile('wb', 0)
         self.rfile = self.s.makefile('rb', -1)
@@ -63,7 +66,7 @@ class Connection:
 
 
 def sendFile(localPath = "small_file.txt", remotePath="testfile.txt", priority=1):
-    conn = Connection((HOST, PORT))
+    conn = Connection(METASERVER)
     size = getsize(localPath)
     print("file size", size)
 
@@ -90,7 +93,7 @@ def sendFile(localPath = "small_file.txt", remotePath="testfile.txt", priority=1
     conn.close()
 
 def list(path=""):
-    conn = Connection((HOST, PORT))
+    conn = Connection(METASERVER)
     conn.write("list", path)
     state, lines = conn.readline()
     for l in range(int(lines)):
@@ -99,7 +102,7 @@ def list(path=""):
     conn.close()
 
 def get(localPath = "testin.txt", remotePath = "ale/file1"):
-    conn = Connection((HOST, PORT))
+    conn = Connection(METASERVER)
     conn.write("getPath", remotePath)
     res = conn.readline()
     conn.close()
@@ -123,12 +126,12 @@ def get(localPath = "testin.txt", remotePath = "ale/file1"):
 
 
 def test():
-    conn = Connection((HOST, PORT))
+    conn = Connection(METASERVER)
     conn.write("test")
     conn.close()
 
 def deletePath(path):
-    conn = Connection((HOST, PORT))
+    conn = Connection(METASERVER)
     conn.write("deletePath", path)
     print(conn.readline())
     conn.close()
@@ -139,6 +142,26 @@ def sendTestFiles():
     sendFile("small_file.txt", "ale/file2")
     sendFile("small_file.txt", "ale/file3")
 
+def addDataServer(addr):
+    conn = Connection(METASERVER)
+    conn.write("addDataServer", addr)
+    conn.close()
+
+def getUid(uid):
+    conn = Connection(METASERVER)
+    conn.write("getUid", uid)
+    print(conn.readline())
+    conn.close()
+
+test()
+
+exit()
+
+addDataServer("localhost:10010")
+addDataServer("localhost:10011")
+addDataServer("localhost:10012")
+
+getUid("12ec1c78-f03f-4398-ac7f-e7182ca0d046")
 
 sendTestFiles()
 list()
@@ -152,3 +175,4 @@ get(remotePath="testPriority2")
 get(remotePath="testPriority2")
 get(remotePath="testPriority2")
 deletePath("ale/file2")
+

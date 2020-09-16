@@ -11,10 +11,44 @@ import psutil
 import _thread
 import time
 import hashlib
+import dateutil.parser
 
 #res = session.execute("select * from system.local;").all()
 #print(res)
 
+
+class Connection:
+    def __init__(self, endpoint):
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.s.connect(addrFromString(endpoint))
+
+        self.wfile = self.s.makefile('wb', 0)
+        self.rfile = self.s.makefile('rb', -1)
+
+    def write(self, *args):
+        res = ";".join([str(i) for i in args]).strip() + "\n"
+        print("write" , res)
+        self.wfile.write(res.encode())
+
+    def readline(self):
+        return self.rfile.readline().strip().decode().split(";")
+
+    def readfile(self, size, outFile):
+        size = int(size)
+        pos = 0
+        while pos != size:
+            chunk = min(1024, size - pos)
+            # print("read", chunk, "bytes")
+            data = self.rfile.read(chunk)
+            outFile.write(data)
+            pos += len(data)
+
+    def sendFile(self, filepath):
+        with open(filepath, "rb") as file:
+            self.s.sendfile(file)
+
+    def close(self):
+        self.s.close()
 
 def addrFromString(addr):
     ip, port = addr.split(":")
@@ -35,6 +69,9 @@ class Database:
 
         #print(self.session)
 
+    def addDataServer(self, addr):
+        self.session.execute("insert into dataserver(server) values (%s)", (addr, ))
+
     def addObject(self, uid, path, owner, size, priority, checksum):
         if type(uid) == "str":
             uid = UUID(uid)
@@ -44,13 +81,11 @@ class Database:
         self.session.execute(self.statements["addObject"], (uid, path, created, owner, size, priority, checksum))
         return uid
 
-    def addStoredObject(self, uid, server):
+    def addStoredObject(self, uid, server, complete=False, created=None):
         uid = str(uid)
         uid = UUID(uid)
         #uid = UUID(uid)
-        created = datetime.now()
-        assert created is not None
-        complete = False
+        if created is None: created = datetime.now()
         self.session.execute(self.statements["addStoredObject"], (uid, server, created, complete))
         return id
 
@@ -99,7 +134,8 @@ class Database:
 
     def markDeleted(self, path):
         res = self.getUidForPath(path)
-        self.session.execute("update object set deleted = true where uid = %s and created = %s", (res.uid, res.created))
+        if res is not None:
+            self.session.execute("update object set deleted = true where uid = %s and created = %s", (res.uid, res.created))
 
     def getUidForPath(self, path):
         print("path", path)
@@ -134,7 +170,7 @@ def monitorDataServers():
 
 
 schedule.every(60).seconds.do(monitorDataServers)
-
+schedule.run_all()
 
 def monitorDataServersLoop(_):
     while True:
@@ -147,40 +183,6 @@ class MetaServer(ThreadingTCPServer):
     def server_activate(self):
         ThreadingTCPServer.server_activate(self)
         print("starting metaserver at " + str(self.server_address))
-
-class Connection:
-    def __init__(self, endpoint):
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.s.connect(addrFromString(endpoint))
-
-        self.wfile = self.s.makefile('wb', 0)
-        self.rfile = self.s.makefile('rb', -1)
-
-    def write(self, *args):
-        res = ";".join([str(i) for i in args]).strip() + "\n"
-        print("write" , res)
-        self.wfile.write(res.encode())
-
-    def readline(self):
-        return self.rfile.readline().strip().decode().split(";")
-
-    def readfile(self, size, outFile):
-        size = int(size)
-        pos = 0
-        while pos != size:
-            chunk = min(1024, size - pos)
-            # print("read", chunk, "bytes")
-            data = self.rfile.read(chunk)
-            outFile.write(data)
-            pos += len(data)
-
-    def sendFile(self, filepath):
-        with open(filepath, "rb") as file:
-            self.s.sendfile(file)
-
-    def close(self):
-        self.s.close()
-
 
 class MetaServerHandler(StreamRequestHandler):
     def write(self, *args):
@@ -201,6 +203,19 @@ class MetaServerHandler(StreamRequestHandler):
             outFile.write(data)
             pos += len(data)
 
+    def _getServerForUid(self, uid):
+        res = self.database.getServersForUid(uid, complete=True)
+        print("servers", res)
+
+        if len(res) == 0:
+            self.write("err", "no copies available")
+            return False
+
+        random.shuffle(res)
+
+        addr = res[0].server
+        return addr
+
     def getPath(self, args):
         path, = args
 
@@ -213,16 +228,7 @@ class MetaServerHandler(StreamRequestHandler):
         uid = res.uid
         print("uid", uid)
 
-        res = self.database.getServersForUid(uid, complete=True)
-        print("servers", res)
-
-        if len(res) == 0:
-            self.write("err", "no copies available")
-            return False
-
-        random.shuffle(res)
-
-        addr = res[0].server
+        addr = self._getServerForUid(uid)
 
         self.write("ok", uid, addr)
 
@@ -300,17 +306,42 @@ class MetaServerHandler(StreamRequestHandler):
         for line in res:
             self.write(*line)
 
+    def getUid(self, args):
+        uid, = args
+
+        addr = self._getServerForUid(uid)
+
+        self.write("ok", addr)
+
+    def addDataServer(self, args):
+        addr, = args
+
+        self.database.addDataServer(addr)
+
+        conn = Connection(addr)
+        conn.write("getStoredData")
+        len, = conn.readline()
+
+        for i in range(int(len)):
+            uid, created, complete = conn.readline()
+            created = dateutil.parser.parse(created)
+            complete = complete == "1"
+            self.database.addStoredObject(uid, addr, complete, created)
+
+        self.write("ok")
+
+    def _deleteUid(self, uid, server):
+        self.database.removeStoredObject(uid, server)
+
+        conn = Connection(server)
+        conn.write("deleteUid", uid)
+        res = conn.readline()
+        print(res)
+
     def test(self, args):
         print("test")
 
-        dataservers = self.database.getDataServers()
-
-        print(dataservers)
-
-        i = random.randint(0, len(dataservers)-1)
-        addr = dataservers[i].server
-
-        print(addr)
+        self._deleteUid("08620b83-44b5-4ef5-8d6d-df62e91fb900", "localhost:10010")
 
         pass
 
@@ -323,7 +354,9 @@ class MetaServerHandler(StreamRequestHandler):
             "list": self.list,
             "pushComplete": self.pushComplete,
             "test": self.test,
-            "deletePath": self.deletePath
+            "deletePath": self.deletePath,
+            "addDataServer": self.addDataServer,
+            "getUid": self.getUid
         }
 
         print("handle request from " + str(self.client_address))

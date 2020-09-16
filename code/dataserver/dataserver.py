@@ -9,6 +9,7 @@ import psutil
 import _thread
 import hashlib
 import time
+from datetime import datetime
 
 NAME = "dataserver10010"
 HOST = "localhost"
@@ -97,9 +98,13 @@ class Database:
 
     def deleteUid(self, uid):
         self.cursor.execute("delete from object where uid = ?", (uid, ))
+        self.connection.commit()
 
     def nodeStats(self):
         return self.cursor.execute("select * from stats").fetchone()
+
+    def getStoredData(self):
+        return self.cursor.execute("select uid, created, complete from object").fetchall()
 
     def reservedSpace(self):
         res = self.cursor.execute("select sum(size) from object").fetchone()[0]
@@ -109,9 +114,10 @@ class Database:
 
     def addObject(self, uid, local_path, size, checksum):
         complete = 0
+        created = datetime.now()
 
-        self.cursor.execute("insert into object(uid, local_path, size, complete, checksum) values (?, ?, ?, ?, ?)",
-                            (uid, local_path, size, complete, checksum))
+        self.cursor.execute("insert into object(uid, local_path, size, complete, checksum, created) values (?, ?, ?, ?, ?, ?)",
+                            (uid, local_path, size, complete, checksum, created))
         self.connection.commit()
 
         return self.cursor.lastrowid
@@ -199,7 +205,12 @@ class DataServerHandler(StreamRequestHandler):
 
     def deleteUid(self, args):
         uid, = args
+
+        uid, localPath, size, complete, created, checksum = self.database.getObject(uid)
+
+        if os.path.exists(localPath): os.remove(localPath)
         self.database.deleteUid(uid)
+
         self.write("ok")
 
     def pushUid(self, args):
@@ -213,7 +224,7 @@ class DataServerHandler(StreamRequestHandler):
 
         print(objinfo)
 
-        uid, localpath, size, complete, checksum = objinfo
+        uid, localpath, size, complete, created, checksum,  = objinfo
 
         with open(localpath, "wb") as out:
             self.readfile(int(size), out)
@@ -245,7 +256,7 @@ class DataServerHandler(StreamRequestHandler):
             self.write("err", "uid not found")
             return False
 
-        _, localPath, _, _, _ = res
+        uid, localPath, size, complete, created, checksum = res
 
         host, port = server.split(":")
         port = int(port)
@@ -267,7 +278,7 @@ class DataServerHandler(StreamRequestHandler):
 
         print(res)
 
-        uid, localPath, size, complete, checksum = res
+        uid, localPath, size, complete, created, checksum = res
 
         if not complete:
             self.write("err", "not complete")
@@ -275,6 +286,12 @@ class DataServerHandler(StreamRequestHandler):
 
         self.write("ok", size)
         self.sendFile(localPath)
+
+    def getStoredData(self, args):
+        data = self.database.getStoredData()
+        self.write(len(data))
+        for uid, created, complete in data:
+            self.write(uid, created, complete)
 
     def test(self, args):
         print("test")
@@ -291,7 +308,8 @@ class DataServerHandler(StreamRequestHandler):
             "transfer": self.transfer,
             "test": self.test,
             "status": self.status,
-            "deleteUid": self.deleteUid
+            "deleteUid": self.deleteUid,
+            "getStoredData": self.getStoredData
         }
 
         print("handle request from " + str(self.client_address))
