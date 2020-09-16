@@ -57,9 +57,11 @@ class Connection:
             pos += len(data)
 
 
-    def sendFile(self, filepath):
+    def sendFile(self, filepath, startIndex):
+        if type(startIndex) != int:
+            startIndex = int(startIndex)
         with open(filepath, "rb") as file:
-            self.s.sendfile(file)
+            self.s.sendfile(file, startIndex)
 
     def close(self):
         self.s.close()
@@ -77,7 +79,7 @@ def sendFile(localPath = "small_file.txt", remotePath="testfile.txt", priority=1
 
     if res[0] != "ok":
         print("ERR", res)
-        exit()
+        return False
 
     state, uid, addr = res
     conn.close()
@@ -86,7 +88,16 @@ def sendFile(localPath = "small_file.txt", remotePath="testfile.txt", priority=1
 
     conn.write("pushUid", uid)
 
-    conn.sendFile(localPath)
+    res = conn.readline()
+    if res[0] != 'ok':
+        print(res)
+        return False
+
+    status, startIndex = res
+
+    print("send starting from", int(startIndex))
+
+    conn.sendFile(localPath, startIndex)
     print(conn.readline())
     conn.close()
 
@@ -109,12 +120,12 @@ def get(localPath = "testin.txt", remotePath = "ale/file1"):
     status, uid, addr = res
 
     conn = Connection(addr)
-    conn.write("getUid", uid)
+    conn.write("getUid", uid, 0)
     res = conn.readline()
     print(res)
     status, size = res
 
-    with open(localPath, "wb") as out:
+    with open(localPath, "a+b") as out:
         conn.readfile(size, out)
 
     conn.close()
@@ -150,7 +161,7 @@ def getUid(uid):
     conn.close()
 
 
-get(remotePath="testPriority2")
+sendFile()
 
 exit()
 

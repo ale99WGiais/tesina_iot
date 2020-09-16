@@ -158,9 +158,11 @@ class Connection:
             outFile.write(data)
             pos += len(data)
 
-    def sendFile(self, filepath):
+    def sendFile(self, filepath, startIndex):
+        if type(startIndex) != int:
+            startIndex = int(startIndex)
         with open(filepath, "rb") as file:
-            self.s.sendfile(file)
+            self.s.sendfile(file, startIndex)
 
     def close(self):
         self.s.close()
@@ -174,9 +176,11 @@ class DataServerHandler(StreamRequestHandler):
     def readline(self):
         return self.rfile.readline().strip().decode().split(";")
 
-    def sendFile(self, filepath):
+    def sendFile(self, filepath, startIndex):
+        if type(startIndex) != int:
+            startIndex = int(startIndex)
         with open(filepath, "rb") as file:
-            self.connection.sendfile(file)
+            self.s.sendfile(file, startIndex)
 
     def readfile(self, size, outFile):
         size = int(size)
@@ -226,14 +230,27 @@ class DataServerHandler(StreamRequestHandler):
 
         uid, localpath, size, complete, created, checksum,  = objinfo
 
-        with open(localpath, "wb") as out:
-            self.readfile(int(size), out)
+        if complete:
+            self.write("err", "file complete")
+            return False
+
+        startIndex = 0
+        if os.path.exists(localpath):
+            startIndex = os.path.getsize(localpath)
+
+        assert startIndex < size   #altrimenti sarebbe complete
+
+        self.write("ok", startIndex)
+
+        with open(localpath, "a+b") as out:
+            self.readfile(size - int(startIndex), out)
 
         file_checksum = hashFile(localpath)
 
         print("checksum", checksum, "file_checksum", file_checksum)
 
         if file_checksum != checksum:
+            os.remove(localpath)
             print("ERROR checksum do not match")
             self.write("err", "checksum do not match")
             return False
@@ -262,13 +279,14 @@ class DataServerHandler(StreamRequestHandler):
         port = int(port)
         target = Connection((host, port))
         target.write("pushUid", uid)
-        target.sendFile(localPath)
+        status, startIndex = target.readline()
+        target.sendFile(localPath, startIndex)
         target.close()
 
         self.write("ok")
 
     def getUid(self, args):
-        uid, = args
+        uid, startIndex = args
 
         res = self.database.getObject(uid)
 
@@ -284,8 +302,8 @@ class DataServerHandler(StreamRequestHandler):
             self.write("err", "not complete")
             return False
 
-        self.write("ok", size)
-        self.sendFile(localPath)
+        self.write("ok", size-startIndex)
+        self.sendFile(localPath, startIndex)
 
     def getStoredData(self, args):
         data = self.database.getStoredData()

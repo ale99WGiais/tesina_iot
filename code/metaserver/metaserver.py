@@ -43,9 +43,11 @@ class Connection:
             outFile.write(data)
             pos += len(data)
 
-    def sendFile(self, filepath):
+    def sendFile(self, filepath, startIndex):
+        if type(startIndex) != int:
+            startIndex = int(startIndex)
         with open(filepath, "rb") as file:
-            self.s.sendfile(file)
+            self.s.sendfile(file, startIndex)
 
     def close(self):
         self.s.close()
@@ -111,6 +113,10 @@ class Database:
                              "available_up=%s, online=%s where server=%s",
                              (capacity, remaining_capacity,
                               available_down, available_up, online, addr))
+        self.session.execute("insert into performance_log(server, time, capacity, remaining_capacity, available_down,"
+                             "available_up, online) values (%s, %s, %s, %s, %s, %s, %s)",
+                             (addr, datetime.now(), capacity, remaining_capacity,
+                              available_up, available_down, online))
 
     def removeStoredObject(self, uid, server):
         uid = UUID(uid)
@@ -255,6 +261,11 @@ class MetaServerHandler(StreamRequestHandler):
         uid = uuid4()
 
         dataservers = self.database.getDataServers()
+
+        if len(dataservers) == 0:
+            self.write("err", "no data servers available")
+            return False
+
         i = random.randint(0, len(dataservers) - 1)
         addr = dataservers[i].server
 

@@ -33,6 +33,18 @@ create table object(
     primary key(uid, created)
 );
 
+create table performance_log(
+    server text,
+    time timestamp,
+    online boolean,
+	capacity bigint,
+	remaining_capacity bigint,
+	available_down float,
+	available_up float,
+	primary key(server, time)
+);
+
+
 create table stored_object(
     uid uuid,
     server text,
