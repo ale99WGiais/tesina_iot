@@ -110,7 +110,10 @@ def list(path=""):
         print(*res)
     conn.close()
 
-def get(localPath = "testin.txt", remotePath = "ale/file1"):
+def get(localPath = "testin.txt", remotePath = "ale/file1", newFile=True):
+    if newFile and os.path.exists(localPath):
+        os.remove(localPath)
+
     conn = Connection(METASERVER)
     conn.write("getPath", remotePath)
     res = conn.readline()
@@ -119,8 +122,12 @@ def get(localPath = "testin.txt", remotePath = "ale/file1"):
     print(res)
     status, uid, addr = res
 
+    startIndex = 0
+    if os.path.exists(localPath):
+        startIndex = os.path.getsize(localPath)
+
     conn = Connection(addr)
-    conn.write("getUid", uid, 0)
+    conn.write("getUid", uid, startIndex)
     res = conn.readline()
     print(res)
     status, size = res
@@ -161,9 +168,10 @@ def getUid(uid):
     conn.close()
 
 
-sendFile()
+get(remotePath="ale/file3")
 
-exit()
+exit(0)
+
 
 addDataServer("localhost:10010")
 addDataServer("localhost:10011")

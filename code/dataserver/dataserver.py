@@ -180,7 +180,7 @@ class DataServerHandler(StreamRequestHandler):
         if type(startIndex) != int:
             startIndex = int(startIndex)
         with open(filepath, "rb") as file:
-            self.s.sendfile(file, startIndex)
+            self.connection.sendfile(file, startIndex)
 
     def readfile(self, size, outFile):
         size = int(size)
@@ -287,6 +287,7 @@ class DataServerHandler(StreamRequestHandler):
 
     def getUid(self, args):
         uid, startIndex = args
+        startIndex = int(startIndex)
 
         res = self.database.getObject(uid)
 
