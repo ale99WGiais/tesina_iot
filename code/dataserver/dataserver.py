@@ -9,6 +9,7 @@ import psutil
 import _thread
 import hashlib
 import time
+import yaml
 from datetime import datetime
 
 NAME = "dataserver10010"
@@ -53,10 +54,15 @@ def file_as_blockiter(afile, blocksize=65536):
 def hashFile(path):
     return hash_bytestr_iter(file_as_blockiter(open(path, 'rb')), hashlib.sha1())
 
-#set env
-if len(sys.argv) > 2:
-    NAME = sys.argv[1]
-    PORT = int(sys.argv[2])
+
+if len(sys.argv) > 1:
+    configFile = sys.argv[1]
+    print("load config", configFile)
+    config = yaml.full_load(open(configFile, "r"))
+    print("config", config)
+    NAME = config["name"]
+    HOST = config["host"]
+    PORT = config["port"]
 
 SERVER = str(HOST) + ":" + str(PORT)
 

@@ -12,6 +12,15 @@ import _thread
 import time
 import hashlib
 import dateutil.parser
+import yaml
+import sys
+
+
+if len(sys.argv) > 1:
+    configFile = sys.argv[1]
+    print("load config", configFile)
+    config = yaml.full_load(open(configFile, "r"))
+    print("config", config)
 
 #res = session.execute("select * from system.local;").all()
 #print(res)
@@ -64,7 +73,7 @@ class Database:
         self.session = self.cluster.connect("metaserver")
         self.statements = {}
         self.statements["addObject"] = self.session.prepare(
-            "insert into object(uid, path, created, owner, size, priority, checksum, deleted) values (?, ?, ?, ?, ?, ?, ?, false)")
+            "insert into object(uid, path, created, owner, size, priority, checksum) values (?, ?, ?, ?, ?, ?, ?)")
         self.statements["addStoredObject"] = self.session.prepare(
             "insert into stored_object(uid, server, created, complete) values (?, ?, ?, ?)")
         self.statements["listFilter"] = self.session.prepare("select * from object where path like ?")
@@ -167,8 +176,10 @@ class Database:
 
     def markDeleted(self, path):
         res = self.getUidForPath(path)
+        timestamp = datetime.now()
         if res is not None:
-            self.session.execute("update object set deleted = true where uid = %s and created = %s", (res.uid, res.created))
+            self.session.execute("update object set deleted = %s where uid = %s and created = %s",
+                                 (timestamp, res.uid, res.created))
 
     def getUidForPath(self, path):
         print("path", path)
@@ -197,6 +208,11 @@ class Database:
         uid = str(uid)
         uid = UUID(uid)
         self.session.execute("delete from pending_object where uid = %s", (uid, ))
+
+database = Database()
+for dataserver in config["dataservers"]:
+    database.addDataServer(dataserver)
+    print("add dataserver", dataserver)
 
 def processPendingUids():
     database = Database()
@@ -372,6 +388,10 @@ class MetaServerHandler(StreamRequestHandler):
             self.write("err", "path not found")
             return False
 
+        if res.deleted is not None:
+            self.write("err", "path deleted")
+            return False
+
         uid = res.uid
         print("uid", uid)
 
@@ -401,8 +421,22 @@ class MetaServerHandler(StreamRequestHandler):
             self.write("err", "no data servers available")
             return False
 
-        i = random.randint(0, len(dataservers) - 1)
-        addr = dataservers[i].server
+        random.shuffle(dataservers)
+
+        size = int(size)
+        target = None
+        for target in dataservers:
+            print("option server", target.server, "rem capacity", target.remaining_capacity, "file size", size)
+            if target.remaining_capacity > size:
+                break
+            else:
+                target = None
+
+        if target is None:
+            self.write("err", "no dataserver with sufficient capacity")
+            return False
+
+        addr = target.server
 
         dataServer = Connection(addr)
         dataServer.write("createUid", uid, size, checksum)

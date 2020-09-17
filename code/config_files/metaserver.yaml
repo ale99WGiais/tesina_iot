@@ -1,0 +1,4 @@
+dataservers:
+  - localhost:10010
+  - localhost:10011
+  - localhost:10012

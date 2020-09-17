@@ -26,7 +26,7 @@ create table object(
     size bigint,
     priority int,
     checksum text,
-    deleted boolean,
+    deleted timestamp,
     primary key(uid, created)
 );
 

@@ -143,7 +143,7 @@ def get(localPath = "testin.txt", remotePath = "ale/file1", newFile=True):
     print(res)
 
     if res[0] != 'ok':
-        print(res)
+        print("ERR", res)
         return False
 
     status, uid, addr = res
@@ -197,20 +197,10 @@ def getUid(uid):
 
 
 
-unlockPath("boh4")
-sendFile(remotePath="boh4", user="gianni")
-
-
-
-exit()
+exit(0)
 
 sendFile(priority=2)
 
-
-
-addDataServer("localhost:10010")
-addDataServer("localhost:10011")
-addDataServer("localhost:10012")
 
 sendTestFiles()
 list()
@@ -223,4 +213,8 @@ get(remotePath="testPriority2")
 get(remotePath="testPriority2")
 get(remotePath="testPriority2")
 get(remotePath="testPriority2")
+
+deletePath("ale/file3")
+
+get(remotePath="ale/file3")
 
