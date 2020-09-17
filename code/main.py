@@ -120,6 +120,11 @@ def get(localPath = "testin.txt", remotePath = "ale/file1", newFile=True):
     conn.close()
 
     print(res)
+
+    if res[0] != 'ok':
+        print(res)
+        return False
+
     status, uid, addr = res
 
     startIndex = 0
@@ -172,7 +177,6 @@ def getUid(uid):
 sendFile(priority=2)
 
 
-exit(0)
 
 addDataServer("localhost:10010")
 addDataServer("localhost:10011")

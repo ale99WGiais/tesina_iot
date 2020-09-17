@@ -73,7 +73,7 @@ class Database:
         #print(self.session)
 
     def addDataServer(self, addr):
-        self.session.execute("insert into dataserver(server) values (%s)", (addr, ))
+        self.session.execute("insert into dataserver(server, online) values (%s, false)", (addr, ))
 
     def addObject(self, uid, path, owner, size, priority, checksum):
         if type(uid) == "str":
@@ -124,6 +124,9 @@ class Database:
         uid = UUID(uid)
         self.session.execute("delete from stored_object where uid = %s and server = %s", (uid, server))
 
+    def lockPath(self, path):
+        self.session.execute("insert ")
+
     def removeObject(self, uid):
         uid = UUID(uid)
         self.session.execute("delete from object where uid = %s", (uid, ))
@@ -167,10 +170,17 @@ class Database:
     def addPendingUid(self, uid):
         uid = str(uid)
         uid = UUID(uid)
-        self.session.execute("insert into pending_object(uid) values (%s)", (uid, ))
+        self.session.execute("insert into pending_object(uid, enabled) values (%s, True)", (uid, ))
 
-    def getPendingUids(self):
+    def getPendingUids(self, onlyEnabled=True):
+        if onlyEnabled:
+            return self.session.execute("select uid from pending_object where enabled=True allow filtering").all()
         return self.session.execute("select uid from pending_object").all()
+
+    def disablePendingUid(self, uid):
+        uid = str(uid)
+        uid = UUID(uid)
+        self.session.execute("update pending_object set enabled=False where uid = %s", (uid, ))
 
     def removePendingUid(self, uid):
         uid = str(uid)
@@ -184,8 +194,6 @@ def processPendingUids():
         processPendingUid(database, elem.uid)
 
 def processPendingUid(database, uid):
-    database.removePendingUid(uid)
-
     serversContaining = {x.server for x in database.getServersForUid(uid)}
     numCopies = len(serversContaining)
 
@@ -201,7 +209,22 @@ def processPendingUid(database, uid):
     checksum = res.checksum
     print("priority", priority)
 
+    if numCopies == priority:
+        database.removePendingUid(uid)
+        return
+
+    if numCopies > priority:
+        #todo remove object
+        print("TODO remove", uid)
+        database.removePendingUid(uid)
+        return
+
     if numCopies < priority:
+
+        if len(serversContaining) == 0:
+            database.disablePendingUid(uid)
+            return
+
         if len(availableServers) > 0:
             serversContaining = list(serversContaining)
             random.shuffle(availableServers)
@@ -222,11 +245,21 @@ def processPendingUid(database, uid):
                 conn.write("transfer", uid, target)
                 print(conn.readline())
                 conn.close()
-            except:
-                database.addPendingUid(uid)
-        else:
-            database.addPendingUid(uid)
 
+                database.removePendingUid(uid)
+            except:
+                print("ERROR")
+        else:
+            database.disablePendingUid(uid)
+
+def onDataServerConnect(database, addr):
+    print("server", addr, "connected")
+
+    for elem in database.getUidsForServer(addr):
+        database.addPendingUid(elem.uid)
+
+    for elem in database.getPendingUids(onlyEnabled=False):
+        database.addPendingUid(elem.uid)
 
 def onDataServerDisconnect(database, addr):
     if database.isServerOnline(addr):
@@ -237,29 +270,38 @@ def onDataServerDisconnect(database, addr):
 
         print("server", addr, "disconnected")
 
+
+def checkDataServerStatus(database, addr):
+    try:
+        wasOnline = database.isServerOnline(addr)
+
+        # print("monitor", addr)
+        conn = Connection(addr)
+        conn.write("status")
+        res = conn.readline()
+        conn.close()
+        # print(res)
+        status, reservedCapacity, totCapacity, downSpeed, bandDown, upspeed, bandUp = res
+        reservedCapacity = int(reservedCapacity)
+        totCapacity = int(totCapacity)
+        downSpeed = float(downSpeed)
+        bandDown = float(bandDown)
+        upspeed = float(upspeed)
+        bandUp = float(bandUp)
+        database.updateDataServerStatus(addr, True, totCapacity - reservedCapacity, totCapacity,
+                                        downSpeed - bandDown, upspeed - bandUp)
+
+        if not wasOnline:
+            onDataServerConnect(database, addr)
+    except ConnectionRefusedError as err:
+        print(err)
+        onDataServerDisconnect(database, addr)
+
+
 def monitorDataServers():
     database = Database()
     for server in database.getDataServers(online=False):
-        try:
-            addr = server.server
-            #print("monitor", addr)
-            conn = Connection(addr)
-            conn.write("status")
-            res = conn.readline()
-            conn.close()
-            #print(res)
-            status, reservedCapacity, totCapacity, downSpeed, bandDown, upspeed, bandUp = res
-            reservedCapacity = int(reservedCapacity)
-            totCapacity = int(totCapacity)
-            downSpeed = float(downSpeed)
-            bandDown = float(bandDown)
-            upspeed = float(upspeed)
-            bandUp = float(bandUp)
-            database.updateDataServerStatus(addr, True, totCapacity - reservedCapacity, totCapacity,
-                                            downSpeed-bandDown, upspeed-bandUp)
-        except ConnectionRefusedError as err:
-            print(err)
-            onDataServerDisconnect(database, addr)
+        checkDataServerStatus(database, server.server)
 
 
 schedule.every(10).seconds.do(monitorDataServers)
@@ -389,6 +431,8 @@ class MetaServerHandler(StreamRequestHandler):
         addr, = args
 
         self.database.addDataServer(addr)
+
+        checkDataServerStatus(self.database, addr)
 
         conn = Connection(addr)
         conn.write("getStoredData")

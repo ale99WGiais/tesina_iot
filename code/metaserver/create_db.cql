@@ -1,6 +1,6 @@
 
 drop keyspace metaserver;
-create keyspace metaserver with replication = {'class' : 'SimpleStrategy', 'replication_factor' : 3};
+create keyspace metaserver with replication = {'class' : 'SimpleStrategy', 'replication_factor' : 1};
 use metaserver;
 
 create table dataserver(
@@ -14,12 +14,9 @@ create table dataserver(
 );
 
 
-insert into dataserver(server)
-values ('localhost:10010');
-insert into dataserver(server)
-values ('localhost:10011');
-insert into dataserver(server)
-values ('localhost:10012');
+insert into dataserver(server, online) values ('localhost:10010', false);
+insert into dataserver(server, online) values ('localhost:10011', false);
+insert into dataserver(server, online) values ('localhost:10012', false);
 
 create table object(
     uid uuid,
@@ -31,6 +28,12 @@ create table object(
     checksum text,
     deleted boolean,
     primary key(uid, created)
+);
+
+create table object_lock(
+    path text,
+    user text,
+    primary key(path)
 );
 
 create table performance_log(
@@ -46,6 +49,7 @@ create table performance_log(
 
 create table pending_object(
     uid uuid,
+    enabled boolean,
     primary key(uid)
 );
 
