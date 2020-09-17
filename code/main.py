@@ -196,9 +196,6 @@ def getUid(uid):
 
 
 
-
-exit(0)
-
 sendFile(priority=2)
 
 

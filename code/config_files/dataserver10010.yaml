@@ -1,3 +1,6 @@
 name: dataserver10010
 host: localhost
 port: 10010
+storage: 100000000
+downspeed: 50
+upspeed: 10

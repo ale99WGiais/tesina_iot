@@ -21,5 +21,4 @@ create table stats(
     upspeed int
 );
 
-insert into stats(storage, downspeed, upspeed) values (100000000, 50, 10);
 

@@ -15,7 +15,7 @@ import dateutil.parser
 import yaml
 import sys
 
-
+config = None
 if len(sys.argv) > 1:
     configFile = sys.argv[1]
     print("load config", configFile)
@@ -209,10 +209,12 @@ class Database:
         uid = UUID(uid)
         self.session.execute("delete from pending_object where uid = %s", (uid, ))
 
-database = Database()
-for dataserver in config["dataservers"]:
-    database.addDataServer(dataserver)
-    print("add dataserver", dataserver)
+
+if config is not None:
+    database = Database()
+    for dataserver in config["dataservers"]:
+        database.addDataServer(dataserver)
+        print("add dataserver", dataserver)
 
 def processPendingUids():
     database = Database()

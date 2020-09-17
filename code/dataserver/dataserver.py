@@ -16,6 +16,16 @@ NAME = "dataserver10010"
 HOST = "localhost"
 PORT = 10010
 
+config = None
+if len(sys.argv) > 1:
+    configFile = sys.argv[1]
+    print("load config", configFile)
+    config = yaml.full_load(open(configFile, "r"))
+    print("config", config)
+    NAME = config["name"]
+    HOST = config["host"]
+    PORT = config["port"]
+
 #bandup and banddown in MB/s
 performances = {"sent": 0, "recv": 0, "lastTime" : 0, "bandup" : 0, "banddown" : 0}
 
@@ -53,32 +63,6 @@ def file_as_blockiter(afile, blocksize=65536):
 
 def hashFile(path):
     return hash_bytestr_iter(file_as_blockiter(open(path, 'rb')), hashlib.sha1())
-
-
-if len(sys.argv) > 1:
-    configFile = sys.argv[1]
-    print("load config", configFile)
-    config = yaml.full_load(open(configFile, "r"))
-    print("config", config)
-    NAME = config["name"]
-    HOST = config["host"]
-    PORT = config["port"]
-
-SERVER = str(HOST) + ":" + str(PORT)
-
-print("dataserver " + str((NAME, HOST, PORT)))
-
-workingDir = "../data/" + NAME
-if not os.path.exists(workingDir):
-    os.makedirs(workingDir)
-os.chdir(workingDir)
-print("work on " + str(os.getcwd()))
-
-#create db if not exists
-if not os.path.exists("database.db"):
-    with sqlite3.connect('database.db') as conn:
-        with open("../../dataserver/create_db.sqlite3", "r") as sql:
-            conn.executescript(sql.read())
 
 class Database:
     def __init__(self):
@@ -132,6 +116,32 @@ class Database:
         self.cursor.execute("update object set complete=1 where uid = ?", (uid, ))
         self.connection.commit()
 
+    def setStats(self, storage, downspeed, upspeed):
+        self.cursor.execute("delete from stats")
+        self.cursor.execute("insert into stats(storage, downspeed, upspeed) values (?, ?, ?)",
+                            (storage, downspeed, upspeed))
+        self.connection.commit()
+
+
+workingDir = "../data/" + NAME
+if not os.path.exists(workingDir):
+    os.makedirs(workingDir)
+os.chdir(workingDir)
+print("work on " + str(os.getcwd()))
+
+#create db if not exists
+if not os.path.exists("database.db"):
+    with sqlite3.connect('database.db') as conn:
+        with open("../../dataserver/create_db.sqlite3", "r") as sql:
+            conn.executescript(sql.read())
+
+if config is not None:
+    database = Database()
+    database.setStats(config["storage"], config["downspeed"], config["upspeed"])
+
+SERVER = str(HOST) + ":" + str(PORT)
+
+print("dataserver " + str((NAME, HOST, PORT)))
 
 class DataServer(ThreadingTCPServer):
     def server_activate(self):
