@@ -168,10 +168,11 @@ def getUid(uid):
     conn.close()
 
 
-get(remotePath="ale/file3")
+
+sendFile(priority=2)
+
 
 exit(0)
-
 
 addDataServer("localhost:10010")
 addDataServer("localhost:10011")

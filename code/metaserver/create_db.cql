@@ -44,6 +44,11 @@ create table performance_log(
 	primary key(server, time)
 );
 
+create table pending_object(
+    uid uuid,
+    primary key(uid)
+);
+
 
 create table stored_object(
     uid uuid,

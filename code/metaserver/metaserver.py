@@ -56,6 +56,7 @@ def addrFromString(addr):
     ip, port = addr.split(":")
     return (ip, int(port))
 
+
 class Database:
     def __init__(self):
         self.cluster = Cluster()
@@ -92,6 +93,7 @@ class Database:
         return id
 
     def getObjectByUid(self, uid):
+        uid = str(uid)
         uid = UUID(uid)
         return self.session.execute("select * from object where uid = %s", (uid, )).one()
 
@@ -135,13 +137,15 @@ class Database:
         else:
             res = self.session.execute(
                 "select server from stored_object where uid = %s allow filtering", (uid, )).all()
-        print("getServersForUid res", res)
         if online:
             def f(srv):
                 return self.session.execute("select online from dataserver where server = %s", (srv.server, )).one().online
             res = list(filter(f, res))
-            print("after filter", res)
+        print("getServersForUid", uid, res)
         return res
+
+    def isServerOnline(self, server):
+        return self.session.execute("select online from dataserver where server = %s", (server, )).one().online
 
     def setComplete(self, uid, server):
         uid = UUID(uid)
@@ -157,9 +161,81 @@ class Database:
         path = str(path)
         return self.session.execute("select * from pathToObject where path = %s", (path, )).one()
 
+    def getUidsForServer(self, server):
+        return self.session.execute("select uid from stored_object where server = %s allow filtering", (server, ))
+
+    def addPendingUid(self, uid):
+        uid = str(uid)
+        uid = UUID(uid)
+        self.session.execute("insert into pending_object(uid) values (%s)", (uid, ))
+
+    def getPendingUids(self):
+        return self.session.execute("select uid from pending_object").all()
+
+    def removePendingUid(self, uid):
+        uid = str(uid)
+        uid = UUID(uid)
+        self.session.execute("delete from pending_object where uid = %s", (uid, ))
+
+def processPendingUids():
+    database = Database()
+
+    for elem in database.getPendingUids():
+        processPendingUid(database, elem.uid)
+
+def processPendingUid(database, uid):
+    database.removePendingUid(uid)
+
+    serversContaining = {x.server for x in database.getServersForUid(uid)}
+    numCopies = len(serversContaining)
+
+    print("serversContaining", serversContaining)
+    availableServers = [x.server for x in database.getDataServers() if x.server not in serversContaining]
+
+    print("availableServers", availableServers)
+
+    res = database.getObjectByUid(uid)
+    print(res)
+    priority = res.priority
+    size = res.size
+    checksum = res.checksum
+    print("priority", priority)
+
+    if numCopies < priority:
+        if len(availableServers) > 0:
+            serversContaining = list(serversContaining)
+            random.shuffle(availableServers)
+            random.shuffle(serversContaining)
+
+            try:
+                source = serversContaining[0]
+                target = availableServers[0]
+
+                database.addStoredObject(uid, target)
+
+                conn = Connection(target)
+                conn.write("createUid", uid, size, checksum)
+                print(conn.readline())
+                conn.close()
+
+                conn = Connection(source)
+                conn.write("transfer", uid, target)
+                print(conn.readline())
+                conn.close()
+            except:
+                database.addPendingUid(uid)
+        else:
+            database.addPendingUid(uid)
+
+
 def onDataServerDisconnect(database, addr):
-    database.updateDataServerStatus(addr, False)
-    print("server", addr, "disconnected")
+    if database.isServerOnline(addr):
+        database.updateDataServerStatus(addr, False)
+
+        for elem in database.getUidsForServer(addr):
+            database.addPendingUid(elem.uid)
+
+        print("server", addr, "disconnected")
 
 def monitorDataServers():
     database = Database()
@@ -187,14 +263,15 @@ def monitorDataServers():
 
 
 schedule.every(10).seconds.do(monitorDataServers)
+schedule.every(5).seconds.do(processPendingUids)
 schedule.run_all()
 
-def monitorDataServersLoop(_):
+def repeatedActions(_):
     while True:
         schedule.run_pending()
         time.sleep(0.1)
 
-_thread.start_new_thread(monitorDataServersLoop, (None,))
+_thread.start_new_thread(repeatedActions, (None,))
 
 class MetaServer(ThreadingTCPServer):
     def server_activate(self):
@@ -289,34 +366,7 @@ class MetaServerHandler(StreamRequestHandler):
         uid, addr = args
 
         self.database.setComplete(uid, addr)
-
-        serversContaining = {x.server for x in self.database.getServersForUid(uid)}
-        numCopies = len(serversContaining)
-
-        print("serversContaining", serversContaining)
-        availableServers = [x.server for x in self.database.getDataServers() if x.server not in serversContaining]
-
-        res = self.database.getObjectByUid(uid)
-        print(res)
-        priority = res.priority
-        size = res.size
-        checksum = res.checksum
-        print("priority", priority)
-
-        if len(availableServers) > 0 and numCopies < priority:
-            random.shuffle(availableServers)
-
-            target = availableServers[0]
-            self.database.addStoredObject(uid, target)
-            conn = Connection(target)
-            conn.write("createUid", uid, size, checksum)
-            print(conn.readline())
-            conn.close()
-
-            conn = Connection(addr)
-            conn.write("transfer", uid, target)
-            print(conn.readline())
-            conn.close()
+        self.database.addPendingUid(uid)
 
         self.write("ok")
 
