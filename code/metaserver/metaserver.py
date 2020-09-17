@@ -92,6 +92,20 @@ class Database:
         self.session.execute(self.statements["addStoredObject"], (uid, server, created, complete))
         return id
 
+    def lockPath(self, path, user="root"):
+        return self.session.execute("insert into object_lock(path, user) values (%s, %s) if not exists",
+                                    (path, user)).one().applied
+
+    def unlockPath(self, path):
+        self.session.execute("delete from object_lock where path = %s", (path, ))
+
+    def getPathLock(self, path):
+        r = self.session.execute("select * from object_lock where path = %s", (path, )).one()
+        if r is None:
+            return False, ""
+        else:
+            return True, r.user
+
     def getObjectByUid(self, uid):
         uid = str(uid)
         uid = UUID(uid)
@@ -123,9 +137,6 @@ class Database:
     def removeStoredObject(self, uid, server):
         uid = UUID(uid)
         self.session.execute("delete from stored_object where uid = %s and server = %s", (uid, server))
-
-    def lockPath(self, path):
-        self.session.execute("insert ")
 
     def removeObject(self, uid):
         uid = UUID(uid)
@@ -376,8 +387,13 @@ class MetaServerHandler(StreamRequestHandler):
         self.write("ok")
 
     def pushPath(self, args):
-        path, size, checksum, priority = args
+        path, size, checksum, priority, user = args
         uid = uuid4()
+
+        lock, lockUser = self.database.getPathLock(path)
+        if lock and lockUser != user:
+            self.write("err", "path locked by " + lockUser)
+            return False
 
         dataservers = self.database.getDataServers()
 
@@ -446,6 +462,21 @@ class MetaServerHandler(StreamRequestHandler):
 
         self.write("ok")
 
+    def lockPath(self, args):
+        path, user = args
+        res = self.database.lockPath(path, user)
+        self.write(res)
+
+    def getPathLock(self, args):
+        path, = args
+        lock, user = self.database.getPathLock(path)
+        self.write(lock, user)
+
+    def unlockPath(self, args):
+        path, = args
+        self.database.unlockPath(path)
+        self.write("ok")
+
     def _deleteUid(self, uid, server):
         self.database.removeStoredObject(uid, server)
 
@@ -457,7 +488,11 @@ class MetaServerHandler(StreamRequestHandler):
     def test(self, args):
         print("test")
 
-        self._deleteUid("08620b83-44b5-4ef5-8d6d-df62e91fb900", "localhost:10010")
+        print(self.database.lockPath("lock1"))
+        print(self.database.lockPath("lock1"))
+        print(self.database.isPathLocked("lock1"))
+        print(self.database.unlockPath("lock1"))
+        print(self.database.isPathLocked("lock1"))
 
         pass
 
@@ -472,7 +507,10 @@ class MetaServerHandler(StreamRequestHandler):
             "test": self.test,
             "deletePath": self.deletePath,
             "addDataServer": self.addDataServer,
-            "getUid": self.getUid
+            "getUid": self.getUid,
+            "lockPath": self.lockPath,
+            "getPathLock": self.getPathLock,
+            "unlockPath": self.unlockPath
         }
 
         print("handle request from " + str(self.client_address))

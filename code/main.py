@@ -67,14 +67,14 @@ class Connection:
         self.s.close()
 
 
-def sendFile(localPath = "small_file.txt", remotePath="testfile.txt", priority=1):
+def sendFile(localPath = "small_file.txt", remotePath="testfile.txt", priority=1, user="default"):
     conn = Connection(METASERVER)
     size = getsize(localPath)
     print("file size", size)
 
     checksum = hashFile(localPath)
 
-    conn.write("pushPath", remotePath, size, checksum, priority)
+    conn.write("pushPath", remotePath, size, checksum, priority, user)
     res = conn.readline()
 
     if res[0] != "ok":
@@ -109,6 +109,27 @@ def list(path=""):
         res = conn.readline()
         print(*res)
     conn.close()
+
+def lockPath(path, user="default"):
+    conn = Connection(METASERVER)
+    conn.write("lockPath", path, user)
+    res, = conn.readline()
+    print("lockPath", path, "lock", res, "by", user)
+    return res
+
+def getPathLock(path):
+    conn = Connection(METASERVER)
+    conn.write("getPathLock", path)
+    res, user = conn.readline()
+    print("getPathLock", path, "lock", res, "by", user)
+    return res
+
+def unlockPath(path):
+    conn = Connection(METASERVER)
+    conn.write("unlockPath", path)
+    res, = conn.readline()
+    print("unlockPa", path, "lock", res)
+    return res
 
 def get(localPath = "testin.txt", remotePath = "ale/file1", newFile=True):
     if newFile and os.path.exists(localPath):
@@ -173,6 +194,15 @@ def getUid(uid):
     conn.close()
 
 
+
+
+
+unlockPath("boh4")
+sendFile(remotePath="boh4", user="gianni")
+
+
+
+exit()
 
 sendFile(priority=2)
 
