@@ -194,10 +194,9 @@ def getUid(uid):
     conn.close()
 
 
-
-
 sendFile(priority=2)
 
+exit()
 
 sendTestFiles()
 list()

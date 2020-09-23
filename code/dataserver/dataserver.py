@@ -8,6 +8,8 @@ import schedule
 import psutil
 import _thread
 import hashlib
+import threading
+import logging
 import time
 import yaml
 from datetime import datetime
@@ -15,6 +17,12 @@ from datetime import datetime
 NAME = "dataserver10010"
 HOST = "localhost"
 PORT = 10010
+
+logging.basicConfig(level=logging.NOTSET,
+                    format='(%(threadName)-9s) %(message)s',)
+
+processingLock = threading.Lock()
+processing = set()
 
 config = None
 if len(sys.argv) > 1:
@@ -40,7 +48,27 @@ def getPerformance():
     performances["recv"] = res.bytes_recv
     #print(performances)
 
+def processDeleteUids():
+    print("processDeleteUids...")
+
+    database = Database()
+    uids = database.getToBeDeleted()
+    processingLock.acquire(blocking=True)
+
+    print("uids", uids)
+
+    for uid, in uids:
+        if uid not in processing:
+            print("delete", uid)
+            uid, localPath, size, complete, created, checksum = database.getObject(uid)
+            if os.path.exists(localPath): os.remove(localPath)
+            database.deleteUid(uid)
+
+    processingLock.release()
+
+
 schedule.every(5).seconds.do(getPerformance)
+schedule.every(30).seconds.do(processDeleteUids)
 
 def monitorPerformanceLoop(_):
     while True:
@@ -83,11 +111,13 @@ class Database:
 
     def getObject(self, uid):
         print("getObject ------>", (str(uid), ))
-        self.cursor.execute("select * from object where uid = ?", (str(uid), ))
-        return self.cursor.fetchone()
+        return self.cursor.execute("select * from object where uid = ?", (str(uid), )).fetchone()
+
 
     def deleteUid(self, uid):
         self.cursor.execute("delete from object where uid = ?", (uid, ))
+        self.cursor.execute("delete from transfer where uid = ?", (uid, ))
+        self.cursor.execute("delete from toBeDeleted where uid = ?", (uid, ))
         self.connection.commit()
 
     def nodeStats(self):
@@ -101,6 +131,13 @@ class Database:
         if res is None:
             res = 0
         return res
+
+    def addToBeDeleted(self, uid):
+        self.cursor.execute("insert into toBeDeleted(uid) values (?)", (uid, ))
+        self.connection.commit()
+
+    def getToBeDeleted(self):
+        return self.cursor.execute("select * from toBeDeleted").fetchall()
 
     def addObject(self, uid, local_path, size, checksum):
         complete = 0
@@ -143,6 +180,8 @@ SERVER = str(HOST) + ":" + str(PORT)
 
 print("dataserver " + str((NAME, HOST, PORT)))
 
+
+
 class DataServer(ThreadingTCPServer):
     def server_activate(self):
         ThreadingTCPServer.server_activate(self)
@@ -184,6 +223,7 @@ class Connection:
         self.s.close()
 
 class DataServerHandler(StreamRequestHandler):
+
     def write(self, *args):
         res = ";".join([str(i) for i in args]).strip() + "\n"
         print("write ", res)
@@ -226,20 +266,20 @@ class DataServerHandler(StreamRequestHandler):
     def deleteUid(self, args):
         uid, = args
 
-        uid, localPath, size, complete, created, checksum = self.database.getObject(uid)
-
-        if os.path.exists(localPath): os.remove(localPath)
-        self.database.deleteUid(uid)
+        self.database.addToBeDeleted(uid)
 
         self.write("ok")
 
     def pushUid(self, args):
         uid, = args
 
+        processingLock.acquire(blocking=True)
+
         objinfo = self.database.getObject(uid)
 
         if objinfo is None:
             self.write("ERR", "uid info not found")
+            processingLock.release()
             return False
 
         print(objinfo)
@@ -248,7 +288,11 @@ class DataServerHandler(StreamRequestHandler):
 
         if complete:
             self.write("err", "file complete")
+            processingLock.release()
             return False
+
+        processing.add(uid)
+        processingLock.release()
 
         startIndex = 0
         if os.path.exists(localpath):
@@ -262,6 +306,10 @@ class DataServerHandler(StreamRequestHandler):
             self.readfile(size - int(startIndex), out)
 
         file_checksum = hashFile(localpath)
+
+        processingLock.acquire(blocking=True)
+        processing.remove(uid)
+        processingLock.release()
 
         print("checksum", checksum, "file_checksum", file_checksum)
 
@@ -284,10 +332,16 @@ class DataServerHandler(StreamRequestHandler):
     def transfer(self, args):
         uid, server = args
 
+        processingLock.acquire(blocking=True)
+
         res = self.database.getObject(uid)
         if res is None:
             self.write("err", "uid not found")
+            processingLock.release()
             return False
+
+        processing.add(uid)
+        processingLock.release()
 
         uid, localPath, size, complete, created, checksum = res
 
@@ -299,16 +353,23 @@ class DataServerHandler(StreamRequestHandler):
         target.sendFile(localPath, startIndex)
         target.close()
 
+        processingLock.acquire(blocking=True)
+        processing.remove(uid)
+        processingLock.release()
+
         self.write("ok")
 
     def getUid(self, args):
         uid, startIndex = args
         startIndex = int(startIndex)
 
+        processingLock.acquire(blocking=True)
+
         res = self.database.getObject(uid)
 
         if res is None:
             self.write("err", "specified uid not present")
+            processingLock.release()
             return False
 
         print(res)
@@ -317,10 +378,18 @@ class DataServerHandler(StreamRequestHandler):
 
         if not complete:
             self.write("err", "not complete")
+            processingLock.release()
             return False
+
+        processing.add(uid)
+        processingLock.release()
 
         self.write("ok", size-startIndex)
         self.sendFile(localPath, startIndex)
+
+        processingLock.acquire(blocking=True)
+        processing.remove(uid)
+        processingLock.release()
 
     def getStoredData(self, args):
         data = self.database.getStoredData()

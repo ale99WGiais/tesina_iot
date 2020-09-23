@@ -13,7 +13,11 @@ import time
 import hashlib
 import dateutil.parser
 import yaml
+import logging
 import sys
+
+logging.basicConfig(level=logging.NOTSET,
+                    format='(%(threadName)-9s) %(message)s',)
 
 config = None
 if len(sys.argv) > 1:
@@ -144,6 +148,7 @@ class Database:
                               available_up, available_down, online))
 
     def removeStoredObject(self, uid, server):
+        uid = str(uid)
         uid = UUID(uid)
         self.session.execute("delete from stored_object where uid = %s and server = %s", (uid, server))
 
@@ -238,14 +243,25 @@ def processPendingUid(database, uid):
     checksum = res.checksum
     print("priority", priority)
 
+    serversContaining = list(serversContaining)
+
     if numCopies == priority:
         database.removePendingUid(uid)
         return
 
     if numCopies > priority:
-        #todo remove object
-        print("TODO remove", uid)
-        database.removePendingUid(uid)
+        random.shuffle(serversContaining)
+        target = serversContaining[0]
+
+        print("remove", uid, "target", target)
+
+        conn = Connection(target)
+        conn.write("deleteUid", uid)
+        res = conn.readline()
+        print(res)
+        conn.close()
+
+        database.removeStoredObject(uid, target)
         return
 
     if numCopies < priority:
@@ -255,7 +271,6 @@ def processPendingUid(database, uid):
             return
 
         if len(availableServers) > 0:
-            serversContaining = list(serversContaining)
             random.shuffle(availableServers)
             random.shuffle(serversContaining)
 
@@ -275,7 +290,7 @@ def processPendingUid(database, uid):
                 print(conn.readline())
                 conn.close()
 
-                database.removePendingUid(uid)
+                #database.removePendingUid(uid)
             except:
                 print("ERROR")
         else:
