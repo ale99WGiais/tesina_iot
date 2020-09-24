@@ -16,8 +16,7 @@ import yaml
 import logging
 import sys
 
-logging.basicConfig(level=logging.NOTSET,
-                    format='(%(threadName)-9s) %(message)s',)
+#logging.basicConfig(level=logging.NOTSET, format='(%(threadName)-9s) %(message)s',)
 
 config = None
 if len(sys.argv) > 1:
@@ -186,10 +185,20 @@ class Database:
             self.session.execute("update object set deleted = %s where uid = %s and created = %s",
                                  (timestamp, res.uid, res.created))
 
+    def markUidDeleted(self, uid, created):
+        timestamp = datetime.now()
+        self.session.execute("update object set deleted = %s where uid = %s and created = %s",
+                             (timestamp, uid, created))
+
     def getUidForPath(self, path):
         print("path", path)
         path = str(path)
         return self.session.execute("select * from pathToObject where path = %s", (path, )).one()
+
+    def getUidsForPath(self, path, noDeleted=False):
+        print("path", path)
+        path = str(path)
+        return self.session.execute("select * from object where path like %s", (path, )).all()
 
     def getUidsForServer(self, server):
         return self.session.execute("select uid from stored_object where server = %s allow filtering", (server, ))
@@ -198,6 +207,11 @@ class Database:
         uid = str(uid)
         uid = UUID(uid)
         self.session.execute("insert into pending_object(uid, enabled) values (%s, True)", (uid, ))
+
+    def updatePriority(self, uid, created, priority):
+        uid = str(uid)
+        uid = UUID(uid)
+        self.session.execute("update object set priority=%s where uid=%s and created=%s", (priority, uid, created))
 
     def getPendingUids(self, onlyEnabled=True):
         if onlyEnabled:
@@ -419,7 +433,55 @@ class MetaServerHandler(StreamRequestHandler):
     def deletePath(self, args):
         path, = args
 
-        self.database.markDeleted(path)
+        res = self.database.getUidsForPath(path)
+
+        for elem in res:
+            uid = elem.uid
+            print("permanentlyDelete", uid)
+            self.database.markUidDeleted(uid, elem.created)
+
+        self.write("ok")
+
+    def permanentlyDeletePath(self, args):
+        path, = args
+
+        res = self.database.getUidsForPath(path)
+
+        for elem in res:
+            uid = elem.uid
+            print("permanentlyDelete", uid)
+            self.database.markUidDeleted(uid, elem.created)
+            self.database.updatePriority(uid, elem.created, 0)
+            self.database.addPendingUid(uid)
+
+        self.write("ok")
+
+    def updatePriorityForPath(self, args):
+        path, priority = args
+        priority = int(priority)
+
+        res = self.database.getUidForPath(path)
+
+        if res is None:
+            self.write("err", "path " + path + " not found")
+            return False
+
+        uid = res.uid
+        print(uid)
+
+        self.database.updatePriority(uid, res.created, priority)
+        self.database.addPendingUid(uid)
+
+        self.write("ok")
+
+    def updatePriorityForUid(self, args):
+        uid, priority = args
+        priority = int(priority)
+
+        res = self.getUid(uid)
+
+        self.database.updatePriority(uid, res.created, priority)
+        self.database.addPendingUid(uid)
 
         self.write("ok")
 
@@ -561,7 +623,10 @@ class MetaServerHandler(StreamRequestHandler):
             "getUid": self.getUid,
             "lockPath": self.lockPath,
             "getPathLock": self.getPathLock,
-            "unlockPath": self.unlockPath
+            "unlockPath": self.unlockPath,
+            "updatePriorityForPath": self.updatePriorityForPath,
+            "updatePriorityForUid": self.updatePriorityForUid,
+            "permanentlyDeletePath": self.permanentlyDeletePath
         }
 
         print("handle request from " + str(self.client_address))

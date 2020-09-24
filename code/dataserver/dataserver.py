@@ -18,8 +18,7 @@ NAME = "dataserver10010"
 HOST = "localhost"
 PORT = 10010
 
-logging.basicConfig(level=logging.NOTSET,
-                    format='(%(threadName)-9s) %(message)s',)
+#logging.basicConfig(level=logging.NOTSET, format='(%(threadName)-9s) %(message)s',)
 
 processingLock = threading.Lock()
 processing = set()

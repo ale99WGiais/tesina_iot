@@ -193,24 +193,44 @@ def getUid(uid):
     print(conn.readline())
     conn.close()
 
+def permanentlyDeletePath(path):
+    conn = Connection(METASERVER)
+    conn.write("permanentlyDeletePath", path)
+    print(conn.readline())
+    conn.close()
 
-sendFile(priority=2)
+def updatePriorityForPath(path, priority):
+    conn = Connection(METASERVER)
+    conn.write("updatePriorityForPath", path, priority)
+    print(conn.readline())
+    conn.close()
+
+
+
+
+
+sendFile("small_file.txt", "ale/file1")
+sendFile("small_file.txt", "ale/file2")
+sendFile("small_file.txt", "ale/file3")
+
+sendFile(remotePath="ale/filePriority2", priority=2)
+
+input()
+
+permanentlyDeletePath("ale%")
 
 exit()
 
-sendTestFiles()
 list()
-get(remotePath="ale/file3")
-#test()
+
+exit()
+
+get(remotePath="ale/file3", localPath="test_in.txt")
 
 sendFile(remotePath="testPriority2", priority=2)
-time.sleep(3)
-get(remotePath="testPriority2")
-get(remotePath="testPriority2")
-get(remotePath="testPriority2")
+
 get(remotePath="testPriority2")
 
 deletePath("ale/file3")
 
 get(remotePath="ale/file3")
-
