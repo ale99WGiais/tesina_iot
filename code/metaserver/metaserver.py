@@ -16,36 +16,34 @@ import yaml
 import logging
 import sys
 
-#logging.basicConfig(level=logging.NOTSET, format='(%(threadName)-9s) %(message)s',)
+logging.basicConfig(level=logging.INFO, format='(%(threadName)-9s) %(message)s',)
 
-config = None
 if len(sys.argv) > 1:
     configFile = sys.argv[1]
     print("load config", configFile)
     config = yaml.full_load(open(configFile, "r"))
     print("config", config)
+else:
+    logging.error("Please provide config file")
+    exit(1)
 
-#res = session.execute("select * from system.local;").all()
-#print(res)
 
-
-class Connection:
-    def __init__(self, endpoint):
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.s.connect(addrFromString(endpoint))
-
-        self.wfile = self.s.makefile('wb', 0)
-        self.rfile = self.s.makefile('rb', -1)
+def CustomConnection(cls):
+    def addrFromString(self, addr):
+        ip, port = addr.split(":")
+        return (ip, int(port))
 
     def write(self, *args):
         res = ";".join([str(i) for i in args]).strip() + "\n"
-        print("write" , res)
+        logging.info("write %s", res)
         self.wfile.write(res.encode())
 
     def readline(self):
-        return self.rfile.readline().strip().decode().split(";")
+        line = self.rfile.readline().strip().decode().split(";")
+        logging.info("readline %s", line)
+        return line
 
-    def readfile(self, size, outFile):
+    def readFile(self, size, outFile):
         size = int(size)
         pos = 0
         while pos != size:
@@ -55,34 +53,40 @@ class Connection:
             outFile.write(data)
             pos += len(data)
 
-    def sendFile(self, filepath, startIndex):
+    def writeFile(self, filepath, startIndex):
         if type(startIndex) != int:
             startIndex = int(startIndex)
         with open(filepath, "rb") as file:
-            self.s.sendfile(file, startIndex)
+            self.sendfile(file, startIndex)
 
-    def close(self):
-        self.s.close()
+    setattr(cls, "writeFile", writeFile)
+    setattr(cls, "addrFromString", addrFromString)
+    setattr(cls, "readFile", readFile)
+    setattr(cls, "write", write)
+    setattr(cls, "readline", readline)
 
-def addrFromString(addr):
-    ip, port = addr.split(":")
-    return (ip, int(port))
+    return cls
 
+
+@CustomConnection
+class Connection(socket.socket):
+    def __init__(self, endpoint):
+        super(Connection, self).__init__(socket.AF_INET, socket.SOCK_STREAM)
+        self.connect(self.addrFromString(endpoint))
+        self.wfile = self.makefile('wb', 0)
+        self.rfile = self.makefile('rb', -1)
+
+def makeUUID(uid):
+    if type(uid) == str:
+        uid = UUID(uid)
+    return uid
 
 class Database:
     def __init__(self):
-        self.cluster = Cluster()
+        self.cluster = Cluster(protocol_version=4)
 
         self.session = self.cluster.connect("metaserver")
-        self.statements = {}
-        self.statements["addObject"] = self.session.prepare(
-            "insert into object(uid, path, created, owner, size, priority, checksum) values (?, ?, ?, ?, ?, ?, ?)")
-        self.statements["addStoredObject"] = self.session.prepare(
-            "insert into stored_object(uid, server, created, complete) values (?, ?, ?, ?)")
-        self.statements["listFilter"] = self.session.prepare("select * from object where path like ?")
-        self.statements["list"] = self.session.prepare("select * from object")
 
-        #print(self.session)
 
     def addDataServer(self, addr):
         self.session.execute("insert into dataserver(server, online) values (%s, false)", (addr, ))
@@ -93,15 +97,16 @@ class Database:
         created = datetime.now()
         size = int(size)
         priority = int(priority)
-        self.session.execute(self.statements["addObject"], (uid, path, created, owner, size, priority, checksum))
+        self.session.execute("insert into object(uid, path, created, owner, size, priority, checksum) "
+                             "values (%s, %s, %s, %s, %s, %s, %s)"
+                             , (uid, path, created, owner, size, priority, checksum))
         return uid
 
     def addStoredObject(self, uid, server, complete=False, created=None):
-        uid = str(uid)
-        uid = UUID(uid)
-        #uid = UUID(uid)
+        uid = makeUUID(uid)
         if created is None: created = datetime.now()
-        self.session.execute(self.statements["addStoredObject"], (uid, server, created, complete))
+        self.session.execute("insert into stored_object(uid, server, created, complete) values (%s, %s, %s, %s)",
+                             (uid, server, created, complete))
         return id
 
     def lockPath(self, path, user="root"):
@@ -119,19 +124,18 @@ class Database:
             return True, r.user
 
     def getObjectByUid(self, uid):
-        uid = str(uid)
-        uid = UUID(uid)
+        uid = makeUUID(uid)
         return self.session.execute("select * from object where uid = %s", (uid, )).one()
 
     def list(self, path):
         if path == "":
-            return self.session.execute(self.statements["list"]).all()
+            return self.session.execute("select * from object").all()
         else:
             path = path + "%"
-            return self.session.execute(self.statements["listFilter"], (path, )).all()
+            return self.session.execute("select * from object where path like %s", (path, )).all()
 
-    def getDataServers(self, online=True):
-        if online:
+    def getDataServers(self, onlyOnline=True):
+        if onlyOnline:
             return self.session.execute("select * from dataserver where online=true allow filtering").all()
         return self.session.execute("select * from dataserver").all()
 
@@ -147,17 +151,15 @@ class Database:
                               available_up, available_down, online))
 
     def removeStoredObject(self, uid, server):
-        uid = str(uid)
-        uid = UUID(uid)
+        uid = makeUUID(uid)
         self.session.execute("delete from stored_object where uid = %s and server = %s", (uid, server))
 
     def removeObject(self, uid):
-        uid = UUID(uid)
+        uid = makeUUID(uid)
         self.session.execute("delete from object where uid = %s", (uid, ))
 
     def getServersForUid(self, uid, complete=True, online=True):
-        uid = str(uid)
-        uid = UUID(uid)
+        uid = makeUUID(uid)
         if complete:
             res = self.session.execute(
                 "select server from stored_object where uid = %s and complete = true allow filtering", (uid, )).all()
@@ -175,7 +177,7 @@ class Database:
         return self.session.execute("select online from dataserver where server = %s", (server, )).one().online
 
     def setComplete(self, uid, server):
-        uid = UUID(uid)
+        uid = makeUUID(uid)
         self.session.execute("update stored_object set complete = true where uid = %s and server = %s", (uid, server))
 
     def markDeleted(self, path):
@@ -186,6 +188,7 @@ class Database:
                                  (timestamp, res.uid, res.created))
 
     def markUidDeleted(self, uid, created):
+        uid = makeUUID(uid)
         timestamp = datetime.now()
         self.session.execute("update object set deleted = %s where uid = %s and created = %s",
                              (timestamp, uid, created))
@@ -204,13 +207,11 @@ class Database:
         return self.session.execute("select uid from stored_object where server = %s allow filtering", (server, ))
 
     def addPendingUid(self, uid):
-        uid = str(uid)
-        uid = UUID(uid)
+        uid = makeUUID(uid)
         self.session.execute("insert into pending_object(uid, enabled) values (%s, True)", (uid, ))
 
     def updatePriority(self, uid, created, priority):
-        uid = str(uid)
-        uid = UUID(uid)
+        uid = makeUUID(uid)
         self.session.execute("update object set priority=%s where uid=%s and created=%s", (priority, uid, created))
 
     def getPendingUids(self, onlyEnabled=True):
@@ -219,29 +220,32 @@ class Database:
         return self.session.execute("select uid from pending_object").all()
 
     def disablePendingUid(self, uid):
-        uid = str(uid)
-        uid = UUID(uid)
+        uid = makeUUID(uid)
         self.session.execute("update pending_object set enabled=False where uid = %s", (uid, ))
 
     def removePendingUid(self, uid):
-        uid = str(uid)
-        uid = UUID(uid)
+        uid = makeUUID(uid)
         self.session.execute("delete from pending_object where uid = %s", (uid, ))
 
 
-if config is not None:
-    database = Database()
-    for dataserver in config["dataservers"]:
-        database.addDataServer(dataserver)
-        print("add dataserver", dataserver)
+database = Database()
+
+for dataserver in config["dataservers"]:
+    database.addDataServer(dataserver)
+    print("add dataserver", dataserver)
 
 def processPendingUids():
-    database = Database()
-
     for elem in database.getPendingUids():
         processPendingUid(database, elem.uid)
 
 def processPendingUid(database, uid):
+    res = database.getObjectByUid(uid)
+    print(res)
+    priority = res.priority
+    size = res.size
+    checksum = res.checksum
+    print("priority", priority)
+
     serversContaining = {x.server for x in database.getServersForUid(uid)}
     numCopies = len(serversContaining)
 
@@ -249,13 +253,6 @@ def processPendingUid(database, uid):
     availableServers = [x.server for x in database.getDataServers() if x.server not in serversContaining]
 
     print("availableServers", availableServers)
-
-    res = database.getObjectByUid(uid)
-    print(res)
-    priority = res.priority
-    size = res.size
-    checksum = res.checksum
-    print("priority", priority)
 
     serversContaining = list(serversContaining)
 
@@ -269,11 +266,10 @@ def processPendingUid(database, uid):
 
         print("remove", uid, "target", target)
 
-        conn = Connection(target)
-        conn.write("deleteUid", uid)
-        res = conn.readline()
-        print(res)
-        conn.close()
+        with Connection(target) as conn:
+            conn.write("deleteUid", uid)
+            res = conn.readline()
+            print(res)
 
         database.removeStoredObject(uid, target)
         return
@@ -294,15 +290,13 @@ def processPendingUid(database, uid):
 
                 database.addStoredObject(uid, target)
 
-                conn = Connection(target)
-                conn.write("createUid", uid, size, checksum)
-                print(conn.readline())
-                conn.close()
+                with Connection(target) as conn:
+                    conn.write("createUid", uid, size, checksum)
+                    print(conn.readline())
 
-                conn = Connection(source)
-                conn.write("transfer", uid, target)
-                print(conn.readline())
-                conn.close()
+                with Connection(source) as conn:
+                    conn.write("transfer", uid, target)
+                    print(conn.readline())
 
                 #database.removePendingUid(uid)
             except:
@@ -310,7 +304,7 @@ def processPendingUid(database, uid):
         else:
             database.disablePendingUid(uid)
 
-def onDataServerConnect(database, addr):
+def onDataServerConnect(addr):
     print("server", addr, "connected")
 
     for elem in database.getUidsForServer(addr):
@@ -319,7 +313,7 @@ def onDataServerConnect(database, addr):
     for elem in database.getPendingUids(onlyEnabled=False):
         database.addPendingUid(elem.uid)
 
-def onDataServerDisconnect(database, addr):
+def onDataServerDisconnect(addr):
     if database.isServerOnline(addr):
         database.updateDataServerStatus(addr, False)
 
@@ -329,16 +323,14 @@ def onDataServerDisconnect(database, addr):
         print("server", addr, "disconnected")
 
 
-def checkDataServerStatus(database, addr):
+def checkDataServerStatus(addr):
     try:
         wasOnline = database.isServerOnline(addr)
 
-        # print("monitor", addr)
-        conn = Connection(addr)
-        conn.write("status")
-        res = conn.readline()
-        conn.close()
-        # print(res)
+        with Connection(addr) as conn:
+            conn.write("status")
+            res = conn.readline()
+
         status, reservedCapacity, totCapacity, downSpeed, bandDown, upspeed, bandUp = res
         reservedCapacity = int(reservedCapacity)
         totCapacity = int(totCapacity)
@@ -350,19 +342,18 @@ def checkDataServerStatus(database, addr):
                                         downSpeed - bandDown, upspeed - bandUp)
 
         if not wasOnline:
-            onDataServerConnect(database, addr)
+            onDataServerConnect(addr)
     except ConnectionRefusedError as err:
         print(err)
-        onDataServerDisconnect(database, addr)
+        onDataServerDisconnect(addr)
 
 
 def monitorDataServers():
-    database = Database()
-    for server in database.getDataServers(online=False):
-        checkDataServerStatus(database, server.server)
+    for server in database.getDataServers(onlyOnline=False):
+        checkDataServerStatus(server.server)
 
 
-schedule.every(4).seconds.do(monitorDataServers)
+schedule.every(5).seconds.do(monitorDataServers)
 schedule.every(5).seconds.do(processPendingUids)
 schedule.run_all()
 
@@ -373,29 +364,18 @@ def repeatedActions(_):
 
 _thread.start_new_thread(repeatedActions, (None,))
 
+
 class MetaServer(ThreadingTCPServer):
     def server_activate(self):
         ThreadingTCPServer.server_activate(self)
         print("starting metaserver at " + str(self.server_address))
 
+
+@CustomConnection
 class MetaServerHandler(StreamRequestHandler):
-    def write(self, *args):
-        res = ";".join([str(i) for i in args]).strip() + "\n"
-        print("write", res)
-        self.wfile.write(res.encode())
 
-    def readline(self):
-        return self.rfile.readline().strip().decode().split(";")
-
-    def readfile(self, size, outFile):
-        size = int(size)
-        pos = 0
-        while pos != size:
-            chunk = min(1024, size - pos)
-            # print("read", chunk, "bytes")
-            data = self.rfile.read(chunk)
-            outFile.write(data)
-            pos += len(data)
+    def sendfile(self, *args, **kwargs):
+        self.connection.sendfile(*args, **kwargs)
 
     def _getServerForUid(self, uid):
         res = self.database.getServersForUid(uid)
@@ -411,7 +391,12 @@ class MetaServerHandler(StreamRequestHandler):
         return addr
 
     def getPath(self, args):
-        path, = args
+        path, user = args
+
+        lock, lockUser = self.database.getPathLock(path)
+        if lock and lockUser != user:
+            self.write("err", "path locked by " + lockUser)
+            return False
 
         res = self.database.getUidForPath(path)
 
@@ -431,7 +416,12 @@ class MetaServerHandler(StreamRequestHandler):
         self.write("ok", uid, addr)
 
     def deletePath(self, args):
-        path, = args
+        path, user = args
+
+        lock, lockUser = self.database.getPathLock(path)
+        if lock and lockUser != user:
+            self.write("err", "path locked by " + lockUser)
+            return False
 
         res = self.database.getUidsForPath(path)
 
@@ -444,7 +434,12 @@ class MetaServerHandler(StreamRequestHandler):
         self.write("ok")
 
     def permanentlyDeletePath(self, args):
-        path, = args
+        path, user = args
+
+        lock, lockUser = self.database.getPathLock(path)
+        if lock and lockUser != user:
+            self.write("err", "path locked by " + lockUser)
+            return False
 
         res = self.database.getUidsForPath(path)
 
@@ -462,6 +457,10 @@ class MetaServerHandler(StreamRequestHandler):
     def updatePriorityForPath(self, args):
         path, priority = args
         priority = int(priority)
+
+        if priority <= 0:
+            self.write("err", "priority must be >0")
+            return False
 
         res = self.database.getUidForPath(path)
 
@@ -520,10 +519,9 @@ class MetaServerHandler(StreamRequestHandler):
 
         addr = target.server
 
-        dataServer = Connection(addr)
-        dataServer.write("createUid", uid, size, checksum)
-        response = dataServer.readline()
-        dataServer.close()
+        with Connection(addr) as dataServer:
+            dataServer.write("createUid", uid, size, checksum)
+            response = dataServer.readline()
 
         if response[0] != "ok":
             print("ERROR", response[0])
@@ -566,15 +564,15 @@ class MetaServerHandler(StreamRequestHandler):
 
         checkDataServerStatus(self.database, addr)
 
-        conn = Connection(addr)
-        conn.write("getStoredData")
-        len, = conn.readline()
+        with Connection(addr) as conn:
+            conn.write("getStoredData")
+            len, = conn.readline()
 
-        for i in range(int(len)):
-            uid, created, complete = conn.readline()
-            created = dateutil.parser.parse(created)
-            complete = complete == "1"
-            self.database.addStoredObject(uid, addr, complete, created)
+            for i in range(int(len)):
+                uid, created, complete = conn.readline()
+                created = dateutil.parser.parse(created)
+                complete = complete == "1"
+                self.database.addStoredObject(uid, addr, complete, created)
 
         self.write("ok")
 
@@ -593,22 +591,9 @@ class MetaServerHandler(StreamRequestHandler):
         self.database.unlockPath(path)
         self.write("ok")
 
-    def _deleteUid(self, uid, server):
-        self.database.removeStoredObject(uid, server)
-
-        conn = Connection(server)
-        conn.write("deleteUid", uid)
-        res = conn.readline()
-        print(res)
 
     def test(self, args):
         print("test")
-
-        print(self.database.lockPath("lock1"))
-        print(self.database.lockPath("lock1"))
-        print(self.database.isPathLocked("lock1"))
-        print(self.database.unlockPath("lock1"))
-        print(self.database.isPathLocked("lock1"))
 
         pass
 
@@ -643,7 +628,8 @@ class MetaServerHandler(StreamRequestHandler):
 HOST = "localhost"
 PORT = 10000
 
-with MetaServer((HOST, PORT), MetaServerHandler) as server:
-    # Activate the server; this will keep running until you
-    # interrupt the program with Ctrl-C
+with MetaServer((HOST, PORT), MetaServerHandler, bind_and_activate=False) as server:
+    server.allow_reuse_address = True
+    server.server_bind()
+    server.server_activate()
     server.serve_forever()

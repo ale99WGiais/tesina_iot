@@ -14,16 +14,11 @@ import time
 import yaml
 from datetime import datetime
 
-NAME = "dataserver10010"
-HOST = "localhost"
-PORT = 10010
-
-#logging.basicConfig(level=logging.NOTSET, format='(%(threadName)-9s) %(message)s',)
+logging.basicConfig(level=logging.DEBUG, format='(%(asctime)-15s %(threadName)-9s) %(message)s',)
 
 processingLock = threading.Lock()
 processing = set()
 
-config = None
 if len(sys.argv) > 1:
     configFile = sys.argv[1]
     print("load config", configFile)
@@ -32,6 +27,11 @@ if len(sys.argv) > 1:
     NAME = config["name"]
     HOST = config["host"]
     PORT = config["port"]
+    METASERVER = config["metaserver"]
+    workingDir = config["workingDir"]
+else:
+    logging.error("Please specify config file")
+    exit(1)
 
 #bandup and banddown in MB/s
 performances = {"sent": 0, "recv": 0, "lastTime" : 0, "bandup" : 0, "banddown" : 0}
@@ -48,33 +48,31 @@ def getPerformance():
     #print(performances)
 
 def processDeleteUids():
-    print("processDeleteUids...")
+    logging.info("processDeleteUids...")
 
     database = Database()
     uids = database.getToBeDeleted()
-    processingLock.acquire(blocking=True)
 
-    print("uids", uids)
+    with processingLock:
+        logging.info("uids %s", uids)
 
-    for uid, in uids:
-        if uid not in processing:
-            print("delete", uid)
-            uid, localPath, size, complete, created, checksum = database.getObject(uid)
-            if os.path.exists(localPath): os.remove(localPath)
-            database.deleteUid(uid)
-
-    processingLock.release()
+        for uid, in uids:
+            if uid not in processing:
+                logging.info("delete %s", uid)
+                uid, localPath, size, complete, created, checksum = database.getObject(uid)
+                if os.path.exists(localPath): os.remove(localPath)
+                database.deleteUid(uid)
 
 
-schedule.every(2).seconds.do(getPerformance)
-schedule.every(30).seconds.do(processDeleteUids)
+schedule.every(5).seconds.do(getPerformance)
+schedule.every(15).seconds.do(processDeleteUids)
 
-def monitorPerformanceLoop(_):
+def runPeriodicTasks(_):
     while True:
         schedule.run_pending()
         time.sleep(0.1)
 
-_thread.start_new_thread(monitorPerformanceLoop, (None, ))
+_thread.start_new_thread(runPeriodicTasks, (None,))
 
 def hash_bytestr_iter(bytesiter, hasher, ashexstr=True):
     for block in bytesiter:
@@ -97,13 +95,6 @@ class Database:
             self.connection = sqlite3.connect('database.db')
             self.cursor = self.connection.cursor()
             print("connected to database")
-
-        #cursor = sqliteConnection.cursor()
-          #  sqlite_select_Query = "select * from object "
-          #  cursor.execute(sqlite_select_Query)
-          #  record = cursor.fetchall()
-          #  print("SQLite Database Version is: ", record)
-          #  cursor.close()
 
         except sqlite3.Error as error:
             print("error while connecting to database", error)
@@ -159,11 +150,10 @@ class Database:
         self.connection.commit()
 
 
-workingDir = "../data/" + NAME
 if not os.path.exists(workingDir):
     os.makedirs(workingDir)
 os.chdir(workingDir)
-print("work on " + str(os.getcwd()))
+logging.info("work on %s", os.getcwd())
 
 #create db if not exists
 if not os.path.exists("database.db"):
@@ -171,38 +161,35 @@ if not os.path.exists("database.db"):
         with open("../../dataserver/create_db.sqlite3", "r") as sql:
             conn.executescript(sql.read())
 
-if config is not None:
-    database = Database()
-    database.setStats(config["storage"], config["downspeed"], config["upspeed"])
+database = Database()
+database.setStats(config["storage"], config["downspeed"], config["upspeed"])
 
 SERVER = str(HOST) + ":" + str(PORT)
 
-print("dataserver " + str((NAME, HOST, PORT)))
-
-
+logging.info("dataserver %s", str((NAME, HOST, PORT)))
 
 class DataServer(ThreadingTCPServer):
     def server_activate(self):
         ThreadingTCPServer.server_activate(self)
         print("starting dataserver at " + str(self.server_address))
 
-class Connection:
-    def __init__(self, endpoint):
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.s.connect(endpoint)
 
-        self.wfile = self.s.makefile('wb', 0)
-        self.rfile = self.s.makefile('rb', -1)
+def CustomConnection(cls):
+    def addrFromString(self, addr):
+        ip, port = addr.split(":")
+        return (ip, int(port))
 
     def write(self, *args):
         res = ";".join([str(i) for i in args]).strip() + "\n"
-        print("write" , res)
+        logging.info("write %s", res)
         self.wfile.write(res.encode())
 
     def readline(self):
-        return self.rfile.readline().strip().decode().split(";")
+        line = self.rfile.readline().strip().decode().split(";")
+        logging.info("readline %s", line)
+        return line
 
-    def readfile(self, size, outFile):
+    def readFile(self, size, outFile):
         size = int(size)
         pos = 0
         while pos != size:
@@ -212,40 +199,35 @@ class Connection:
             outFile.write(data)
             pos += len(data)
 
-    def sendFile(self, filepath, startIndex):
+    def writeFile(self, filepath, startIndex):
         if type(startIndex) != int:
             startIndex = int(startIndex)
         with open(filepath, "rb") as file:
-            self.s.sendfile(file, startIndex)
+            self.sendfile(file, startIndex)
 
-    def close(self):
-        self.s.close()
+    setattr(cls, "writeFile", writeFile)
+    setattr(cls, "addrFromString", addrFromString)
+    setattr(cls, "readFile", readFile)
+    setattr(cls, "write", write)
+    setattr(cls, "readline", readline)
 
+    return cls
+
+
+@CustomConnection
+class Connection(socket.socket):
+    def __init__(self, endpoint):
+        super(Connection, self).__init__(socket.AF_INET, socket.SOCK_STREAM)
+        self.connect(self.addrFromString(endpoint))
+        self.wfile = self.makefile('wb', 0)
+        self.rfile = self.makefile('rb', -1)
+
+
+@CustomConnection
 class DataServerHandler(StreamRequestHandler):
 
-    def write(self, *args):
-        res = ";".join([str(i) for i in args]).strip() + "\n"
-        print("write ", res)
-        self.wfile.write(res.encode())
-
-    def readline(self):
-        return self.rfile.readline().strip().decode().split(";")
-
-    def sendFile(self, filepath, startIndex):
-        if type(startIndex) != int:
-            startIndex = int(startIndex)
-        with open(filepath, "rb") as file:
-            self.connection.sendfile(file, startIndex)
-
-    def readfile(self, size, outFile):
-        size = int(size)
-        pos = 0
-        while pos != size:
-            chunk = min(1024, size - pos)
-            # print("read", chunk, "bytes")
-            data = self.rfile.read(chunk)
-            outFile.write(data)
-            pos += len(data)
+    def sendfile(self, *args, **kwargs):
+        self.connection.sendfile(*args, **kwargs)
 
     def createUid(self, args):
         uid, size, checksum = args
@@ -272,26 +254,22 @@ class DataServerHandler(StreamRequestHandler):
     def pushUid(self, args):
         uid, = args
 
-        processingLock.acquire(blocking=True)
+        with processingLock:
+            objinfo = self.database.getObject(uid)
 
-        objinfo = self.database.getObject(uid)
+            if objinfo is None:
+                self.write("ERR", "uid info not found")
+                return False
 
-        if objinfo is None:
-            self.write("ERR", "uid info not found")
-            processingLock.release()
-            return False
+            print(objinfo)
 
-        print(objinfo)
+            uid, localpath, size, complete, created, checksum,  = objinfo
 
-        uid, localpath, size, complete, created, checksum,  = objinfo
+            if complete:
+                self.write("err", "file complete")
+                return False
 
-        if complete:
-            self.write("err", "file complete")
-            processingLock.release()
-            return False
-
-        processing.add(uid)
-        processingLock.release()
+            processing.add(uid)
 
         startIndex = 0
         if os.path.exists(localpath):
@@ -302,59 +280,48 @@ class DataServerHandler(StreamRequestHandler):
         self.write("ok", startIndex)
 
         with open(localpath, "a+b") as out:
-            self.readfile(size - int(startIndex), out)
+            self.readFile(size - int(startIndex), out)
 
         file_checksum = hashFile(localpath)
 
-        processingLock.acquire(blocking=True)
-        processing.remove(uid)
-        processingLock.release()
+        with processingLock:
+            processing.remove(uid)
 
-        print("checksum", checksum, "file_checksum", file_checksum)
+            print("checksum", checksum, "file_checksum", file_checksum)
 
-        if file_checksum != checksum:
-            os.remove(localpath)
-            print("ERROR checksum do not match")
-            self.write("err", "checksum do not match")
-            return False
+            if file_checksum != checksum:
+                os.remove(localpath)
+                print("ERROR checksum do not match")
+                self.write("err", "checksum do not match")
+                return False
 
-        self.database.setComplete(uid)
+            self.database.setComplete(uid)
 
-        metaConn = Connection(("localhost", 10000))
-        metaConn.write("pushComplete", uid, SERVER)
-        res = metaConn.readline()
-        print(res)
-        metaConn.close()
+        with Connection(METASERVER) as metaConn:
+            metaConn.write("pushComplete", uid, SERVER)
 
         self.write("ok")
 
     def transfer(self, args):
         uid, server = args
 
-        processingLock.acquire(blocking=True)
+        with processingLock:
+            res = self.database.getObject(uid)
+            if res is None:
+                self.write("err", "uid not found")
+                return False
 
-        res = self.database.getObject(uid)
-        if res is None:
-            self.write("err", "uid not found")
-            processingLock.release()
-            return False
-
-        processing.add(uid)
-        processingLock.release()
+            processing.add(uid)
 
         uid, localPath, size, complete, created, checksum = res
 
-        host, port = server.split(":")
-        port = int(port)
-        target = Connection((host, port))
-        target.write("pushUid", uid)
-        status, startIndex = target.readline()
-        target.sendFile(localPath, startIndex)
-        target.close()
+        with Connection(server) as target:
+            target.write("pushUid", uid)
+            status, startIndex = target.readline()
+            target.writeFile(localPath, startIndex)
 
-        processingLock.acquire(blocking=True)
-        processing.remove(uid)
-        processingLock.release()
+        with processingLock:
+            processing.remove(uid)
 
         self.write("ok")
 
@@ -362,33 +329,28 @@ class DataServerHandler(StreamRequestHandler):
         uid, startIndex = args
         startIndex = int(startIndex)
 
-        processingLock.acquire(blocking=True)
+        with processingLock:
+            res = self.database.getObject(uid)
 
-        res = self.database.getObject(uid)
+            if res is None:
+                self.write("err", "specified uid not present")
+                return False
 
-        if res is None:
-            self.write("err", "specified uid not present")
-            processingLock.release()
-            return False
+            print(res)
 
-        print(res)
+            uid, localPath, size, complete, created, checksum = res
 
-        uid, localPath, size, complete, created, checksum = res
+            if not complete:
+                self.write("err", "not complete")
+                return False
 
-        if not complete:
-            self.write("err", "not complete")
-            processingLock.release()
-            return False
-
-        processing.add(uid)
-        processingLock.release()
+            processing.add(uid)
 
         self.write("ok", size-startIndex)
-        self.sendFile(localPath, startIndex)
+        self.writeFile(localPath, startIndex)
 
-        processingLock.acquire(blocking=True)
-        processing.remove(uid)
-        processingLock.release()
+        with processingLock:
+            processing.remove(uid)
 
     def getStoredData(self, args):
         data = self.database.getStoredData()
@@ -423,9 +385,10 @@ class DataServerHandler(StreamRequestHandler):
         switcher[data[0]](data[1:])
 
 
-with DataServer((HOST, PORT), DataServerHandler) as server:
-    # Activate the server; this will keep running until you
-    # interrupt the program with Ctrl-C
+with DataServer((HOST, PORT), DataServerHandler, bind_and_activate=False) as server:
+    server.allow_reuse_address = True
+    server.server_bind()
+    server.server_activate()
     server.serve_forever()
 
 

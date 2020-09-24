@@ -13,11 +13,6 @@ create table dataserver(
 	primary key(server)
 );
 
-
-insert into dataserver(server, online) values ('localhost:10010', false);
-insert into dataserver(server, online) values ('localhost:10011', false);
-insert into dataserver(server, online) values ('localhost:10012', false);
-
 create table object(
     uid uuid,
     path text,
@@ -60,16 +55,6 @@ create table stored_object(
     created timestamp,
     complete boolean,
     primary key(uid, server)
-);
-
-create table operation_log(
-    id uuid primary key,
-    uid uuid,
-    type text,
-    source_addr text,
-    dest_addr text,
-    created timestamp,
-    completed timestamp
 );
 
 create custom index object_path_idx on object(path)

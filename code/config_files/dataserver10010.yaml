@@ -1,6 +1,8 @@
 name: dataserver10010
+workingDir: /home/ale/Dropbox/tesina iot/code/data/dataserver10010
 host: localhost
 port: 10010
 storage: 100000000
 downspeed: 50
 upspeed: 10
+metaserver: localhost:10000

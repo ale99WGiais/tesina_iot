@@ -11,7 +11,7 @@ import os
 print(os.getcwd())
 
 
-def sendFile(socket, file):
+def writeFile(socket, file):
     pass
 
 # Create a socket (SOCK_STREAM means a TCP socket)
@@ -33,7 +33,7 @@ class Client:
             wfile.write(bytes(data, "utf-8"))
 
             with open('../small_file.txt', 'rb') as f:
-                sock.sendfile(f, 0)
+                sock.writeFile(f, 0)
 
             sock.shutdown(SHUT_WR)
 

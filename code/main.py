@@ -4,6 +4,9 @@ from os.path import getsize
 import os
 import time
 import hashlib
+import logging
+
+logging.basicConfig(level=logging.INFO, format='(%(threadName)-9s) %(message)s',)
 
 METASERVER = "localhost:10000"
 
@@ -26,45 +29,52 @@ def file_as_blockiter(afile, blocksize=65536):
 def hashFile(path):
     return hash_bytestr_iter(file_as_blockiter(open(path, 'rb')), hashlib.sha1())
 
-def addrFromString(addr):
-    ip, port = addr.split(":")
-    return (ip, int(port))
-
-class Connection:
-    def __init__(self, endpoint):
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.s.connect(addrFromString(endpoint))
-
-        self.wfile = self.s.makefile('wb', 0)
-        self.rfile = self.s.makefile('rb', -1)
+def CustomConnection(cls):
+    def addrFromString(self, addr):
+        ip, port = addr.split(":")
+        return (ip, int(port))
 
     def write(self, *args):
         res = ";".join([str(i) for i in args]).strip() + "\n"
-        print("write", res)
+        logging.info("write %s", res)
         self.wfile.write(res.encode())
 
     def readline(self):
-        return self.rfile.readline().strip().decode().split(";")
+        line = self.rfile.readline().strip().decode().split(";")
+        logging.info("readline %s", line)
+        return line
 
-    def readfile(self, size, outFile):
+    def readFile(self, size, outFile):
         size = int(size)
         pos = 0
         while pos != size:
             chunk = min(1024, size - pos)
-            #print("read", chunk, "bytes")
+            # print("read", chunk, "bytes")
             data = self.rfile.read(chunk)
             outFile.write(data)
             pos += len(data)
 
-
-    def sendFile(self, filepath, startIndex):
+    def writeFile(self, filepath, startIndex):
         if type(startIndex) != int:
             startIndex = int(startIndex)
         with open(filepath, "rb") as file:
-            self.s.sendfile(file, startIndex)
+            self.sendfile(file, startIndex)
 
-    def close(self):
-        self.s.close()
+    setattr(cls, "writeFile", writeFile)
+    setattr(cls, "addrFromString", addrFromString)
+    setattr(cls, "readFile", readFile)
+    setattr(cls, "write", write)
+    setattr(cls, "readline", readline)
+
+    return cls
+
+@CustomConnection
+class Connection(socket.socket):
+    def __init__(self, endpoint):
+        super(Connection, self).__init__(socket.AF_INET, socket.SOCK_STREAM)
+        self.connect(self.addrFromString(endpoint))
+        self.wfile = self.makefile('wb', 0)
+        self.rfile = self.makefile('rb', -1)
 
 
 def sendFile(localPath = "small_file.txt", remotePath="testfile.txt", priority=1, user="default"):
@@ -97,7 +107,7 @@ def sendFile(localPath = "small_file.txt", remotePath="testfile.txt", priority=1
 
     print("send starting from", int(startIndex))
 
-    conn.sendFile(localPath, startIndex)
+    conn.writeFile(localPath, startIndex)
     print(conn.readline())
     conn.close()
 
@@ -131,12 +141,12 @@ def unlockPath(path):
     print("unlockPa", path, "lock", res)
     return res
 
-def get(localPath = "testin.txt", remotePath = "ale/file1", newFile=True):
+def get(localPath = "testin.txt", remotePath = "ale/file1", newFile=True, user="default"):
     if newFile and os.path.exists(localPath):
         os.remove(localPath)
 
     conn = Connection(METASERVER)
-    conn.write("getPath", remotePath)
+    conn.write("getPath", remotePath, user)
     res = conn.readline()
     conn.close()
 
@@ -159,7 +169,7 @@ def get(localPath = "testin.txt", remotePath = "ale/file1", newFile=True):
     status, size = res
 
     with open(localPath, "a+b") as out:
-        conn.readfile(size, out)
+        conn.readFile(size, out)
 
     conn.close()
 
@@ -168,11 +178,13 @@ def get(localPath = "testin.txt", remotePath = "ale/file1", newFile=True):
 def test():
     conn = Connection(METASERVER)
     conn.write("test")
+    conn.write("bella", "ziooo")
+    print(conn.readline())
     conn.close()
 
-def deletePath(path):
+def deletePath(path, user="default"):
     conn = Connection(METASERVER)
-    conn.write("deletePath", path)
+    conn.write("deletePath", path, user)
     print(conn.readline())
     conn.close()
 
@@ -193,9 +205,9 @@ def getUid(uid):
     print(conn.readline())
     conn.close()
 
-def permanentlyDeletePath(path):
+def permanentlyDeletePath(path, user="default"):
     conn = Connection(METASERVER)
-    conn.write("permanentlyDeletePath", path)
+    conn.write("permanentlyDeletePath", path, user)
     print(conn.readline())
     conn.close()
 
