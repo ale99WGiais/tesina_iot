@@ -66,7 +66,7 @@ def processDeleteUids():
     processingLock.release()
 
 
-schedule.every(5).seconds.do(getPerformance)
+schedule.every(2).seconds.do(getPerformance)
 schedule.every(30).seconds.do(processDeleteUids)
 
 def monitorPerformanceLoop(_):

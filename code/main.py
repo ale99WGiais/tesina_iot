@@ -207,30 +207,30 @@ def updatePriorityForPath(path, priority):
 
 
 
-
-
 sendFile("small_file.txt", "ale/file1")
 sendFile("small_file.txt", "ale/file2")
 sendFile("small_file.txt", "ale/file3")
+
+input()
 
 sendFile(remotePath="ale/filePriority2", priority=2)
 
 input()
 
-permanentlyDeletePath("ale%")
-
-exit()
-
 list()
 
-exit()
+input()
 
-get(remotePath="ale/file3", localPath="test_in.txt")
+get(remotePath="ale/filePriority2", localPath="test_in.txt")
 
-sendFile(remotePath="testPriority2", priority=2)
-
-get(remotePath="testPriority2")
+input()
 
 deletePath("ale/file3")
 
+input()
+
 get(remotePath="ale/file3")
+
+input()
+
+permanentlyDeletePath("ale/%")

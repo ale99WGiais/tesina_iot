@@ -362,7 +362,7 @@ def monitorDataServers():
         checkDataServerStatus(database, server.server)
 
 
-schedule.every(10).seconds.do(monitorDataServers)
+schedule.every(4).seconds.do(monitorDataServers)
 schedule.every(5).seconds.do(processPendingUids)
 schedule.run_all()
 
@@ -437,8 +437,9 @@ class MetaServerHandler(StreamRequestHandler):
 
         for elem in res:
             uid = elem.uid
-            print("permanentlyDelete", uid)
-            self.database.markUidDeleted(uid, elem.created)
+            print("delete", uid)
+            if elem.deleted is None:
+                self.database.markUidDeleted(uid, elem.created)
 
         self.write("ok")
 
@@ -450,7 +451,9 @@ class MetaServerHandler(StreamRequestHandler):
         for elem in res:
             uid = elem.uid
             print("permanentlyDelete", uid)
-            self.database.markUidDeleted(uid, elem.created)
+
+            if elem.deleted is None:
+                self.database.markUidDeleted(uid, elem.created)
             self.database.updatePriority(uid, elem.created, 0)
             self.database.addPendingUid(uid)
 
