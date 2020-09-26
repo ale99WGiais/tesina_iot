@@ -78,38 +78,36 @@ class Connection(socket.socket):
 
 
 def sendFile(localPath = "small_file.txt", remotePath="testfile.txt", priority=1, user="default"):
-    conn = Connection(METASERVER)
-    size = getsize(localPath)
-    print("file size", size)
+    with Connection(METASERVER) as conn:
+        size = getsize(localPath)
+        print("file size", size)
 
-    checksum = hashFile(localPath)
+        checksum = hashFile(localPath)
 
-    conn.write("pushPath", remotePath, size, checksum, priority, user)
-    res = conn.readline()
+        conn.write("pushPath", remotePath, size, checksum, priority, user)
+        res = conn.readline()
 
-    if res[0] != "ok":
-        print("ERR", res)
-        return False
+        if res[0] != "ok":
+            print("ERR", res)
+            return False
 
-    state, uid, addr = res
-    conn.close()
+        state, uid, addr = res
 
-    conn = Connection(addr)
+    with Connection(addr) as conn:
+        conn.write("pushUid", uid)
 
-    conn.write("pushUid", uid)
+        res = conn.readline()
+        if res[0] != 'ok':
+            print(res)
+            return False
 
-    res = conn.readline()
-    if res[0] != 'ok':
-        print(res)
-        return False
+        status, startIndex = res
 
-    status, startIndex = res
+        print("send starting from", int(startIndex))
 
-    print("send starting from", int(startIndex))
+        conn.writeFile(localPath, startIndex)
+        print(conn.readline())
 
-    conn.writeFile(localPath, startIndex)
-    print(conn.readline())
-    conn.close()
 
 def list(path=""):
     conn = Connection(METASERVER)
@@ -145,10 +143,9 @@ def get(localPath = "testin.txt", remotePath = "ale/file1", newFile=True, user="
     if newFile and os.path.exists(localPath):
         os.remove(localPath)
 
-    conn = Connection(METASERVER)
-    conn.write("getPath", remotePath, user)
-    res = conn.readline()
-    conn.close()
+    with Connection(METASERVER) as conn:
+        conn.write("getPath", remotePath, user)
+        res = conn.readline()
 
     print(res)
 
@@ -162,16 +159,14 @@ def get(localPath = "testin.txt", remotePath = "ale/file1", newFile=True, user="
     if os.path.exists(localPath):
         startIndex = os.path.getsize(localPath)
 
-    conn = Connection(addr)
-    conn.write("getUid", uid, startIndex)
-    res = conn.readline()
-    print(res)
-    status, size = res
+    with Connection(addr) as conn:
+        conn.write("getUid", uid, startIndex)
+        res = conn.readline()
+        print(res)
+        status, size = res
 
-    with open(localPath, "a+b") as out:
-        conn.readFile(size, out)
-
-    conn.close()
+        with open(localPath, "a+b") as out:
+            conn.readFile(size, out)
 
 
 

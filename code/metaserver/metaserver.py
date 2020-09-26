@@ -83,6 +83,17 @@ def makeUUID(uid):
 
 class Database:
     def __init__(self):
+        from cassandra import ConsistencyLevel
+        from cassandra.cluster import Cluster, ExecutionProfile, EXEC_PROFILE_DEFAULT
+        from cassandra.policies import WhiteListRoundRobinPolicy, DowngradingConsistencyRetryPolicy
+        from cassandra.query import tuple_factory
+
+        profile = ExecutionProfile(
+            consistency_level=ConsistencyLevel.QUORUM,
+            serial_consistency_level=ConsistencyLevel.SERIAL
+        )
+
+        cluster = Cluster(execution_profiles={EXEC_PROFILE_DEFAULT: profile})
         self.cluster = Cluster(protocol_version=4)
 
         self.session = self.cluster.connect("metaserver")
@@ -324,9 +335,9 @@ def onDataServerDisconnect(addr):
 
 
 def checkDataServerStatus(addr):
-    try:
-        wasOnline = database.isServerOnline(addr)
+    wasOnline = database.isServerOnline(addr)
 
+    try:
         with Connection(addr) as conn:
             conn.write("status")
             res = conn.readline()
@@ -345,7 +356,8 @@ def checkDataServerStatus(addr):
             onDataServerConnect(addr)
     except ConnectionRefusedError as err:
         print(err)
-        onDataServerDisconnect(addr)
+        if wasOnline:
+            onDataServerDisconnect(addr)
 
 
 def monitorDataServers():
@@ -418,39 +430,37 @@ class MetaServerHandler(StreamRequestHandler):
     def deletePath(self, args):
         path, user = args
 
-        lock, lockUser = self.database.getPathLock(path)
-        if lock and lockUser != user:
-            self.write("err", "path locked by " + lockUser)
-            return False
-
         res = self.database.getUidsForPath(path)
 
         for elem in res:
-            uid = elem.uid
-            print("delete", uid)
-            if elem.deleted is None:
-                self.database.markUidDeleted(uid, elem.created)
+            lock, lockUser = self.database.getPathLock(elem.path)
+            if lock and lockUser != user:
+                self.write("err", "path locked by " + lockUser)
+            else:
+                uid = elem.uid
+                print("delete", uid)
+                if elem.deleted is None:
+                    self.database.markUidDeleted(uid, elem.created)
 
         self.write("ok")
 
     def permanentlyDeletePath(self, args):
         path, user = args
 
-        lock, lockUser = self.database.getPathLock(path)
-        if lock and lockUser != user:
-            self.write("err", "path locked by " + lockUser)
-            return False
-
         res = self.database.getUidsForPath(path)
 
         for elem in res:
-            uid = elem.uid
-            print("permanentlyDelete", uid)
+            lock, lockUser = self.database.getPathLock(elem.path)
+            if lock and lockUser != user:
+                self.write("err", "path locked by " + lockUser)
+            else:
+                uid = elem.uid
+                print("permanentlyDelete", uid)
 
-            if elem.deleted is None:
-                self.database.markUidDeleted(uid, elem.created)
-            self.database.updatePriority(uid, elem.created, 0)
-            self.database.addPendingUid(uid)
+                if elem.deleted is None:
+                    self.database.markUidDeleted(uid, elem.created)
+                self.database.updatePriority(uid, elem.created, 0)
+                self.database.addPendingUid(uid)
 
         self.write("ok")
 
@@ -489,7 +499,6 @@ class MetaServerHandler(StreamRequestHandler):
 
     def pushPath(self, args):
         path, size, checksum, priority, user = args
-        uid = uuid4()
 
         lock, lockUser = self.database.getPathLock(path)
         if lock and lockUser != user:
@@ -517,6 +526,7 @@ class MetaServerHandler(StreamRequestHandler):
             self.write("err", "no dataserver with sufficient capacity")
             return False
 
+        uid = uuid4()
         addr = target.server
 
         with Connection(addr) as dataServer:

@@ -7,13 +7,39 @@
 \BOOKMARK [2][-]{subsection.2.5}{Meta+Data server}{section.2}% 7
 \BOOKMARK [2][-]{subsection.2.6}{Meta+Data server 2}{section.2}% 8
 \BOOKMARK [2][-]{subsection.2.7}{Meta server as distributed system}{section.2}% 9
-\BOOKMARK [1][-]{section.3}{Comandi del client}{}% 10
-\BOOKMARK [1][-]{section.4}{Metadati dei path}{}% 11
-\BOOKMARK [1][-]{section.5}{Protocollo comunicazione}{}% 12
-\BOOKMARK [2][-]{subsection.5.1}{get}{section.5}% 13
-\BOOKMARK [2][-]{subsection.5.2}{push}{section.5}% 14
-\BOOKMARK [2][-]{subsection.5.3}{rem}{section.5}% 15
-\BOOKMARK [2][-]{subsection.5.4}{transfer}{section.5}% 16
-\BOOKMARK [1][-]{section.6}{Logging}{}% 17
-\BOOKMARK [1][-]{section.7}{Sicurezza ed autenticazione}{}% 18
-\BOOKMARK [1][-]{section.8}{Generazione di una chiave identificativa}{}% 19
+\BOOKMARK [1][-]{section.3}{Struttura del filesytem}{}% 10
+\BOOKMARK [2][-]{subsection.3.1}{Semantica dei path}{section.3}% 11
+\BOOKMARK [2][-]{subsection.3.2}{Metadati di un path}{section.3}% 12
+\BOOKMARK [1][-]{section.4}{Comandi del client}{}% 13
+\BOOKMARK [1][-]{section.5}{Protocollo comunicazione}{}% 14
+\BOOKMARK [2][-]{subsection.5.1}{get}{section.5}% 15
+\BOOKMARK [2][-]{subsection.5.2}{push}{section.5}% 16
+\BOOKMARK [2][-]{subsection.5.3}{rem}{section.5}% 17
+\BOOKMARK [2][-]{subsection.5.4}{transfer}{section.5}% 18
+\BOOKMARK [1][-]{section.6}{Logging}{}% 19
+\BOOKMARK [1][-]{section.7}{Sicurezza ed autenticazione}{}% 20
+\BOOKMARK [1][-]{section.8}{Generazione di una chiave identificativa}{}% 21
+\BOOKMARK [1][-]{section.9}{Implementazione}{}% 22
+\BOOKMARK [2][-]{subsection.9.1}{Strumenti software}{section.9}% 23
+\BOOKMARK [2][-]{subsection.9.2}{Struttura del codice}{section.9}% 24
+\BOOKMARK [2][-]{subsection.9.3}{Caricamento della configurazione}{section.9}% 25
+\BOOKMARK [3][-]{subsubsection.9.3.1}{Metaserver}{subsection.9.3}% 26
+\BOOKMARK [3][-]{subsubsection.9.3.2}{Dataserver}{subsection.9.3}% 27
+\BOOKMARK [2][-]{subsection.9.4}{Interfaccia di connessione e scambio dati}{section.9}% 28
+\BOOKMARK [2][-]{subsection.9.5}{Interfaccia al database}{section.9}% 29
+\BOOKMARK [3][-]{subsubsection.9.5.1}{Metaserver}{subsection.9.5}% 30
+\BOOKMARK [3][-]{subsubsection.9.5.2}{Dataserver}{subsection.9.5}% 31
+\BOOKMARK [2][-]{subsection.9.6}{Operazioni periodiche}{section.9}% 32
+\BOOKMARK [3][-]{subsubsection.9.6.1}{Metaserver}{subsection.9.6}% 33
+\BOOKMARK [3][-]{subsubsection.9.6.2}{Dataserver}{subsection.9.6}% 34
+\BOOKMARK [2][-]{subsection.9.7}{ServerSocket e relativo handler}{section.9}% 35
+\BOOKMARK [3][-]{subsubsection.9.7.1}{Caricamento di un file}{subsection.9.7}% 36
+\BOOKMARK [3][-]{subsubsection.9.7.2}{Trasferimento di un file}{subsection.9.7}% 37
+\BOOKMARK [3][-]{subsubsection.9.7.3}{Scaricamento sul client di un documento \(dato il path\)}{subsection.9.7}% 38
+\BOOKMARK [3][-]{subsubsection.9.7.4}{Scaricamento di un documento dato l'uid}{subsection.9.7}% 39
+\BOOKMARK [3][-]{subsubsection.9.7.5}{Eliminazione di un path}{subsection.9.7}% 40
+\BOOKMARK [3][-]{subsubsection.9.7.6}{Eliminazione permanente di un path}{subsection.9.7}% 41
+\BOOKMARK [3][-]{subsubsection.9.7.7}{Lock}{subsection.9.7}% 42
+\BOOKMARK [3][-]{subsubsection.9.7.8}{Modificare la priorit\340 di un documento}{subsection.9.7}% 43
+\BOOKMARK [3][-]{subsubsection.9.7.9}{Aggiungere un dataserver}{subsection.9.7}% 44
+\BOOKMARK [1][-]{section.10}{Considerazioni finali}{}% 45

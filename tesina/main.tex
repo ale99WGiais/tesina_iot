@@ -57,6 +57,7 @@
 \begin{document}
 
 \maketitle
+\tableofcontents
 
 \section{Introduzione} 
 
@@ -82,7 +83,6 @@
 
 Il numero di repliche di un file deve essere \underline{proporzionale} sia all'importanza che al numero di accessi di esso: file con \emph{dati critici} hanno numero di copie maggiore, per agevolarne la \emph{disponibilità} e diminuire le \emph{probabilità di perdita}. 
 
-Il \emph{numero di repliche minimo} è: 2.
 
 \paragraph{Bilanciamento del carico} Per migliorare l'efficienza viene effettuato un bilanciamento del carico: in ogni momento i file vengono \underline{copiati} o \underline{spostati} in modo da non sovraccaricare un singolo nodo. Inoltre, per il trasferimento di un file si cerca di utilizzare il nodo con maggiore \emph{banda disponibile}. 
 
@@ -189,7 +189,7 @@ Verranno di seguito analizzate diverse possibili architetture del sistema, compa
 
 \paragraph{Svantaggi} \begin{itemize}
 	\item Maggiore complessità
-	\item La connessione avviene tra il client ed un nodo, il quale poi distribuisce i dati agli altri nodi. Se questo nodo dispone di una banda limitata, ciò può rappresentare un bottleneck dal punto di vista delle prestazioni. 
+	\item La connessione avviene tra il client ed un nodo, il quale poi distribuisce i dati agli altri nodi. Se questo nodo dispone di una banda limitata, ciò può rappresentare un bottleneck dal punto di vista delle prestazioni. Inoltre l'utilizzo di banda può essere doppio rispetto al necessario: nel caso i dati vadano trasferiti dal client al server (gateway) al server di destinazione o vice versa. 
 \end{itemize}
 
 \begin{figure}[H]
@@ -252,7 +252,7 @@ Verranno di seguito analizzate diverse possibili architetture del sistema, compa
 
 
 \paragraph{Svantaggi} \begin{itemize}
-	\item Maggiore complessita nel gestire operazioni \emph{concorrenti} ed \emph{asincrone} in nodi diversi
+	\item Maggiore complessità nel gestire operazioni \emph{concorrenti} ed \emph{asincrone} in nodi diversi
 \end{itemize}
 
 \begin{figure}[H]
@@ -291,60 +291,55 @@ Verranno di seguito analizzate diverse possibili architetture del sistema, compa
 \end{figure}
 
 
+\section{Struttura del filesytem}
 
-\section{Comandi del client}
+\paragraph{} Il filesystem ha una struttura non convenzionale. Descriveremo quindi la semantica dei path e i metadati ad essi associati. 
 
-Di seguito l'elenco e descrizione dei comandi gestiti dal client.
+\subsection{Semantica dei path}
+
+\paragraph{} Nei sistemi tradizionali il filesystem è formato da cartelle, file e link (associabili a file). La struttura è ad albero oppure grafo, con o senza la possibilità di cicli. La cartella "base" è root (nei sistemi unix-like denotata con il simbolo '/'). Un path può essere associato ad uno delle tre tipologie sopra menzionate; il filesystem memorizza questa associazione oltre che agli altri metadati. 
+
+\paragraph{} Il simbolo '/' viene usato per separare i componenti di un path: ad esempio il path "/dir1/dir2/file1" identifica il file "file1" figlio della directory "dir2" che a sua volta è figlia della directory "dir1" che è figlia di root. Per questo "/" compare tra i caratteri vietati per la nominazione di un oggetto.  
+
+\paragraph{} Nel sistema presentato esistono soltanto i documenti. Essi sono contenitori di dati, ed hanno associati alcuni metadati (in versione semplificata rispetto unix). 
+
+\paragraph{} Un path che termina con un carattere diverso da $\%$ rappresenta un singolo documento (es: "documento1", "home/lavoro\#foto/mare-foto1"). Un path che termina con '\%' rappresenta l'insieme di documenti che ha come prefisso i caratteri antecedenti al simbolo finale (es. "home/lavoro\#foto\%" include tutti i path che rispettano l'espressione regolare "home/lavoro\#foto*"). Il carattere '\%' può essere usato solo come terminatore. Il carattere ';' è vietato in quanto usato come separatore degli argomenti. 
+
+\paragraph{} Questa organizzazione possiede intrinsecamente una struttura ad albero. I path che rappresentano insiemi di documenti sono chiamati \emph{repository}. Le operazioni effettuate su repository hanno effetto su tutti i documenti (anche non ancora creati) appartenenti alla repository. La repository root è naturalmente identificata con il path "\%". "" è un documento valido: si consiglia di usarlo per salvare un documento con le informazioni sul sistema (es proprietario, descrizione, contatti). 
+
+\subsection{Metadati di un path}
+
+\paragraph{} I metadati associati ad un path sono: 
 
 \begin{itemize}
-	\item list(path="root", recursive=true, inclue\_meta=false, format=json)
-	
-	Lista il contenuto di una cartella.
-	
-	Argomenti: \begin{itemize}
-		\item path: directory target. Default: "root"
-		\item recursive: solo cartella o tutto il sottoalbero. In ogni caso non segue i link. Default: true
-		\item include\_meta: include i metadati relativi ad ogni entry. Default: false
-		\item format: formato di output. valori: csv, json. Default: json.
-	\end{itemize}
-	
-	\item mkdir(path)
-	
-	Crea una directory
-	
-	\item meta(path)
-	
-	Metadati di un path
-	
-	\item get(path)
-	
-	Download di un file
-	
-	\item push(file, path) 
-	
-	Upload di un file
-	
-	\item rem(path)
-	
-	Delete di un path 
+	\item uid: identificatore univoco dell'oggetto
+	\item path: deve rappresentare un documento
+	\item created: timestamp di creazione
+	\item size: dimensione in byte, 0 per le directory
+	\item owner: utente proprietario, default chi l'ha creato
+	\item priority: numero minimo di copie, coincide con la priorità 
+	\item checksum: checksum sha1
+	\item deleted: timestamp di eliminazione (vuoto se non eliminato)
 \end{itemize}
 
 
+\section{Comandi del client}
 
+\paragraph{} Di seguito l'elenco e descrizione dei comandi gestiti dal client, su cui deve basarsi l'implementazione del sistema.
 
-\section{Metadati dei path}
-
-I metadati associati ad un path sono: 
-
-\begin{enumerate}
-	\item uid: identificatore univoco dell'oggetto
-	\item path
-	\item creation\_date
-	\item size: dimensione in byte, 0 per le directory
-	\item owner: utente proprietario, default chi l'ha creato
-	\item visible: true/false. Indica se è visibile agli utenti diversi dall'owner
-	\item min\_copies: numero minimo di copie, coincide con la priorità 
-\end{enumerate}
+\begin{itemize}
+	\item list: lista i metadati di un path (documento o documenti attualmente in una repository)
+	
+	\item get: download di un documento
+	
+	\item push: upload di un documento
+	
+	\item rem: eliminazione di path (documento o documenti attualmente in una repository)
+	
+	\item lock: lock e unlock di un path (documento o documenti attualmente in una repository)
+	
+	\item setPriority: aggiornare la priorità di un path (documento o documenti attualmente in una repository)
+\end{itemize}
 
 
 \section{Protocollo comunicazione}
@@ -355,9 +350,9 @@ Di seguito i flussi di dati coinvolti nelle diverse tipologie di richieste.
 
 \paragraph{} La richiesta di tipo \emph{get(path)} richiede il trasferimento in entrata di un file. 
 
-\paragraph{} Inizialmente il \emph{client} contatta il \emph{meta server}, richiedendo un particolare \emph{path}. Il \emph{meta server} seleziona il \emph{data server} ottimale per gestire la richiesta (deve contenere la risorsa e non essere sovraccarico). Il \emph{meta server} risponde quindi al client specificando l'uid della risorsa (richiesto per identificarla) e l'indirizzo del \emph{data server} a cui collegarsi. Il \emph{client} si disconnette dal \emph{meta server}.
+\paragraph{} Inizialmente il \emph{client} contatta il \emph{meta server}, richiedendo un particolare \emph{path}. Il \emph{meta server} seleziona il \emph{data server} ottimale per gestire la richiesta (deve essere online, contenere la risorsa e non essere sovraccarico). Il \emph{meta server} risponde quindi al client specificando l'uid della risorsa (richiesto per identificarla) e l'indirizzo del \emph{data server} a cui collegarsi. Il \emph{client} si disconnette dal \emph{meta server}.
 
-\paragraph{} Il \emph{client} si connette al \emph{data server} inviando una richiesta \emph{get(uid,start\_pos)}. L'argomento \emph{start\_pos} indica da che byte iniziare a trasferire il file (indice 0-based). Se la risorsa è disponibile (come dovrebbe essere) il \emph{data server} invia un \emph{ack} seguito dal flusso di dati del file.) Altrimenti risponde con \emph{err} seguito dai dettagli. 
+\paragraph{} Il \emph{client} si connette al \emph{data server} inviando una richiesta \emph{get(uid,start\_pos)}. L'argomento \emph{start\_pos} indica da che byte iniziare a trasferire il file (indice 0-based). Se la risorsa è disponibile (come dovrebbe essere) il \emph{data server} invia un \emph{ack} seguito dal flusso di dati del file. Altrimenti risponde con \emph{err} seguito dai dettagli. 
 
 \begin{figure}[H]
 	\centering
@@ -371,7 +366,7 @@ Di seguito i flussi di dati coinvolti nelle diverse tipologie di richieste.
 
 \paragraph{} La richiesta di tipo \emph{push(path, data)} richiede il trasferimento in uscita di un file da parte del client. 
 
-\paragraph{} Inizialmente il \emph{client} contatta il \emph{meta server}, inviando \emph{path} e \emph{size}. Il \emph{meta server} seleziona il \emph{data server} ottimale per gestire la richiesta (deve poter contenere la risorsa e non essere sovraccarico). Il \emph{meta server} si occupa anche di generare un nuovo \emph{uid} da assegnare alla risorsa. 
+\paragraph{} Inizialmente il \emph{client} contatta il \emph{meta server}, inviando \emph{path} e \emph{size}. Il \emph{meta server} seleziona il \emph{data server} ottimale per gestire la richiesta (deve essere online, poter contenere la risorsa e non essere sovraccarico). Il \emph{meta server} si occupa anche di generare un nuovo \emph{uid} da assegnare alla risorsa. 
 
 \paragraph{} Il \emph{meta server} si collega al \emph{data server} dove verrà inizialmente salvata la risorsa, inviando un comando \emph{create(uid, size)}. Questo comando predispone il \emph{data server} per ospitare un nuovo documento con tale uid e dimensione. Se non ci sono errori, il \emph{data server} risponde al \emph{meta server} con \emph{ack}. Altrimenti con \emph{err} seguito dai dettagli.
 
@@ -439,7 +434,9 @@ Di seguito i flussi di dati coinvolti nelle diverse tipologie di richieste.
 
 \paragraph{} L'autenticazione da client a server avviene tramite coppia \emph{(username, password)} all'inizio della connessione. La password di ciascun utente può essere cambiata in ogni momento dall'utente stesso, dopo essersi loggato. 
 
-\paragraph{} L'autenticazione da server a server avviene tramite certificato digitale. 
+\paragraph{} L'autenticazione da server a server avviene tramite certificato digitale.
+
+\paragraph{} Per garantire sia l'integrità che la sicurezza (per evitare modifiche volute) viene conservato e verificato il checksum (sha1) di tutti i file in ingresso. 
 
 
 \section{Generazione di una chiave identificativa}
@@ -456,11 +453,1350 @@ Di seguito i flussi di dati coinvolti nelle diverse tipologie di richieste.
 
 \paragraph{} Per superare il problema dell'unicità del nodo una soluzione è prependere al codice l'identificativo del nodo. Ciò garantisce l'unicità della chiave nell'insieme generato dall'intero cluster. È necessario che gli identificativi dei nodi siano univoci, pena il fallimento del sistema. Questo potrebbe essere un problema nel caso venga effettuato un merge tra cluster diversi: se due nodi avevano lo stesso identificativo, almeno uno di essi deve essere rinominato, assieme a tutte le chiavi da esso generate. Ciò potrebbe non essere possibile.  
 
-\paragraph{} Non potendo garantire che tutti i nodi mondiali (quindi appartenenti ad organizzazioni diverse, che non si conoscono), una delle soluzioni maggiormente impiegate consiste nell'utilizzo di UUID. Gli UUID (Universally Unique Identifier) sono stringhe binarie di 128 cifre generate con precise regole, dipendenti dalla versione. Vengono usati generatori di numeri pseudocasuali (con distribuzione uniforme) e funzioni di hash per creare valori apparentemente casuali. Sebbene l'impiego di UUID non garantisca la certezza di generare un valore non visto in precedenza, per avere il 50\% di probabilità di avere almeno una collisione è necessario generare $2.71*10^18$ valori.
+\paragraph{} Non potendo garantire che tutti i nodi mondiali (quindi appartenenti ad organizzazioni diverse, che non si conoscono), una delle soluzioni maggiormente impiegate consiste nell'utilizzo di UUID. Gli UUID (Universally Unique Identifier) sono stringhe binarie di 128 cifre generate con precise regole, dipendenti dalla versione. Vengono usati generatori di numeri pseudocasuali (con distribuzione uniforme) e funzioni di hash per creare valori apparentemente casuali. Sebbene l'impiego di UUID non garantisca la certezza di generare un valore non visto in precedenza, per avere il 50\% di probabilità di avere almeno una collisione è necessario generare $2.71*10^{18}$ valori.
 
 \paragraph{} Quando si lavora con UUID ci sono due grandi filosofie: controllare che il valore generato effettivamente non sia già presente o non fare nulla, contando sul fatto che la collisione non si verifichi. La prima soluzione è più dispendiosa e non sempre più essere implementata in modo efficace, la seconda necessita di meccanismi di recovery che permettono di recuperare il sistema nel caso una collisione si sia verificata. 
 
 
+\section{Implementazione}
+
+\paragraph{} Di seguito verranno mostrati i punti salienti dell'implementazione demo da me sviluppata. Questa implementazione non è commercializzabile, in quanto incompleta, ma ha lo scopo di provare tutte le funzionalità del sistema sopra descritto. 
+
+\subsection{Strumenti software}
+
+\paragraph{} Il linguaggio scelto per implementare client, dataserver e metaserver è Python 3. Questo linguaggio ha numerosi vantaggi: è platform-independent, è semplice ma efficace da utilizzare, permette la scrittura di codice abbastanza compatto, possiede una collezione di librerie praticamente illimitata, si adatta bene alla programmazione concorrente. Unico punto debole è l'efficienza, minore rispetto al C++, ma comunque più che sufficiente per lo scopo. 
+
+\paragraph{} Come dbms per il metaserver ho scelto Apache Cassandra, uno dei più famosi sistemi NoSQL in commercio. Gestisce automaticamente la replicazione e concorrenza all'interno del cluster, con efficacia, in modo da assicurare disponibilità e affidabilità. Le prestazioni sono ottime, come il supporto della community e la documentazione. Cql (Cassandra Query Language) una sintassi molto simile a SQL, cosa che agevola molto l'intervento di programmatori non specializzati.  
+
+\paragraph{} Dato che i dataserver devono essere più leggeri possibile, come dbms per i dataserver ho scelto SQLite3. E' completamente integrato nella libreria standard di Python 3, quindi non necessita dell'installazione di software aggiuntivo. Tutti i dati vengono memorizzati all'interno di un unico file compresso. Le performances sono più che adatte per le operazioni richieste. Sia buona documentazione che facilità di utilizzo sono punti a favore. Il linguaggio è un dialetto SQL, molto simile a quello degli altri sistemi (l'unica differenza importante stà nei tipi di dato, che sono semplificati).  
+
+\paragraph{} I file di configurazione sono in formato YAML: un formato open, human-readable tra i più diffusi al mondo e intuitivi. 
+
+
+\subsection{Struttura del codice}
+
+\paragraph{} Il codice sia di dataserver che metaserver si articola in 5 parti:\begin{itemize}
+	\item Caricamento della cofigurazione
+	\item Interfaccia di connessione e scambio dati
+	\item Interfaccia al database
+	\item Operazioni periodiche
+	\item ServerSocket e relativo handler
+\end{itemize}
+
+\paragraph{} Il client dispone soltanto dell'interfaccia di connessione/scambio dati e dell'implementazione delle operazioni. 
+
+\subsection{Caricamento della configurazione}
+
+\paragraph{} Sia per metaserver che dataserver è obbligatorio fornire il percorso del file di configurazione come primo argomento. 
+
+\subsubsection{Metaserver}
+
+\begin{lstlisting}[language=Python, title=Codice]
+if len(sys.argv) > 1:
+	configFile = sys.argv[1]
+	print("load config", configFile)
+	config = yaml.full_load(open(configFile, "r"))
+	print("config", config)
+else:
+	logging.error("Please provide config file")
+	exit(1)
+
+database = Database()
+
+for dataserver in config["dataservers"]:
+	database.addDataServer(dataserver)
+	print("add dataserver", dataserver)
+\end{lstlisting}
+
+\begin{lstlisting}[title=Esempio di configurazione]
+dataservers:
+	- localhost:10010
+	- localhost:10011
+	- localhost:10012
+\end{lstlisting}
+
+\subsubsection{Dataserver}
+
+\begin{lstlisting}[language=Python, title=Codice]
+if len(sys.argv) > 1:
+	configFile = sys.argv[1]
+	print("load config", configFile)
+	config = yaml.full_load(open(configFile, "r"))
+	print("config", config)
+	NAME = config["name"]
+	HOST = config["host"]
+	PORT = config["port"]
+	METASERVER = config["metaserver"]
+	workingDir = config["workingDir"]
+else:
+	logging.error("Please specify config file")
+	exit(1)
+	
+if not os.path.exists(workingDir):
+	os.makedirs(workingDir)
+	os.chdir(workingDir)
+	logging.info("work on %s", os.getcwd())
+
+#create db if not exists
+if not os.path.exists("database.db"):
+	with sqlite3.connect('database.db') as conn:
+		with open("../../dataserver/create_db.sqlite3", "r") as sql:
+			conn.executescript(sql.read())
+
+database = Database()
+database.setStats(config["storage"], config["downspeed"], config["upspeed"])
+
+SERVER = str(HOST) + ":" + str(PORT)
+
+\end{lstlisting}
+
+\begin{lstlisting}[title=Esempio di configurazione]
+name: dataserver10012
+workingDir: /home/ale/Dropbox/tesina iot/code/data/dataserver10012
+host: localhost
+port: 10012
+storage: 100000000
+downspeed: 50
+upspeed: 10
+metaserver: localhost:10000
+\end{lstlisting}
+
+
+\subsection{Interfaccia di connessione e scambio dati}
+
+\paragraph{} L'interfaccia è unica per client, metaserver e dataserver. E' implementata come decorator per la classe socket e StreamRequestHandler. Utilizza gli oggetti \emph{rfile} (lettura) e \emph{wfile} (scrittura), ottenuti dal socket, per effettuare i trasferimenti. 
+
+\paragraph{} Il trasferimento dati avviene in modalità binaria, per ragioni di efficienza. 
+
+\paragraph{} Il formato dei comandi è testuale (codifica utf). Un comando è formato dalla parola chiave che lo identifica e dalla lista degli argomenti. Il separatore utilizzato è il punto e virgola, i comandi sono terminati dal newline.
+
+\paragraph{} I file vengono scritti dal metodo ad alta efficienza \emph{socket.sendfile}, il quale permette di evitare il double buffering. Vengono letti a blocchi di 1024 byte con il metodo \emph{socket.read}.
+
+\begin{lstlisting}[language=Python, title=Codice]
+def CustomConnection(cls):
+    def addrFromString(self, addr):
+        ip, port = addr.split(":")
+        return (ip, int(port))
+
+    def write(self, *args):
+        res = ";".join([str(i) for i in args]).strip() + "\n"
+        logging.info("write %s", res)
+        self.wfile.write(res.encode())
+
+    def readline(self):
+        line = self.rfile.readline().strip().decode().split(";")
+        logging.info("readline %s", line)
+        return line
+
+    def readFile(self, size, outFile):
+        size = int(size)
+        pos = 0
+        while pos != size:
+            chunk = min(1024, size - pos)
+            # print("read", chunk, "bytes")
+            data = self.rfile.read(chunk)
+            outFile.write(data)
+            pos += len(data)
+
+    def writeFile(self, filepath, startIndex):
+        if type(startIndex) != int:
+            startIndex = int(startIndex)
+        with open(filepath, "rb") as file:
+            self.sendfile(file, startIndex)
+
+    setattr(cls, "writeFile", writeFile)
+    setattr(cls, "addrFromString", addrFromString)
+    setattr(cls, "readFile", readFile)
+    setattr(cls, "write", write)
+    setattr(cls, "readline", readline)
+
+    return cls
+
+
+@CustomConnection
+class Connection(socket.socket):
+    def __init__(self, endpoint):
+        super(Connection, self).__init__(socket.AF_INET, socket.SOCK_STREAM)
+        self.connect(self.addrFromString(endpoint))
+        self.wfile = self.makefile('wb', 0)
+        self.rfile = self.makefile('rb', -1)
+
+
+@CustomConnection
+class DataServerHandler(StreamRequestHandler):
+    def sendfile(self, *args, **kwargs):
+        self.connection.sendfile(*args, **kwargs)
+    
+    ...code...
+
+\end{lstlisting}
+
+\subsection{Interfaccia al database}
+
+\paragraph{} Per interfacciarsi al database metaserver e dataserver hanno degli oggetti dedicati, chiamati \emph{Database}. Essi espongono tutte le query sotto forma di \emph{API}: in questo modo gli utilizzatori del database sono svincolati dall'effettiva implementazione sottostante. Questo è un vantaggio sia in termini di incapsulamento, che rende più semplice la progettazione e manutenzione del software, che nel caso in cui si voglia cambiare dbms, perchè l'utilizzatore non deve essere modificato. 
+
+\subsubsection{Metaserver}
+
+
+
+\begin{lstlisting}[title=Struttura]
+//il fattore di replicazione deve essere <= al numero di server a disposizione
+create keyspace metaserver with replication = {'class' : 'SimpleStrategy', 'replication_factor' : 1};
+
+
+use metaserver;
+
+
+//un metaserver
+create table dataserver(
+	server text,      //indirizzo in formato host:port del dataserver
+	online boolean,     //se in questo momento (all'ultima rilevazione) e' online
+	capacity bigint,     //capacita' in byte totale
+	remaining_capacity bigint,     //capacita' in byte disponibile (totale-utilizzata)
+	available_down float,     //banda in Mb/s disponibile per il download
+	available_up float,       //banda in Mb/s disponibile per l'upload
+	primary key(server)
+);
+
+//un documento
+create table object(
+    uid uuid,
+    path text,        //path associato al documento
+    created timestamp,     //istante di creazione (nel metaserver)
+    owner text,     //proprietario (colui che l'ha creato)
+    size bigint,     //dimensione in byte
+    priority int,     //livello di priorita' (di replicazione)
+    checksum text,      
+    deleted timestamp,       //istante di eliminazione (NULL se non eliminato)
+    primary key(uid, created)
+);
+
+//lock attivi
+create table object_lock(
+    path text,    //path del documento
+    user text,      //utente che detiene il lock
+    primary key(path)
+);
+
+//log delle performance dei dataserver
+create table performance_log(
+    server text,            //indirizzo del dataserver nel formato host:port
+    time timestamp,     //istante di registrazione del record
+    online boolean,         
+	capacity bigint,
+	remaining_capacity bigint,
+	available_down float,
+	available_up float,
+	primary key(server, time)
+);
+
+//oggetti che vanno verificati
+create table pending_object(
+    uid uuid,           //uid dell'oggetto
+    enabled boolean,       //se false, l'oggetto non puo essere attualmente processato perche' non e' disponibile o non sono disponibili server in cui replicarlo
+    primary key(uid)
+);
+
+//documenti salvati nei dataserver
+create table stored_object(
+    uid uuid,       //documento
+    server text,       //indirizzo del server in cui e' salvato, nel formato host:port
+    created timestamp,
+    complete boolean,
+    primary key(uid, server)
+);
+
+//utilizzato per le ricerche di prefissi del tipo "where path like '<prefix>%'"
+create custom index object_path_idx on object(path)
+using 'org.apache.cassandra.index.sasi.SASIIndex';
+
+//utilizzato per selezionare l'ultima versione di un documento, dato il path (con cql non e' possibile ordinare nella query)
+create materialized view pathToObject as select * from object where path is not null and created is not null
+primary key (path, created, uid)
+with clustering order by (created desc);
+
+
+\end{lstlisting}
+
+
+\begin{lstlisting}[language=Python, title=Codice]
+class Database:
+    def __init__(self):
+        self.cluster = Cluster(protocol_version=4)
+
+        self.session = self.cluster.connect("metaserver")
+
+
+    def addDataServer(self, addr):
+        self.session.execute("insert into dataserver(server, online) values (%s, false)", (addr, ))
+
+    def addObject(self, uid, path, owner, size, priority, checksum):
+        if type(uid) == "str":
+            uid = UUID(uid)
+        created = datetime.now()
+        size = int(size)
+        priority = int(priority)
+        self.session.execute("insert into object(uid, path, created, owner, size, priority, checksum) "
+                             "values (%s, %s, %s, %s, %s, %s, %s)"
+                             , (uid, path, created, owner, size, priority, checksum))
+        return uid
+
+    def addStoredObject(self, uid, server, complete=False, created=None):
+        uid = makeUUID(uid)
+        if created is None: created = datetime.now()
+        self.session.execute("insert into stored_object(uid, server, created, complete) values (%s, %s, %s, %s)",
+                             (uid, server, created, complete))
+        return id
+
+    def lockPath(self, path, user="root"):
+        return self.session.execute("insert into object_lock(path, user) values (%s, %s) if not exists",
+                                    (path, user)).one().applied
+
+    def unlockPath(self, path):
+        self.session.execute("delete from object_lock where path = %s", (path, ))
+
+    def getPathLock(self, path):
+        r = self.session.execute("select * from object_lock where path = %s", (path, )).one()
+        if r is None:
+            return False, ""
+        else:
+            return True, r.user
+
+    def getObjectByUid(self, uid):
+        uid = makeUUID(uid)
+        return self.session.execute("select * from object where uid = %s", (uid, )).one()
+
+    def list(self, path):
+        if path == "":
+            return self.session.execute("select * from object").all()
+        else:
+            path = path + "%"
+            return self.session.execute("select * from object where path like %s", (path, )).all()
+
+    def getDataServers(self, onlyOnline=True):
+        if onlyOnline:
+            return self.session.execute("select * from dataserver where online=true allow filtering").all()
+        return self.session.execute("select * from dataserver").all()
+
+    def updateDataServerStatus(self, addr, online, remaining_capacity=0, capacity=0, available_down=.0, available_up=.0):
+        self.session.execute("update dataserver "
+                             "set capacity=%s, remaining_capacity=%s, available_down=%s, "
+                             "available_up=%s, online=%s where server=%s",
+                             (capacity, remaining_capacity,
+                              available_down, available_up, online, addr))
+        self.session.execute("insert into performance_log(server, time, capacity, remaining_capacity, available_down,"
+                             "available_up, online) values (%s, %s, %s, %s, %s, %s, %s)",
+                             (addr, datetime.now(), capacity, remaining_capacity,
+                              available_up, available_down, online))
+
+    def removeStoredObject(self, uid, server):
+        uid = makeUUID(uid)
+        self.session.execute("delete from stored_object where uid = %s and server = %s", (uid, server))
+
+    def removeObject(self, uid):
+        uid = makeUUID(uid)
+        self.session.execute("delete from object where uid = %s", (uid, ))
+
+    def getServersForUid(self, uid, complete=True, online=True):
+        uid = makeUUID(uid)
+        if complete:
+            res = self.session.execute(
+                "select server from stored_object where uid = %s and complete = true allow filtering", (uid, )).all()
+        else:
+            res = self.session.execute(
+                "select server from stored_object where uid = %s allow filtering", (uid, )).all()
+        if online:
+            def f(srv):
+                return self.session.execute("select online from dataserver where server = %s", (srv.server, )).one().online
+            res = list(filter(f, res))
+        print("getServersForUid", uid, res)
+        return res
+
+    def isServerOnline(self, server):
+        return self.session.execute("select online from dataserver where server = %s", (server, )).one().online
+
+    def setComplete(self, uid, server):
+        uid = makeUUID(uid)
+        self.session.execute("update stored_object set complete = true where uid = %s and server = %s", (uid, server))
+
+    def markDeleted(self, path):
+        res = self.getUidForPath(path)
+        timestamp = datetime.now()
+        if res is not None:
+            self.session.execute("update object set deleted = %s where uid = %s and created = %s",
+                                 (timestamp, res.uid, res.created))
+
+    def markUidDeleted(self, uid, created):
+        uid = makeUUID(uid)
+        timestamp = datetime.now()
+        self.session.execute("update object set deleted = %s where uid = %s and created = %s",
+                             (timestamp, uid, created))
+
+    def getUidForPath(self, path):
+        print("path", path)
+        path = str(path)
+        return self.session.execute("select * from pathToObject where path = %s", (path, )).one()
+
+    def getUidsForPath(self, path, noDeleted=False):
+        print("path", path)
+        path = str(path)
+        return self.session.execute("select * from object where path like %s", (path, )).all()
+
+    def getUidsForServer(self, server):
+        return self.session.execute("select uid from stored_object where server = %s allow filtering", (server, ))
+
+    def addPendingUid(self, uid):
+        uid = makeUUID(uid)
+        self.session.execute("insert into pending_object(uid, enabled) values (%s, True)", (uid, ))
+
+    def updatePriority(self, uid, created, priority):
+        uid = makeUUID(uid)
+        self.session.execute("update object set priority=%s where uid=%s and created=%s", (priority, uid, created))
+
+    def getPendingUids(self, onlyEnabled=True):
+        if onlyEnabled:
+            return self.session.execute("select uid from pending_object where enabled=True allow filtering").all()
+        return self.session.execute("select uid from pending_object").all()
+
+    def disablePendingUid(self, uid):
+        uid = makeUUID(uid)
+        self.session.execute("update pending_object set enabled=False where uid = %s", (uid, ))
+
+    def removePendingUid(self, uid):
+        uid = makeUUID(uid)
+        self.session.execute("delete from pending_object where uid = %s", (uid, ))
+
+
+database = Database()
+\end{lstlisting}
+
+
+
+\subsubsection{Dataserver}
+
+\begin{lstlisting}[title=Struttura]
+
+//un oggetto
+create table object(
+    uid text primary key,
+    local_path text,   //percorso del file system dov'e' salvato
+    size integer,   //dimensione in byte (totale)
+    complete integer,    //true se e' completo, false se deve ancora essere totalmente trasferito
+    created text,       //istante di creazione (nel dataserver)
+    checksum text
+);
+
+//configurazione del dataserver
+create table stats(
+    storage int,        //storage totale in byte
+    downspeed int,      //banda totale in download, in Mb/s
+    upspeed int         //banda totale in upload, in Mb/s 
+);
+
+//documenti che vanno eliminati
+create table toBeDeleted(
+    uid text primary key        //uid del documento
+);
+
+
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, title=Codice]
+class Database:
+    def __init__(self):
+        try:
+            self.connection = sqlite3.connect('database.db')
+            self.cursor = self.connection.cursor()
+            print("connected to database")
+
+        except sqlite3.Error as error:
+            print("error while connecting to database", error)
+
+    def getObject(self, uid):
+        print("getObject ------>", (str(uid), ))
+        return self.cursor.execute("select * from object where uid = ?", (str(uid), )).fetchone()
+
+
+    def deleteUid(self, uid):
+        self.cursor.execute("delete from object where uid = ?", (uid, ))
+        self.cursor.execute("delete from transfer where uid = ?", (uid, ))
+        self.cursor.execute("delete from toBeDeleted where uid = ?", (uid, ))
+        self.connection.commit()
+
+    def nodeStats(self):
+        return self.cursor.execute("select * from stats").fetchone()
+
+    def getStoredData(self):
+        return self.cursor.execute("select uid, created, complete from object").fetchall()
+
+    def reservedSpace(self):
+        res = self.cursor.execute("select sum(size) from object").fetchone()[0]
+        if res is None:
+            res = 0
+        return res
+
+    def addToBeDeleted(self, uid):
+        self.cursor.execute("insert into toBeDeleted(uid) values (?)", (uid, ))
+        self.connection.commit()
+
+    def getToBeDeleted(self):
+        return self.cursor.execute("select * from toBeDeleted").fetchall()
+
+    def addObject(self, uid, local_path, size, checksum):
+        complete = 0
+        created = datetime.now()
+
+        self.cursor.execute("insert into object(uid, local_path, size, complete, checksum, created) values (?, ?, ?, ?, ?, ?)",
+                            (uid, local_path, size, complete, checksum, created))
+        self.connection.commit()
+
+        return self.cursor.lastrowid
+
+    def setComplete(self, uid):
+        self.cursor.execute("update object set complete=1 where uid = ?", (uid, ))
+        self.connection.commit()
+
+    def setStats(self, storage, downspeed, upspeed):
+        self.cursor.execute("delete from stats")
+        self.cursor.execute("insert into stats(storage, downspeed, upspeed) values (?, ?, ?)",
+                            (storage, downspeed, upspeed))
+        self.connection.commit()
+
+database = Database()
+\end{lstlisting}
+
+
+\subsection{Operazioni periodiche}
+
+\paragraph{} Le operazioni che non possono essere eseguite subito (es: eliminazione di un documento mentre sta venendo trasferito) oppure che vanno eseguite regolarmente (es: monitoraggio delle prestazioni del dataserver) sono valutate periodicamente ed eseguite nel primo momento utile. 
+
+\paragraph{} Lo schema di esecuzione è molto semplice: ogni operazione periodica è schedulata ad intervalli regolari (es 10 secondi) e viene eseguita da un looper thread.
+
+\subsubsection{Metaserver}
+
+\paragraph{} Nel metaserver le operazioni periodiche sono:\begin{itemize}
+	\item Controllo dello stato dei dataserver
+	\item Mantenimento del grado di replicazione dei documenti
+\end{itemize}
+
+\begin{lstlisting}[language=Python, title=Controllo dello stato dei dataserver]
+def onDataServerConnect(addr):
+    print("server", addr, "connected")
+
+    for elem in database.getUidsForServer(addr):
+        database.addPendingUid(elem.uid)
+
+    for elem in database.getPendingUids(onlyEnabled=False):
+        database.addPendingUid(elem.uid)
+
+def onDataServerDisconnect(addr):
+    if database.isServerOnline(addr):
+        database.updateDataServerStatus(addr, False)
+
+        for elem in database.getUidsForServer(addr):
+            database.addPendingUid(elem.uid)
+
+        print("server", addr, "disconnected")
+
+
+def checkDataServerStatus(addr):
+    wasOnline = database.isServerOnline(addr)
+    
+    try:
+        with Connection(addr) as conn:
+            conn.write("status")
+            res = conn.readline()
+
+        status, reservedCapacity, totCapacity, downSpeed, bandDown, upspeed, bandUp = res
+        reservedCapacity = int(reservedCapacity)
+        totCapacity = int(totCapacity)
+        downSpeed = float(downSpeed)
+        bandDown = float(bandDown)
+        upspeed = float(upspeed)
+        bandUp = float(bandUp)
+        database.updateDataServerStatus(addr, True, totCapacity - reservedCapacity, totCapacity,
+                                        downSpeed - bandDown, upspeed - bandUp)
+
+        if not wasOnline:
+            onDataServerConnect(addr)
+    except ConnectionRefusedError as err:
+        print(err)
+        if wasOnline:
+            onDataServerDisconnect(addr)
+
+def monitorDataServers():
+    for server in database.getDataServers(onlyOnline=False):
+        checkDataServerStatus(server.server)
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, title=Mantenimento del grado di replicazione dei documenti]
+def processPendingUids():
+    for elem in database.getPendingUids():
+        processPendingUid(database, elem.uid)
+
+def processPendingUid(database, uid):
+    res = database.getObjectByUid(uid)
+    print(res)
+    priority = res.priority
+    size = res.size
+    checksum = res.checksum
+    print("priority", priority)
+
+    serversContaining = {x.server for x in database.getServersForUid(uid)}
+    numCopies = len(serversContaining)
+
+    print("serversContaining", serversContaining)
+    availableServers = [x.server for x in database.getDataServers() if x.server not in serversContaining]
+
+    print("availableServers", availableServers)
+
+    serversContaining = list(serversContaining)
+
+    if numCopies == priority:
+        database.removePendingUid(uid)
+        return
+
+    if numCopies > priority:
+        random.shuffle(serversContaining)
+        target = serversContaining[0]
+
+        print("remove", uid, "target", target)
+
+        with Connection(target) as conn:
+            conn.write("deleteUid", uid)
+            res = conn.readline()
+            print(res)
+
+        database.removeStoredObject(uid, target)
+        return
+
+    if numCopies < priority:
+
+        if len(serversContaining) == 0:
+            database.disablePendingUid(uid)
+            return
+
+        if len(availableServers) > 0:
+            random.shuffle(availableServers)
+            random.shuffle(serversContaining)
+
+            try:
+                source = serversContaining[0]
+                target = availableServers[0]
+
+                database.addStoredObject(uid, target)
+
+                with Connection(target) as conn:
+                    conn.write("createUid", uid, size, checksum)
+                    print(conn.readline())
+
+                with Connection(source) as conn:
+                    conn.write("transfer", uid, target)
+                    print(conn.readline())
+
+            except:
+                print("ERROR")
+        else:
+            database.disablePendingUid(uid)
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, title=Scheduling ed esecuzione]
+schedule.every(5).seconds.do(monitorDataServers)
+schedule.every(5).seconds.do(processPendingUids)
+schedule.run_all()
+
+def repeatedActions(_):
+    while True:
+        schedule.run_pending()
+        time.sleep(0.1)
+
+_thread.start_new_thread(repeatedActions, (None,))
+\end{lstlisting}
+
+
+\subsubsection{Dataserver}
+
+\paragraph{} Nel dataserver le operazioni periodiche sono:\begin{itemize}
+	\item Controllo dello stato interno (utilizzo della banda e della memoria di massa)
+	\item Eliminazione dei documenti in coda
+\end{itemize}
+
+
+\begin{lstlisting}[language=Python, title=Controllo dello stato interno]
+#bandup and banddown in MB/s
+performances = {"sent": 0, "recv": 0, "lastTime" : 0, "bandup" : 0, "banddown" : 0}
+
+def getPerformance():
+    res = psutil.net_io_counters()
+    curtime = time.time()
+    delta = curtime - performances["lastTime"]
+    performances["lastTime"] = curtime
+    performances["bandup"] = (res.bytes_sent - performances["sent"]) / delta / 1000000
+    performances["banddown"] = (res.bytes_recv - performances["recv"]) / delta / 1000000
+    performances["sent"] = res.bytes_sent
+    performances["recv"] = res.bytes_recv
+    #print(performances)
+\end{lstlisting}
+
+
+\paragraph{} Per tenere traccia dei documenti attualmente in trasferimento, che quindi non possono essere eliminati, viene utilizzato il set \emph{processing}. Esso contiene in ogni momento tutti gli uid relativi a documenti in caricamento e in trasferimento. 
+
+\begin{lstlisting}[language=Python, title=Eliminazione dei documenti in coda]
+def processDeleteUids():
+    logging.info("processDeleteUids...")
+
+    database = Database()
+    uids = database.getToBeDeleted()
+
+    with processingLock:
+        logging.info("uids %s", uids)
+
+        for uid, in uids:
+            if uid not in processing:
+                logging.info("delete %s", uid)
+                uid, localPath, size, complete, created, checksum = database.getObject(uid)
+                if os.path.exists(localPath): os.remove(localPath)
+                database.deleteUid(uid)
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, title=Scheduling ed esecuzione]
+schedule.every(5).seconds.do(getPerformance)
+schedule.every(15).seconds.do(processDeleteUids)
+
+def runPeriodicTasks(_):
+    while True:
+        schedule.run_pending()
+        time.sleep(0.1)
+
+_thread.start_new_thread(runPeriodicTasks, (None,))
+\end{lstlisting}
+
+
+\subsection{ServerSocket e relativo handler}
+
+\paragraph{} Il punto di contatto di metaserver è il metodo \emph{handle()}. Esso si occupa del \emph{dispatching} delle richieste, con l'ausilio di una mappa delle operazioni. Si ricorda che, secondo il protocollo di comunicazione, una richiesta è formata dal nome ed eventuali parametri, separati dal punto e virgola e terminati da newline. Una soluzione analoga è presente per il dataserver.
+
+\paragraph{} Una eventuale richiesta non riconosciuta viene automaticamente scartata.
+
+\begin{lstlisting}[language=Python, title=Metaserver e relativo handler]
+    ...
+    
+    def handle(self):
+        self.database = Database()
+
+        switcher = {
+            "getPath": self.getPath,
+            "pushPath": self.pushPath,
+            "list": self.list,
+            "pushComplete": self.pushComplete,
+            "test": self.test,
+            "deletePath": self.deletePath,
+            "addDataServer": self.addDataServer,
+            "getUid": self.getUid,
+            "lockPath": self.lockPath,
+            "getPathLock": self.getPathLock,
+            "unlockPath": self.unlockPath,
+            "updatePriorityForPath": self.updatePriorityForPath,
+            "updatePriorityForUid": self.updatePriorityForUid,
+            "permanentlyDeletePath": self.permanentlyDeletePath
+        }
+
+        print("handle request from " + str(self.client_address))
+
+        data = self.readline()
+        print(data)
+
+        switcher[data[0]](data[1:])
+
+with MetaServer((HOST, PORT), MetaServerHandler, bind_and_activate=True) as server:
+    server.serve_forever()
+\end{lstlisting}
+
+\paragraph{} In questa sezione vengono analizzate le implementazioni di tutti i metodi/operazioni che possono essere eseguite. L'analisi è suddivisa per operazioni, in modo da poter apprezzare meglio le interazioni tra i componenti. 
+
+\subsubsection{Caricamento di un file}
+
+\paragraph{} Questa azione viene usata dal client per caricare un documento.
+
+\paragraph{} Inizialmente il client si collega al dataserver inviando \emph{path, dimensione, checksum, priorità, utente}.
+
+\begin{lstlisting}[language=Python, title=Client]
+def sendFile(localPath = "small_file.txt", remotePath="testfile.txt", priority=1, user="default"):
+    with Connection(METASERVER) as conn:
+        size = getsize(localPath)
+        print("file size", size)
+
+        checksum = hashFile(localPath)
+
+        conn.write("pushPath", remotePath, size, checksum, priority, user)
+        res = conn.readline()
+
+        if res[0] != "ok":
+            print("ERR", res)
+            return False
+
+        state, uid, addr = res
+    ...
+\end{lstlisting}
+
+\paragraph{} Il metaserver controlla che il path non sia bloccato da un altro utente, cerca un dataserver che possa ospitare il documento e gli assegna un nuovo uid.
+
+\begin{lstlisting}[language=Python, title=Metaserver]
+def pushPath(self, args):
+    path, size, checksum, priority, user = args
+
+    lock, lockUser = self.database.getPathLock(path)
+    if lock and lockUser != user:
+        self.write("err", "path locked by " + lockUser)
+        return False
+    
+    dataservers = self.database.getDataServers()
+
+    if len(dataservers) == 0:
+        self.write("err", "no data servers available")
+        return False
+
+    random.shuffle(dataservers)
+
+    size = int(size)
+    target = None
+    for target in dataservers:
+        print("option server", target.server, "rem capacity", target.remaining_capacity, "file size", size)
+        if target.remaining_capacity > size:
+            break
+        else:
+            target = None
+
+    if target is None:
+        self.write("err", "no dataserver with sufficient capacity")
+        return False
+
+    uid = uuid4()
+    addr = target.server
+    ...
+\end{lstlisting}
+
+\paragraph{} Il metaserver contatta il dataserver di destinazione creando la risorsa.
+
+\begin{lstlisting}[language=Python, title=Metaserver]
+    ...
+    with Connection(addr) as dataServer:
+        dataServer.write("createUid", uid, size, checksum)
+        response = dataServer.readline()
+
+    if response[0] != "ok":
+        print("ERROR", response[0])
+        self.write("err", response)
+        return False
+    ...
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, title=Dataserver]
+def createUid(self, args):
+    uid, size, checksum = args
+    local_path = os.getcwd() + "/" + uid
+    print("local_path", local_path)
+
+    self.database.addObject(uid, local_path, size, checksum)
+
+    self.write("ok")
+\end{lstlisting}
+
+\paragraph{} Il metaserver marca come eliminato l'oggetto associato al path (se esiste) e aggiunge il nuovo oggetto al database. Risponde al client indicando \emph{uid, addr}. 
+
+\begin{lstlisting}[language=Python, title=Metaserver]
+    self.database.markDeleted(path)
+    self.database.addObject(uid, path, "root", size, priority, checksum)
+    self.database.addStoredObject(uid, addr)
+
+    self.write("ok", uid, addr)
+\end{lstlisting}
+
+\paragraph{} Il client si collega al dataserver target e invia il file. Se il file era stato già parzialmente caricato nel dataserver (es. file di grosse dimensioni), il caricamento riprende da dover era rimasto. Se il file era già stato caricato completamente (ovvero il client tenta di caricare un file già completo), viene generato un errore. Se il checksum al termine del caricamento non corrisponde, il documento viene subito eliminato per essere ricaricato in futuro. 
+
+\begin{lstlisting}[language=Python, title=Client]
+    ...
+    with Connection(addr) as conn:
+        conn.write("pushUid", uid)
+
+        res = conn.readline()
+        if res[0] != 'ok':
+            print(res)
+            return False
+
+        status, startIndex = res
+
+        print("send starting from", int(startIndex))
+
+        conn.writeFile(localPath, startIndex)
+        print(conn.readline())
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, title=Dataserver]
+def pushUid(self, args):
+    uid, = args
+
+    with processingLock:
+        objinfo = self.database.getObject(uid)
+
+        if objinfo is None:
+            self.write("ERR", "uid info not found")
+            return False
+
+        print(objinfo)
+
+        uid, localpath, size, complete, created, checksum,  = objinfo
+
+        if complete:
+            self.write("err", "file complete")
+            return False
+
+        processing.add(uid)
+
+    startIndex = 0
+    if os.path.exists(localpath):
+        startIndex = os.path.getsize(localpath)
+
+    assert startIndex < size   #altrimenti sarebbe complete
+
+    self.write("ok", startIndex)
+
+    with open(localpath, "a+b") as out:
+        self.readFile(size - int(startIndex), out)
+
+    file_checksum = hashFile(localpath)
+
+    with processingLock:
+        processing.remove(uid)
+
+        print("checksum", checksum, "file_checksum", file_checksum)
+
+        if file_checksum != checksum:
+            os.remove(localpath)
+            print("ERROR checksum do not match")
+            self.write("err", "checksum do not match")
+            return False
+
+        self.database.setComplete(uid)
+\end{lstlisting}
+
+\paragraph{} Il dataserver invia al metaserver la notifica che il caricamento è completo, e quindi il documento può essere utilizzato.
+
+\begin{lstlisting}[language=Python, title=Dataserver]
+    ...
+    with Connection(METASERVER) as metaConn:
+        metaConn.write("pushComplete", uid, SERVER)
+
+    self.write("ok")
+\end{lstlisting}
+
+\paragraph{} Il metaserver processa l'elemento per controllarne il grado di replicazione.
+
+\begin{lstlisting}[language=Python, title=Metaserver]
+def pushComplete(self, args):
+    uid, addr = args
+
+    self.database.setComplete(uid, addr)
+    self.database.addPendingUid(uid)
+
+    self.write("ok")
+\end{lstlisting}
+
+
+\subsubsection{Trasferimento di un file}
+
+\paragraph{} Il trasferimento viene usato dal metaserver per copiare un documento da un dataserver ad un altro, aumentandone così il grado di replicazione.
+
+\paragraph{} Il metaserver prima configura il server di destinazione per ricevere il documento, come nel caso del caricamento da parte del client. Poi invia la richiesta di trasferimento al server sorgente specificando \emph{uid, indirizzo server destinazione}.
+
+\begin{lstlisting}[language=Python, title=Metaserver]
+with Connection(target) as conn:
+    conn.write("createUid", uid, size, checksum)
+    print(conn.readline())
+
+with Connection(source) as conn:
+    conn.write("transfer", uid, target)
+    print(conn.readline())
+\end{lstlisting}
+
+\paragraph{} Il caricamento del documento dal server sorgente a destinazione avviene con lo stesso metodo usato nel caricamento da client a dataserver.
+
+\begin{lstlisting}[language=Python, title=Dataserver sorgente]
+def transfer(self, args):
+    uid, server = args
+
+    with processingLock:
+        res = self.database.getObject(uid)
+        if res is None:
+            self.write("err", "uid not found")
+            return False
+
+        processing.add(uid)
+
+    uid, localPath, size, complete, created, checksum = res
+
+    with Connection(server) as target:
+        target.write("pushUid", uid)
+        status, startIndex = target.readline()
+        target.writeFile(localPath, startIndex)
+
+    with processing:
+        processing.remove(uid)
+
+    self.write("ok")
+\end{lstlisting}
+
+
+
+\subsubsection{Scaricamento sul client di un documento (dato il path)}
+
+\paragraph{} Questa è l'operazione con cui il client ottiene un documento dal sistema di storage.
+
+\paragraph{} Inizialmente il client contatta il metaserver indicando il path che vuole scaricare.
+
+\begin{lstlisting}[language=Python, title=Client]
+def get(localPath = "testin.txt", remotePath = "ale/file1", newFile=True, user="default"):
+    if newFile and os.path.exists(localPath):
+        os.remove(localPath)
+
+    with Connection(METASERVER) as conn:
+        conn.write("getPath", remotePath, user)
+        res = conn.readline()
+
+    print(res)
+
+    if res[0] != 'ok':
+        print("ERR", res)
+        return False
+
+    status, uid, addr = res
+\end{lstlisting}
+
+\paragraph{} Il metaserver verifca che il path non sia bloccato da un altro utente, cerca l'uid associato al path (quello che corrisponde all'ultima versione del documento), cerca un dataserver che lo contenga (possibilmente seleziona il migliore) e risponde al client indicando \emph{uid, indirizzo dataserver}.
+
+\begin{lstlisting}[language=Python, title=Metaserver]
+def getPath(self, args):
+    path, user = args
+
+    lock, lockUser = self.database.getPathLock(path)
+    if lock and lockUser != user:
+        self.write("err", "path locked by " + lockUser)
+        return False
+
+    res = self.database.getUidForPath(path)
+
+    if not res:
+        self.write("err", "path not found")
+        return False
+
+    if res.deleted is not None:
+        self.write("err", "path deleted")
+        return False
+
+    uid = res.uid
+    print("uid", uid)
+
+    addr = self._getServerForUid(uid)
+
+    self.write("ok", uid, addr)
+\end{lstlisting}
+
+\paragraph{} A quel punto il client si collega al dataserver sorgente, invia la posizione da cui vuole iniziare a leggere il documento (usato per riprendere il trasferimento interrotto di un file di grandi dimensioni) e legge il file. La chiamata usata in questo caso è \emph{getUid}. 
+
+\begin{lstlisting}[language=Python, title=Client]
+startIndex = 0
+    if os.path.exists(localPath):
+        startIndex = os.path.getsize(localPath)
+
+    with Connection(addr) as conn:
+        conn.write("getUid", uid, startIndex)
+        res = conn.readline()
+        print(res)
+        status, size = res
+    
+        with open(localPath, "a+b") as out:
+            conn.readFile(size, out)
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, title=Codice]
+def getUid(self, args):
+    uid, startIndex = args
+    startIndex = int(startIndex)
+
+    with processingLock:
+        res = self.database.getObject(uid)
+
+        if res is None:
+            self.write("err", "specified uid not present")
+            return False
+
+        print(res)
+
+        uid, localPath, size, complete, created, checksum = res
+
+        if not complete:
+            self.write("err", "not complete")
+            return False
+
+        processing.add(uid)
+
+    self.write("ok", size-startIndex)
+    self.writeFile(localPath, startIndex)
+
+    with processingLock:
+        processing.remove(uid)
+\end{lstlisting}
+
+\subsubsection{Scaricamento di un documento dato l'uid}
+
+\paragraph{} Nel caso in cui si voglia ottenere una particolare versione di un documento, si segue un meccanismo analogo al precedente. La differenza è che il client effettua una richiesta iniziale del tipo \emph{getUid}, al posto che \emph{getPath}, verso il metaserver. 
+
+\begin{lstlisting}[language=Python, title=Metaserver]
+def _getServerForUid(self, uid):
+    res = self.database.getServersForUid(uid)
+    print("servers", res)
+
+    if len(res) == 0:
+        self.write("err", "no copies available")
+        return False
+
+    random.shuffle(res)
+
+    addr = res[0].server
+    return addr
+
+def getUid(self, args):
+    uid, = args
+
+    addr = self._getServerForUid(uid)
+
+    self.write("ok", addr)
+\end{lstlisting}
+
+\subsubsection{Eliminazione di un path}
+
+\paragraph{} Questa operazione permette di eliminare logicamente un path. Tutti i documenti interessati vengono marcati come eliminati ma conservati, in modo che sia possibile reperirli tramite l'uid.
+
+\paragraph{} Il client effettua una richesta del tipo \emph{deletePath} indicando \emph{path, utente}. Remind: path può riferirsi ad un documento (es "doc1") o ad una directory (es "dir1\%"). 
+
+\begin{lstlisting}[language=Python, title=Client]
+def deletePath(path, user="default"):
+    conn = Connection(METASERVER)
+    conn.write("deletePath", path, user)
+    print(conn.readline())
+    conn.close()
+\end{lstlisting}
+
+\paragraph{} Il metaserver ricerca tutti i documenti interessati e, se non sono bloccati, li marca come eliminati. 
+
+\begin{lstlisting}[language=Python, title=Metaserver]
+def deletePath(self, args):
+    path, user = args
+
+    res = self.database.getUidsForPath(path)
+
+    for elem in res:
+        lock, lockUser = self.database.getPathLock(elem.path)
+        if lock and lockUser != user:
+            self.write("err", "path locked by " + lockUser)
+        else:
+            uid = elem.uid
+            print("delete", uid)
+            if elem.deleted is None:
+                self.database.markUidDeleted(uid, elem.created)
+
+    self.write("ok")
+\end{lstlisting}
+
+\subsubsection{Eliminazione permanente di un path}
+
+\paragraph{} L'eliminazione permanente di un path causa la cancellazione logica e fisica di tutti i dati relativi ad un path. In questo modo tutto lo spazio verrà liberato e non sarà più possibile recuperare i dati. 
+
+\paragraph{} Il client invia una richiesta del tipo \emph{permanentlyDeletePath} al metaserver indicando \emph{path, utente}.
+
+\begin{lstlisting}[language=Python, title=Codice]
+def permanentlyDeletePath(path, user="default"):
+    conn = Connection(METASERVER)
+    conn.write("permanentlyDeletePath", path, user)
+    print(conn.readline())
+    conn.close()
+\end{lstlisting}
+
+\paragraph{} Come nel caso precedente, il metaserver verifica che i documenti non siano bloccati da altri utenti. In seguito marca ogni documento non bloccato come eliminato e gli setta priorità nulla, di fatto schedulando l'eliminazione tutte le repliche.
+
+\begin{lstlisting}[language=Python, title=Codice]
+def permanentlyDeletePath(self, args):
+    path, user = args
+
+    res = self.database.getUidsForPath(path)
+
+    for elem in res:
+        lock, lockUser = self.database.getPathLock(elem.path)
+        if lock and lockUser != user:
+            self.write("err", "path locked by " + lockUser)
+        else:
+            uid = elem.uid
+            print("permanentlyDelete", uid)
+
+            if elem.deleted is None:
+                self.database.markUidDeleted(uid, elem.created)
+            self.database.updatePriority(uid, elem.created, 0)
+            self.database.addPendingUid(uid)
+
+    self.write("ok")
+\end{lstlisting}
+
+\subsubsection{Lock}
+
+\paragraph{} Mediante il meccanismo dei lock un client può "bloccare" un path (solo singolo documento). Quando un path è bloccato, tutte le richieste di altri utenti riguardanti quel path vengono respinte. 
+
+\paragraph{} Per effettuare un lock, il client specifica il \emph{path, utente}. 
+
+\begin{lstlisting}[language=Python, title=Client]
+def lockPath(path, user="default"):
+    conn = Connection(METASERVER)
+    conn.write("lockPath", path, user)
+    res, = conn.readline()
+    print("lockPath", path, "lock", res, "by", user)
+    return res
+\end{lstlisting}
+
+\paragraph{} Il metaserver risponde con True/False per indicare se il lock ha avuto successo. Fallisce quando si tenta di bloccare un path già bloccato da un altro utente.
+
+\begin{lstlisting}[language=Python, title=Metaserver]
+def lockPath(self, args):
+    path, user = args
+    res = self.database.lockPath(path, user)
+    self.write(res)
+\end{lstlisting}
+
+\paragraph{} Per verificare se un path sia bloccato si può effettuare una richiesta del tipo \emph{getPathLock}. Essa restituisce un booleano e, nel caso sia bloccato, anche l'utente che detiene il blocco.
+
+\begin{lstlisting}[language=Python, title=Metaserver]
+def getPathLock(self, args):
+    path, = args
+    lock, user = self.database.getPathLock(path)
+    self.write(lock, user)
+\end{lstlisting}
+
+\paragraph{} Per sbloccare un path è sufficiente invocare la richiesta \emph{unlockPath}. Essa non effettua controlli e si affida alla correttezza di comportamento dei client: questo per permettere a chiunque di sbloccare un path bloccato da un utente che è andato offline (al posto che lasciarlo bloccato per tempo arbitrario). 
+
+\begin{lstlisting}[language=Python, title=Metaserver]
+def unlockPath(self, args):
+    path, = args
+    self.database.unlockPath(path)
+    self.write("ok")
+\end{lstlisting}
+
+\paragraph{} Gestire i lock su repository, al posto che singoli documenti, è tutt'altro che banale. Non avendo a disposizione all'interno di Cassandra l'operatore ILIKE, non ho trovato una soluzione efficiente per interrogare il database in modo da controllare se uno dei lock presenti sia prefisso del path che voglio controllare. 
+
+\subsubsection{Modificare la priorità di un documento}
+
+\paragraph{} È possibile in ogni momento modificare la priorità di un determinato documento. Con \emph{updatePriorityForPath} viene modificata la priorità dell'ultima versione non eliminata di un documento, mentre con \emph{updatePriorityForUid} è possibile effettuare l'operazione su una versione specificata. 
+
+\paragraph{} Il client contatta il metaserver indicando \emph{path, utente, nuova priorità}. La nuova priorità deve essere >0. 
+
+\begin{lstlisting}[language=Python, title=Metaserver]
+def updatePriorityForPath(self, args):
+    path, priority = args
+    priority = int(priority)
+
+    if priority <= 0:
+        self.write("err", "priority must be >0")
+        return False
+
+    res = self.database.getUidForPath(path)
+
+    if res is None:
+        self.write("err", "path " + path + " not found")
+        return False
+
+    uid = res.uid
+    print(uid)
+
+    self.database.updatePriority(uid, res.created, priority)
+    self.database.addPendingUid(uid)
+
+    self.write("ok")
+
+def updatePriorityForUid(self, args):
+    uid, priority = args
+    priority = int(priority)
+
+    res = self.getUid(uid)
+
+    self.database.updatePriority(uid, res.created, priority)
+    self.database.addPendingUid(uid)
+
+    self.write("ok")
+\end{lstlisting}
+
+\subsubsection{Aggiungere un dataserver}
+
+\paragraph{} È possibile aggiungere un nuovo dataserver utilizzando la richiesta \emph{addDataServer}, a cui va specificato l'indirizzo del dataserver. 
+
+\paragraph{} Al momento della connessione il metaserver richiede al dataserver la lista dei contenuti in modo da aggiornare le proprie tabelle. 
+
+\begin{lstlisting}[language=Python, title=Metaserver]
+def addDataServer(self, args):
+    addr, = args
+
+    self.database.addDataServer(addr)
+
+    checkDataServerStatus(self.database, addr)
+
+    with Connection(addr) as conn:
+        conn.write("getStoredData")
+        len, = conn.readline()
+
+        for i in range(int(len)):
+            uid, created, complete = conn.readline()
+            created = dateutil.parser.parse(created)
+            complete = complete == "1"
+            self.database.addStoredObject(uid, addr, complete, created)
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, title=Dataserver]
+def getStoredData(self, args):
+    data = self.database.getStoredData()
+    self.write(len(data))
+    for uid, created, complete in data:
+        self.write(uid, created, complete)
+\end{lstlisting}
+
+
+\section{Considerazioni finali}
+
+\paragraph{Perchè questo approccio è migliore rispetto ad usare direttamente un database distribuito?} 
+
+\paragraph{} L'utilizzo di un database distribuito è senza dubbio più semplice: basta installare il dbms nei nodi voluti e dialogarci tramite uno dei tanti client in commercio. 
+
+\paragraph{} Ci sono però numerosi aspetti negativi: \begin{itemize}
+	\item Non è possibile stabilire il livello di replicazione per un singolo documento. Un livello di replicazione unitario per file temporanei (es cache) riduce lo spreco di memoria, mentre un livello di replicazione elevato praticamente annulla la possibilità di perdita di dati di importanza inestimabile.
+	\item Il dbms è generalmente dispendioso di risorse. Mentre la semplicità di un dataserver ne permette persino l'installazione in un dispositivo come Raspberry. E' così possibile sfruttare ad esempio un impianto IoT per immagazzinare dati. 
+	\item Il client si collega ad un nodo il quale inoltra i dati alla destinazione. Con questa architettura invece invia direttamente i dati al dataserver di destinazione (e viceversa). Si ha quindi un risparmio di banda complessiva.  
+	\item Il metaserver fornisce funzionalità quali mantenimento di un filesystem, operazioni di lock, bilanciamento del carico personalizzato. 
+\end{itemize}
+
+\paragraph{Sviluppi futuri?}
+
+\paragraph{} Alcuni sviluppi potrebbero essere la creazione di un client grafico, per l'utilizzo da parte del pubblico. Inoltre dovrebbe essere aggiunto un livello di protezione, sia dal punto di vista della cifratura che dei permessi (con eventuale login). Vanno effettuati test approfonditi e migliorata la gestione degli errori, soprattutto per quanto riguarda i corner case. Una compressione lato client permetterebbe un risparmio di risorse (memoria e rete) non indifferente. 
+
+\paragraph{Sistema di versionamento}
+
+\paragraph{} È interessante notare che il sistema può benissimo essere utilizzato come sistema di versionamento. Dato che i documenti non vengono mai eliminati, ma la modifica presuppone la creazione di un nuovo uid (quindi vecchia e nuova versione sono effettivamente documenti a se stanti che condividono solo il path), è possibile andare a selezionare una particolare versione di ogni documento basandosi sulla data di creazione. L'unico accorgimento è quello di effettuare dal client una richiesta del tipo \emph{getUid}, al posto di \emph{getPath}.
+
+\paragraph{} La creazione di una repository, a differenza di \emph{git}, è trasparente, in quanto ogni directory è in sè una repository (oppure da un altro punto di vista l'intero filesystem è una grande repository). L'eliminazione di un documento tramite \emph{deletePath} agisce soltanto sul fs, marcandolo come eliminato, ma non rimuove i dati dai dataserver. Quindi è sempre possibile recuperare i dati di un file eliminato in questo modo. Invece \emph{permanentlyDeletePath} elimina definitivamente un documento (o directory), permettendo la liberazione di spazio. 
+
+\paragraph{Cosa ho imparato con questo progetto?}
+
+\paragraph{} Ho affinato la mia conoscenza del linguaggio Python 3. In particolare ho scoperto come utilizzare il pattern decorator per arricchire oggetti "di sistema" in modo da strutturare in modo efficace il codice. 
+
+\paragraph{} Ho usato per la prima volta un database NoSQL, in particolare Apache Cassandra. Essendoci molti punti a favore, oltre che molte limitazioni, rispetto ai "classici" database SQL, non è stato facile capire come sfruttarne al meglio le potenzialità. Solo per citare alcuni esempi, operazioni come la generazione delle chiavi primarie ed effettuare filtri/join sono tutt'altro che scontate. 
+
+\paragraph{} La gestione di un sistema distribuito conivolge, per sua natura, il dialogo di più programmi. Va posta particolare cura allo sviluppo dei protocolli di comunicazione, sincronizzazione e fault tolerance, in un ambiente in cui errori ed ritardi (sia interni che esterni al sistema) sono la norma. Tutte situazioni che in un sistema unitario non si presentano. 
+
+\paragraph{} L'imprevedibilità elevata riduce drasticamente l'efficacia del testing. E' quindi ancora più fondamentale stabilire contratti, vincoli, invarianti, diagrammi di flusso, meccanismi di controllo, meccanismi di logging e criteri di scrittura del codice che aiutino a minimizzare sia la probabilità di errore che i danni a seguito di un errore. 
 
 \bibliographystyle{plain}
 \bibliography{references}
