@@ -239,11 +239,13 @@ def permanentlyDeletePath(path, user="default"):
     print(conn.readline())
     conn.close()
 
-def updatePriorityForPath(path, priority):
+def updatePriorityForPath(path, priority, user="default"):
     conn = Connection(METASERVER)
-    conn.write("updatePriorityForPath", path, priority)
+    conn.write("updatePriorityForPath", path, priority, user)
     print(conn.readline())
     conn.close()
+
+
 
 
 
@@ -252,17 +254,7 @@ sendFile("small_file.txt", "ale/file1")
 sendFile("small_file.txt", "ale/file2")
 sendFile("small_file.txt", "ale/file3")
 
-lockPath("ale/file1", user="ale")
-print(getPathLock("ale"))
-deletePath("ale%", user="pippo")
-unlockPath("ale")
-
-exit(0)
-
-
 get(remotePath="ale/file1")
-
-exit(0)
 
 input()
 

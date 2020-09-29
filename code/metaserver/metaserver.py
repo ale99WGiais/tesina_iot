@@ -2,7 +2,8 @@
 
 from socketserver import *
 from cassandra.cluster import Cluster
-from uuid import uuid4, UUID
+from cassandra.util import *
+from uuid import uuid1, UUID
 from datetime import datetime
 import socket
 import random
@@ -15,8 +16,18 @@ import dateutil.parser
 import yaml
 import logging
 import sys
+import threading
 
 logging.basicConfig(level=logging.INFO, format='(%(threadName)-9s) %(message)s',)
+
+uuidSeqLock = threading.Lock()
+uuidSeq = 0
+
+def newUUID():
+    with uuidSeqLock:
+        global uuidSeq
+        uuidSeq = (uuidSeq + 1) % 1000
+        return uuid1(clock_seq=uuidSeq)
 
 if len(sys.argv) > 1:
     configFile = sys.argv[1]
@@ -105,7 +116,7 @@ class Database:
     def addObject(self, uid, path, owner, size, priority, checksum):
         if type(uid) == "str":
             uid = UUID(uid)
-        created = datetime.now()
+        created = datetime_from_uuid1(uid)
         size = int(size)
         priority = int(priority)
         self.session.execute("insert into object(uid, path, created, owner, size, priority, checksum) "
@@ -195,23 +206,24 @@ class Database:
         res = self.getUidForPath(path)
         timestamp = datetime.now()
         if res is not None:
-            self.session.execute("update object set deleted = %s where uid = %s and created = %s",
-                                 (timestamp, res.uid, res.created))
+            self.session.execute("update object set deleted = %s where uid = %s",
+                                 (timestamp, res.uid))
 
-    def markUidDeleted(self, uid, created):
+    def markUidDeleted(self, uid):
         uid = makeUUID(uid)
         timestamp = datetime.now()
-        self.session.execute("update object set deleted = %s where uid = %s and created = %s",
-                             (timestamp, uid, created))
+        self.session.execute("update object set deleted = %s where uid = %s",
+                             (timestamp, uid))
 
     def getUidForPath(self, path):
         print("path", path)
         path = str(path)
         return self.session.execute("select * from pathToObject where path = %s", (path, )).one()
 
-    def getUidsForPath(self, path, noDeleted=False):
+    def getUidsForPath(self, path):
         print("path", path)
         path = str(path)
+
         return self.session.execute("select * from object where path like %s", (path, )).all()
 
     def getUidsForServer(self, server):
@@ -221,9 +233,9 @@ class Database:
         uid = makeUUID(uid)
         self.session.execute("insert into pending_object(uid, enabled) values (%s, True)", (uid, ))
 
-    def updatePriority(self, uid, created, priority):
+    def updatePriority(self, uid, priority):
         uid = makeUUID(uid)
-        self.session.execute("update object set priority=%s where uid=%s and created=%s", (priority, uid, created))
+        self.session.execute("update object set priority=%s where uid=%s", (priority, uid))
 
     def getPendingUids(self, onlyEnabled=True):
         if onlyEnabled:
@@ -435,14 +447,17 @@ class MetaServerHandler(StreamRequestHandler):
         lockedPaths = []
 
         for elem in res:
+            if elem.deleted is not None:
+                continue
+
             lock, lockUser = self.database.getPathLock(elem.path)
-            if lock and lockUser != user and not elem.deleted:
+            if lock and lockUser != user:
                 lockedPaths.append(elem.path)
             else:
                 uid = elem.uid
                 print("delete", uid)
                 if elem.deleted is None:
-                    self.database.markUidDeleted(uid, elem.created)
+                    self.database.markUidDeleted(uid)
 
         if len(lockedPaths):
             self.write("err", "paths locked :", lockedPaths)
@@ -458,14 +473,14 @@ class MetaServerHandler(StreamRequestHandler):
 
         for elem in res:
             lock, lockUser = self.database.getPathLock(elem.path)
-            if lock and lockUser != user and not elem.deleted:
+            if lock and lockUser != user and elem.priority > 0:
                 lockedPaths.append(elem.path)
             else:
                 uid = elem.uid
                 print("delete", uid)
                 if elem.deleted is None:
-                    self.database.markUidDeleted(uid, elem.created)
-                self.database.updatePriority(uid, elem.created, 0)
+                    self.database.markUidDeleted(uid)
+                self.database.updatePriority(uid, 0)
                 self.database.addPendingUid(uid)
 
         if len(lockedPaths):
@@ -474,34 +489,42 @@ class MetaServerHandler(StreamRequestHandler):
             self.write("ok")
 
     def updatePriorityForPath(self, args):
-        path, priority = args
+        path, priority, user = args
         priority = int(priority)
 
         if priority <= 0:
             self.write("err", "priority must be >0")
             return False
 
-        res = self.database.getUidForPath(path)
+        res = self.database.getUidsForPath(path)
 
-        if res is None:
-            self.write("err", "path " + path + " not found")
-            return False
+        lockedPaths = []
 
-        uid = res.uid
-        print(uid)
+        for elem in res:
+            if elem.priority <= 0:
+                continue
 
-        self.database.updatePriority(uid, res.created, priority)
-        self.database.addPendingUid(uid)
+            lock, lockUser = self.database.getPathLock(elem.path)
+            if lock and lockUser != user:
+                lockedPaths.append(elem.path)
+            else:
+                uid = elem.uid
+                print("delete", uid)
+                self.database.updatePriority(uid, priority)
+                self.database.addPendingUid(uid)
 
-        self.write("ok")
+        if len(lockedPaths):
+            self.write("err", "paths locked :", lockedPaths)
+        else:
+            self.write("ok")
 
     def updatePriorityForUid(self, args):
         uid, priority = args
         priority = int(priority)
 
-        res = self.getUid(uid)
+        res = self.database.getObjectByUid(uid)
 
-        self.database.updatePriority(uid, res.created, priority)
+        self.database.updatePriority(uid, priority)
         self.database.addPendingUid(uid)
 
         self.write("ok")
@@ -535,7 +558,7 @@ class MetaServerHandler(StreamRequestHandler):
             self.write("err", "no dataserver with sufficient capacity")
             return False
 
-        uid = uuid4()
+        uid = newUUID()
         addr = target.server
 
         with Connection(addr) as dataServer:

@@ -14,7 +14,7 @@ create table dataserver(
 );
 
 create table object(
-    uid uuid,
+    uid timeuuid,
     path text,
     created timestamp,
     owner text,
@@ -22,7 +22,7 @@ create table object(
     priority int,
     checksum text,
     deleted timestamp,
-    primary key(uid, created)
+    primary key(uid)
 );
 
 create table object_lock(
@@ -43,14 +43,14 @@ create table performance_log(
 );
 
 create table pending_object(
-    uid uuid,
+    uid timeuuid,
     enabled boolean,
     primary key(uid)
 );
 
 
 create table stored_object(
-    uid uuid,
+    uid timeuuid,
     server text,
     created timestamp,
     complete boolean,
@@ -60,8 +60,8 @@ create table stored_object(
 create custom index object_path_idx on object(path)
 using 'org.apache.cassandra.index.sasi.SASIIndex';
 
-create materialized view pathToObject as select * from object where path is not null and created is not null
-primary key (path, created, uid)
-with clustering order by (created desc);
+create materialized view pathToObject as select * from object where path is not null
+primary key (path, uid)
+with clustering order by (uid desc);
 
 
