@@ -290,12 +290,16 @@ def processPendingUid(database, uid):
 
         print("remove", uid, "target", target)
 
-        with Connection(target) as conn:
-            conn.write("deleteUid", uid)
-            res = conn.readline()
-            print(res)
+        try:
+            with Connection(target) as conn:
+                conn.write("deleteUid", uid)
+                res = conn.readline()
+                print(res)
 
-        database.removeStoredObject(uid, target)
+            database.removeStoredObject(uid, target)
+        except:
+            pass
+
         return
 
     if numCopies < priority:
@@ -314,13 +318,20 @@ def processPendingUid(database, uid):
 
                 database.addStoredObject(uid, target)
 
-                with Connection(target) as conn:
-                    conn.write("createUid", uid, size, checksum)
-                    print(conn.readline())
+                def process():
+                    try:
+                        with Connection(target) as conn:
+                            conn.write("createUid", uid, size, checksum)
+                            print(conn.readline())
 
-                with Connection(source) as conn:
-                    conn.write("transfer", uid, target)
-                    print(conn.readline())
+                        with Connection(source) as conn:
+                            conn.write("transfer", uid, target)
+                            print(conn.readline())
+                    except:
+                        database.removeStoredObject(uid, target)
+                        database.addPendingUid(uid)
+
+                _thread.start_new_thread(process)
 
                 #database.removePendingUid(uid)
             except:
