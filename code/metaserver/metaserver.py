@@ -420,49 +420,58 @@ class MetaServerHandler(StreamRequestHandler):
             self.write("err", "path deleted")
             return False
 
-        uid = res.uid
+        uid, checksum = res.uid, res.checksum
         print("uid", uid)
 
         addr = self._getServerForUid(uid)
 
-        self.write("ok", uid, addr)
+        self.write("ok", uid, addr, checksum)
 
     def deletePath(self, args):
         path, user = args
 
         res = self.database.getUidsForPath(path)
 
+        lockedPaths = []
+
         for elem in res:
             lock, lockUser = self.database.getPathLock(elem.path)
-            if lock and lockUser != user:
-                self.write("err", "path locked by " + lockUser)
+            if lock and lockUser != user and not elem.deleted:
+                lockedPaths.append(elem.path)
             else:
                 uid = elem.uid
                 print("delete", uid)
                 if elem.deleted is None:
                     self.database.markUidDeleted(uid, elem.created)
 
-        self.write("ok")
+        if len(lockedPaths):
+            self.write("err", "paths locked :", lockedPaths)
+        else:
+            self.write("ok")
 
     def permanentlyDeletePath(self, args):
         path, user = args
 
         res = self.database.getUidsForPath(path)
 
+        lockedPaths = []
+
         for elem in res:
             lock, lockUser = self.database.getPathLock(elem.path)
-            if lock and lockUser != user:
-                self.write("err", "path locked by " + lockUser)
+            if lock and lockUser != user and not elem.deleted:
+                lockedPaths.append(elem.path)
             else:
                 uid = elem.uid
-                print("permanentlyDelete", uid)
-
+                print("delete", uid)
                 if elem.deleted is None:
                     self.database.markUidDeleted(uid, elem.created)
                 self.database.updatePriority(uid, elem.created, 0)
                 self.database.addPendingUid(uid)
 
-        self.write("ok")
+        if len(lockedPaths):
+            self.write("err", "paths locked :", lockedPaths)
+        else:
+            self.write("ok")
 
     def updatePriorityForPath(self, args):
         path, priority = args
@@ -561,11 +570,18 @@ class MetaServerHandler(StreamRequestHandler):
             self.write(*line)
 
     def getUid(self, args):
-        uid, = args
+        uid, user = args
 
+        res = self.database.getObjectByUid(uid)
+
+        if res is None:
+            self.write("err", "uid " + uid + " not found")
+            return False
+
+        checksum = res.checksum
         addr = self._getServerForUid(uid)
 
-        self.write("ok", addr)
+        self.write("ok", addr, checksum)
 
     def addDataServer(self, args):
         addr, = args

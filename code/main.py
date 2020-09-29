@@ -136,7 +136,7 @@ def unlockPath(path):
     conn = Connection(METASERVER)
     conn.write("unlockPath", path)
     res, = conn.readline()
-    print("unlockPa", path, "lock", res)
+    print("unlockPath", path, res)
     return res
 
 def get(localPath = "testin.txt", remotePath = "ale/file1", newFile=True, user="default"):
@@ -153,7 +153,7 @@ def get(localPath = "testin.txt", remotePath = "ale/file1", newFile=True, user="
         print("ERR", res)
         return False
 
-    status, uid, addr = res
+    status, uid, addr, checksum = res
 
     startIndex = 0
     if os.path.exists(localPath):
@@ -168,7 +168,11 @@ def get(localPath = "testin.txt", remotePath = "ale/file1", newFile=True, user="
         with open(localPath, "a+b") as out:
             conn.readFile(size, out)
 
+    if checksum != hashFile(localPath):
+        logging.error("HASH don't match")
+        return False
 
+    return True
 
 def test():
     conn = Connection(METASERVER)
@@ -194,11 +198,40 @@ def addDataServer(addr):
     conn.write("addDataServer", addr)
     conn.close()
 
-def getUid(uid):
-    conn = Connection(METASERVER)
-    conn.write("getUid", uid)
-    print(conn.readline())
-    conn.close()
+def getUid(uid, localPath = "testin.txt", newFile=True, user="default"):
+    if newFile and os.path.exists(localPath):
+        os.remove(localPath)
+
+    with Connection(METASERVER) as conn:
+        conn.write("getUid", uid, user)
+        res = conn.readline()
+
+    print(res)
+
+    if res[0] != 'ok':
+        print("ERR", res)
+        return False
+
+    status, addr, checksum = res
+
+    startIndex = 0
+    if os.path.exists(localPath):
+        startIndex = os.path.getsize(localPath)
+
+    with Connection(addr) as conn:
+        conn.write("getUid", uid, startIndex)
+        res = conn.readline()
+        print(res)
+        status, size = res
+
+        with open(localPath, "a+b") as out:
+            conn.readFile(size, out)
+
+    if checksum != hashFile(localPath):
+        logging.error("HASH don't match")
+        return False
+
+    return True
 
 def permanentlyDeletePath(path, user="default"):
     conn = Connection(METASERVER)
@@ -214,9 +247,22 @@ def updatePriorityForPath(path, priority):
 
 
 
+
 sendFile("small_file.txt", "ale/file1")
 sendFile("small_file.txt", "ale/file2")
 sendFile("small_file.txt", "ale/file3")
+
+lockPath("ale/file1", user="ale")
+print(getPathLock("ale"))
+deletePath("ale%", user="pippo")
+unlockPath("ale")
+
+exit(0)
+
+
+get(remotePath="ale/file1")
+
+exit(0)
 
 input()
 
@@ -228,7 +274,7 @@ list()
 
 input()
 
-get(remotePath="ale/filePriority2", localPath="test_in.txt")
+get(remotePath="ale/filePriority2", localPath="testin.txt")
 
 input()
 
