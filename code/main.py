@@ -109,7 +109,7 @@ def sendFile(localPath = "small_file.txt", remotePath="testfile.txt", priority=1
         print(conn.readline())
 
 
-def list(path=""):
+def list(path="%"):
     conn = Connection(METASERVER)
     conn.write("list", path)
     state, lines = conn.readline()
@@ -244,7 +244,6 @@ def updatePriorityForPath(path, priority, user="default"):
     conn.write("updatePriorityForPath", path, priority, user)
     print(conn.readline())
     conn.close()
-
 
 
 

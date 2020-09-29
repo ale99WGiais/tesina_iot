@@ -150,10 +150,9 @@ class Database:
         return self.session.execute("select * from object where uid = %s", (uid, )).one()
 
     def list(self, path):
-        if path == "":
+        if path == "" or path == '%':
             return self.session.execute("select * from object").all()
         else:
-            path = path + "%"
             return self.session.execute("select * from object where path like %s", (path, )).all()
 
     def getDataServers(self, onlyOnline=True):

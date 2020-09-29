@@ -233,8 +233,17 @@ class DataServerHandler(StreamRequestHandler):
         uid, size, checksum = args
         local_path = os.getcwd() + "/" + uid
         print("local_path", local_path)
+        size = int(size)
 
-        self.database.addObject(uid, local_path, size, checksum)
+        with processingLock:
+            totCapacity, downSpeed, upspeed = self.database.nodeStats()
+            reservedCapacity = self.database.reservedSpace()
+
+            if reservedCapacity + size > totCapacity:
+                self.write("err", "storage capacity exceeded")
+                return False
+
+            self.database.addObject(uid, local_path, size, checksum)
 
         self.write("ok")
 
