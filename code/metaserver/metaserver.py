@@ -273,7 +273,8 @@ def processPendingUid(database, uid):
     numCopies = len(serversContaining)
 
     print("serversContaining", serversContaining)
-    availableServers = [x.server for x in database.getDataServers() if x.server not in serversContaining]
+    availableServers = [x.server for x in database.getDataServers() if x.server not in serversContaining
+                        and x.remaining_capacity > size]
 
     print("availableServers", availableServers)
 
@@ -531,13 +532,14 @@ class MetaServerHandler(StreamRequestHandler):
 
     def pushPath(self, args):
         path, size, checksum, priority, user = args
+        size = int(size)
 
         lock, lockUser = self.database.getPathLock(path)
         if lock and lockUser != user:
             self.write("err", "path locked by " + lockUser)
             return False
 
-        dataservers = self.database.getDataServers()
+        dataservers = [x for x in self.database.getDataServers() if x.remaining_capacity > size]
 
         if len(dataservers) == 0:
             self.write("err", "no data servers available")
@@ -545,7 +547,6 @@ class MetaServerHandler(StreamRequestHandler):
 
         random.shuffle(dataservers)
 
-        size = int(size)
         target = None
         for target in dataservers:
             print("option server", target.server, "rem capacity", target.remaining_capacity, "file size", size)
