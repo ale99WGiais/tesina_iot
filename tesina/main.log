@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2020.2.24)  26 SEP 2020 12:12
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2020.2.24)  29 SEP 2020 16:59
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1476,7 +1476,7 @@ File: omslmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
 LaTeX Font Info:    Font shape `OMS/lmr/m/n' in size <10> not available
 (Font)              Font shape `OMS/lmsy/m/n' tried instead on input line 69.
  [2]
-<../diagrams/architettura/1.png, id=253, 382.42876pt x 91.34125pt>
+<../diagrams/architettura/1.png, id=257, 382.42876pt x 91.34125pt>
 File: ../diagrams/architettura/1.png Graphic file (type png)
 
 <use ../diagrams/architettura/1.png>
@@ -1484,7 +1484,7 @@ Package pdftex.def Info: ../diagrams/architettura/1.png used on input line 121.
 
 (pdftex.def)             Requested size: 258.00539pt x 61.62619pt.
  [3]
-<../diagrams/architettura/2.png, id=266, 419.5675pt x 92.345pt>
+<../diagrams/architettura/2.png, id=271, 419.5675pt x 92.345pt>
 File: ../diagrams/architettura/2.png Graphic file (type png)
 
 <use ../diagrams/architettura/2.png>
@@ -1492,7 +1492,7 @@ Package pdftex.def Info: ../diagrams/architettura/2.png used on input line 149.
 
 (pdftex.def)             Requested size: 258.00539pt x 56.78548pt.
  [4 <../diagrams/architettura/1.png> <../diagrams/architettura/2.png>]
-<../diagrams/architettura/3.png, id=282, 723.70375pt x 181.67876pt>
+<../diagrams/architettura/3.png, id=287, 723.70375pt x 181.67876pt>
 File: ../diagrams/architettura/3.png Graphic file (type png)
 
 <use ../diagrams/architettura/3.png>
@@ -1505,7 +1505,7 @@ Overfull \hbox (5.10754pt too wide) in paragraph at lines 181--182
 a op-er-a-tivo, è pos-si-bile uti-liz-zare un $[]$.
  []
 
-<../diagrams/architettura/4.png, id=283, 710.655pt x 302.12875pt>
+<../diagrams/architettura/4.png, id=288, 710.655pt x 302.12875pt>
 File: ../diagrams/architettura/4.png Graphic file (type png)
 
 <use ../diagrams/architettura/4.png>
@@ -1514,7 +1514,7 @@ Package pdftex.def Info: ../diagrams/architettura/4.png used on input line 198.
 (pdftex.def)             Requested size: 344.005pt x 146.25565pt.
  [5 <../diagrams/architettura/3.png>]
 [6 <../diagrams/architettura/4.png>]
-<../diagrams/architettura/5.png, id=307, 382.42876pt x 358.33875pt>
+<../diagrams/architettura/5.png, id=312, 382.42876pt x 358.33875pt>
 File: ../diagrams/architettura/5.png Graphic file (type png)
 
 <use ../diagrams/architettura/5.png>
@@ -1522,7 +1522,7 @@ Package pdftex.def Info: ../diagrams/architettura/5.png used on input line 230.
 
 (pdftex.def)             Requested size: 258.00539pt x 241.76433pt.
  [7 <../diagrams/architettura/5.png>]
-<../diagrams/architettura/6.png, id=322, 382.42876pt x 358.33875pt>
+<../diagrams/architettura/6.png, id=327, 382.42876pt x 358.33875pt>
 File: ../diagrams/architettura/6.png Graphic file (type png)
 
 <use ../diagrams/architettura/6.png>
@@ -1530,7 +1530,7 @@ Package pdftex.def Info: ../diagrams/architettura/6.png used on input line 261.
 
 (pdftex.def)             Requested size: 258.00539pt x 241.76433pt.
 
-<../diagrams/architettura/7.png, id=323, 673.51625pt x 523.9575pt>
+<../diagrams/architettura/7.png, id=328, 673.51625pt x 523.9575pt>
 File: ../diagrams/architettura/7.png Graphic file (type png)
 
 <use ../diagrams/architettura/7.png>
@@ -1539,7 +1539,7 @@ Package pdftex.def Info: ../diagrams/architettura/7.png used on input line 288.
 (pdftex.def)             Requested size: 344.005pt x 267.61453pt.
  [8 <../diagrams/architettura/6.png>]
 [9 <../diagrams/architettura/7.png>] [10]
-<../diagrams/requests/get_request.png, id=354, 683.55376pt x 765.86125pt>
+<../diagrams/requests/get_request.png, id=359, 683.55376pt x 765.86125pt>
 File: ../diagrams/requests/get_request.png Graphic file (type png)
 
 <use ../diagrams/requests/get_request.png>
@@ -1547,7 +1547,7 @@ Package pdftex.def Info: ../diagrams/requests/get_request.png used on input lin
 e 360.
 (pdftex.def)             Requested size: 344.005pt x 385.4305pt.
  [11] [12 <../diagrams/requests/get_request.png>]
-<../diagrams/requests/push_request.png, id=371, 734.745pt x 946.53625pt>
+<../diagrams/requests/push_request.png, id=376, 734.745pt x 946.53625pt>
 File: ../diagrams/requests/push_request.png Graphic file (type png)
 
 <use ../diagrams/requests/push_request.png>
@@ -1555,7 +1555,7 @@ Package pdftex.def Info: ../diagrams/requests/push_request.png used on input li
 ne 382.
 (pdftex.def)             Requested size: 344.005pt x 443.16783pt.
  [13]
-<../diagrams/requests/rem_request.png, id=380, 683.55376pt x 585.18625pt>
+<../diagrams/requests/rem_request.png, id=385, 683.55376pt x 585.18625pt>
 File: ../diagrams/requests/rem_request.png Graphic file (type png)
 
 <use ../diagrams/requests/rem_request.png>
@@ -1563,7 +1563,7 @@ Package pdftex.def Info: ../diagrams/requests/rem_request.png used on input lin
 e 398.
 (pdftex.def)             Requested size: 344.005pt x 294.50325pt.
  [14 <../diagrams/requests/push_request.png>]
-<../diagrams/requests/transfer_request.png, id=389, 675.52374pt x 783.92876pt>
+<../diagrams/requests/transfer_request.png, id=394, 675.52374pt x 783.92876pt>
 File: ../diagrams/requests/transfer_request.png Graphic file (type png)
 
 <use ../diagrams/requests/transfer_request.png>
@@ -1572,36 +1572,36 @@ t line 416.
 (pdftex.def)             Requested size: 344.005pt x 399.21225pt.
  [15 <../diagrams/requests/rem_request.png>] [16 <../diagrams/requests/transfer
 _request.png>] [17] [18]
-(/usr/share/texlive/texmf-dist/tex/latex/listings/lstlang1.sty
+[19] (/usr/share/texlive/texmf-dist/tex/latex/listings/lstlang1.sty
 File: lstlang1.sty 2015/06/04 1.6 listings language file
-) [19] [20]
+) [20]
+[21]
 LaTeX Font Info:    Font shape `OMS/lmr/m/n' in size <8> not available
-(Font)              Font shape `OMS/lmsy/m/n' tried instead on input line 581.
-
-[21] [22] [23] [24] [25] [26] [27] [28] [29] [30] [31] [32] [33] [34] [35]
-[36] [37] [38] [39] [40] [41] [42] [43] [44] (./main.bbl
+(Font)              Font shape `OMS/lmsy/m/n' tried instead on input line 604.
+ [22] [23] [24] [25] [26] [27] [28] [29] [30] [31] [32] [33] [34] [35]
+[36] [37] [38] [39] [40] [41] [42] [43] [44] [45] [46] (./main.bbl
 
 Package natbib Warning: Empty `thebibliography' environment on input line 3.
 
-) [45]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1803.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 1803.
+) [47]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1872.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 1872.
  (./main.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1803.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1803.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1872.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1872.
 
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: C3A88ABC2A2DC6C60FFFF145431427BB;3167.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1803.
+(rerunfilecheck)             Checksum: 4333D1AA519238A82E4AF2D137E3E9E0;3300.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1872.
  ) 
 Here is how much of TeX's memory you used:
- 34867 strings out of 494953
- 757116 string characters out of 6180977
- 1115054 words of memory out of 5000000
- 36132 multiletter control sequences out of 15000+600000
- 63892 words of font info for 126 fonts, out of 8000000 for 9000
+ 34947 strings out of 494953
+ 758419 string characters out of 6180977
+ 1116312 words of memory out of 5000000
+ 36149 multiletter control sequences out of 15000+600000
+ 64235 words of font info for 129 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 62i,8n,77p,793b,1932s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 62i,8n,77p,809b,1932s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf/fonts/enc/dvips/lm/lm-mathsy.enc}{/usr/share/texmf/fonts/en
 c/dvips/lm/lm-ec.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-rm.enc}{/usr/share
 /texmf/fonts/enc/dvips/lm/lm-mathit.enc}</usr/share/texmf/fonts/type1/public/lm
@@ -1612,10 +1612,10 @@ f/fonts/type1/public/lm/lmmi10.pfb></usr/share/texmf/fonts/type1/public/lm/lmr1
 sr/share/texmf/fonts/type1/public/lm/lmr8.pfb></usr/share/texmf/fonts/type1/pub
 lic/lm/lmri10.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy10.pfb></usr/shar
 e/texmf/fonts/type1/public/lm/lmsy8.pfb>
-Output written on main.pdf (45 pages, 628535 bytes).
+Output written on main.pdf (47 pages, 638673 bytes).
 PDF statistics:
- 1961 PDF objects out of 2073 (max. 8388607)
- 1862 compressed objects within 19 object streams
- 1278 named destinations out of 1440 (max. 500000)
- 18860 words of extra memory for PDF output out of 20736 (max. 10000000)
+ 2044 PDF objects out of 2073 (max. 8388607)
+ 1942 compressed objects within 20 object streams
+ 1335 named destinations out of 1440 (max. 500000)
+ 18868 words of extra memory for PDF output out of 20736 (max. 10000000)
 

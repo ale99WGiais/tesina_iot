@@ -556,18 +556,7 @@ class MetaServerHandler(StreamRequestHandler):
             return False
 
         random.shuffle(dataservers)
-
-        target = None
-        for target in dataservers:
-            print("option server", target.server, "rem capacity", target.remaining_capacity, "file size", size)
-            if target.remaining_capacity > size:
-                break
-            else:
-                target = None
-
-        if target is None:
-            self.write("err", "no dataserver with sufficient capacity")
-            return False
+        target = dataservers[0]
 
         uid = newUUID()
         addr = target.server

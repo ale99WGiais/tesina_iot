@@ -19,27 +19,28 @@
 \BOOKMARK [1][-]{section.6}{Logging}{}% 19
 \BOOKMARK [1][-]{section.7}{Sicurezza ed autenticazione}{}% 20
 \BOOKMARK [1][-]{section.8}{Generazione di una chiave identificativa}{}% 21
-\BOOKMARK [1][-]{section.9}{Implementazione}{}% 22
-\BOOKMARK [2][-]{subsection.9.1}{Strumenti software}{section.9}% 23
-\BOOKMARK [2][-]{subsection.9.2}{Struttura del codice}{section.9}% 24
-\BOOKMARK [2][-]{subsection.9.3}{Caricamento della configurazione}{section.9}% 25
-\BOOKMARK [3][-]{subsubsection.9.3.1}{Metaserver}{subsection.9.3}% 26
-\BOOKMARK [3][-]{subsubsection.9.3.2}{Dataserver}{subsection.9.3}% 27
-\BOOKMARK [2][-]{subsection.9.4}{Interfaccia di connessione e scambio dati}{section.9}% 28
-\BOOKMARK [2][-]{subsection.9.5}{Interfaccia al database}{section.9}% 29
-\BOOKMARK [3][-]{subsubsection.9.5.1}{Metaserver}{subsection.9.5}% 30
-\BOOKMARK [3][-]{subsubsection.9.5.2}{Dataserver}{subsection.9.5}% 31
-\BOOKMARK [2][-]{subsection.9.6}{Operazioni periodiche}{section.9}% 32
-\BOOKMARK [3][-]{subsubsection.9.6.1}{Metaserver}{subsection.9.6}% 33
-\BOOKMARK [3][-]{subsubsection.9.6.2}{Dataserver}{subsection.9.6}% 34
-\BOOKMARK [2][-]{subsection.9.7}{ServerSocket e relativo handler}{section.9}% 35
-\BOOKMARK [3][-]{subsubsection.9.7.1}{Caricamento di un file}{subsection.9.7}% 36
-\BOOKMARK [3][-]{subsubsection.9.7.2}{Trasferimento di un file}{subsection.9.7}% 37
-\BOOKMARK [3][-]{subsubsection.9.7.3}{Scaricamento sul client di un documento \(dato il path\)}{subsection.9.7}% 38
-\BOOKMARK [3][-]{subsubsection.9.7.4}{Scaricamento di un documento dato l'uid}{subsection.9.7}% 39
-\BOOKMARK [3][-]{subsubsection.9.7.5}{Eliminazione di un path}{subsection.9.7}% 40
-\BOOKMARK [3][-]{subsubsection.9.7.6}{Eliminazione permanente di un path}{subsection.9.7}% 41
-\BOOKMARK [3][-]{subsubsection.9.7.7}{Lock}{subsection.9.7}% 42
-\BOOKMARK [3][-]{subsubsection.9.7.8}{Modificare la priorit\340 di un documento}{subsection.9.7}% 43
-\BOOKMARK [3][-]{subsubsection.9.7.9}{Aggiungere un dataserver}{subsection.9.7}% 44
-\BOOKMARK [1][-]{section.10}{Considerazioni finali}{}% 45
+\BOOKMARK [1][-]{section.9}{Problema della consistenza in un sistema distribuito}{}% 22
+\BOOKMARK [1][-]{section.10}{Implementazione}{}% 23
+\BOOKMARK [2][-]{subsection.10.1}{Strumenti software}{section.10}% 24
+\BOOKMARK [2][-]{subsection.10.2}{Struttura del codice}{section.10}% 25
+\BOOKMARK [2][-]{subsection.10.3}{Caricamento della configurazione}{section.10}% 26
+\BOOKMARK [3][-]{subsubsection.10.3.1}{Metaserver}{subsection.10.3}% 27
+\BOOKMARK [3][-]{subsubsection.10.3.2}{Dataserver}{subsection.10.3}% 28
+\BOOKMARK [2][-]{subsection.10.4}{Interfaccia di connessione e scambio dati}{section.10}% 29
+\BOOKMARK [2][-]{subsection.10.5}{Interfaccia al database}{section.10}% 30
+\BOOKMARK [3][-]{subsubsection.10.5.1}{Metaserver}{subsection.10.5}% 31
+\BOOKMARK [3][-]{subsubsection.10.5.2}{Dataserver}{subsection.10.5}% 32
+\BOOKMARK [2][-]{subsection.10.6}{Operazioni periodiche}{section.10}% 33
+\BOOKMARK [3][-]{subsubsection.10.6.1}{Metaserver}{subsection.10.6}% 34
+\BOOKMARK [3][-]{subsubsection.10.6.2}{Dataserver}{subsection.10.6}% 35
+\BOOKMARK [2][-]{subsection.10.7}{ServerSocket e relativo handler}{section.10}% 36
+\BOOKMARK [3][-]{subsubsection.10.7.1}{Caricamento di un file}{subsection.10.7}% 37
+\BOOKMARK [3][-]{subsubsection.10.7.2}{Trasferimento di un file}{subsection.10.7}% 38
+\BOOKMARK [3][-]{subsubsection.10.7.3}{Scaricamento sul client di un documento \(dato il path\)}{subsection.10.7}% 39
+\BOOKMARK [3][-]{subsubsection.10.7.4}{Scaricamento di un documento dato l'uid}{subsection.10.7}% 40
+\BOOKMARK [3][-]{subsubsection.10.7.5}{Eliminazione di un path}{subsection.10.7}% 41
+\BOOKMARK [3][-]{subsubsection.10.7.6}{Eliminazione permanente di un path}{subsection.10.7}% 42
+\BOOKMARK [3][-]{subsubsection.10.7.7}{Lock}{subsection.10.7}% 43
+\BOOKMARK [3][-]{subsubsection.10.7.8}{Modificare la priorit\340 di un documento}{subsection.10.7}% 44
+\BOOKMARK [3][-]{subsubsection.10.7.9}{Aggiungere un dataserver}{subsection.10.7}% 45
+\BOOKMARK [1][-]{section.11}{Considerazioni finali}{}% 46

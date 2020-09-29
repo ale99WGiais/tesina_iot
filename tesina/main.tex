@@ -419,13 +419,11 @@ Di seguito i flussi di dati coinvolti nelle diverse tipologie di richieste.
 
 
 
-
 \section{Logging}
 
 \paragraph{} Tutte le operazioni prima di essere eseguite vengono registrate in appositi database di log. In questo modo, se un'operazione viene interrotta per qualsiasi motivo, può essere analizzata e rieseguita, in modo da non lasciare spazzatura. 
 
-
-
+\paragraph{} Ciò è molto utile anche in fase di debugging/testing: analizzare lo stacktrace ed il flusso di operazioni avvenute precedentemente ad un problema è il modo più efficace per comprenderne le cause. Il modulo \emph{logging}, parte della libreria standard di Python3, permette di organizzare le operazioni di log in modo compatto ed efficace. 
 
 
 \section{Sicurezza ed autenticazione}
@@ -441,21 +439,46 @@ Di seguito i flussi di dati coinvolti nelle diverse tipologie di richieste.
 
 \section{Generazione di una chiave identificativa}
 
-\paragraph{} Il problema della generazione di una chiave identificativa è spesso sottovalutato. Consiste nella creazione di un codice che identifichi univocamente una risorsa, un oggetto o un sistema. Questa chiave deve avere la caratteristica di unicità, ovvero non devono esistere codici duplicati: altrimenti non sarebbe più possibile identificare correttamente la risorsa, dato che non esisterebbe più una funzione che va dal dominio delle chiavi a quello delle risorse. Inoltre, per ragioni di efficienza, la chiava deve avere lunghezza limitata, in modo da limitarne il tempo di comparazione e lo spazio occupato. In genere le chiavi non hanno un significato, quindi possono essere interpretate indifferentemente come interi o stringhe esadecimali.  
+\paragraph{} Il problema della generazione di una chiave identificativa è spesso sottovalutato. Consiste nella creazione di un codice che identifichi univocamente una risorsa, un oggetto o un sistema. Questa chiave deve avere la caratteristica di unicità, ovvero non devono esistere codici duplicati: altrimenti non sarebbe più possibile identificare correttamente la risorsa. Inoltre, per ragioni di efficienza, la chiava deve avere lunghezza limitata, in modo da limitarne il tempo di comparazione e lo spazio occupato. In genere le chiavi non hanno un significato, quindi possono essere interpretate indifferentemente come interi o stringhe esadecimali.  
 
 \paragraph{Strategie di generazione di una chiave} Alcune possibili strategie di generazione di chiavi sono: \begin{itemize}
 	\item Contatore intero
 	\item Funzione di hash applicata ad un insieme di proprietà variabili con il tempo
 	\item Numero casuale
+	\item UUID tipo 1
 \end{itemize}
 
 \paragraph{} Il caso più semplice è quello del contatore intero. Solitamente si implementa con un contatore che parte da 0 e viene incrementato di un unità ad ogni generazione. I vantaggi sono: semplicità di implementazione e garanzia di unicità nel contesto del generatore, ovvero il generatore garantisce una sequenza di valori senza duplicati. Questa soluzione può essere implementata efficacemente soltanto all'interno di un sistema che disponga di un solo generatore, quindi di un solo nodo. Inoltre ciò espone all'esterno il numero di chiavi generate sin ora, informazione che potrebbe essere sfruttata per attacchi al sistema. 
 
 \paragraph{} Per superare il problema dell'unicità del nodo una soluzione è prependere al codice l'identificativo del nodo. Ciò garantisce l'unicità della chiave nell'insieme generato dall'intero cluster. È necessario che gli identificativi dei nodi siano univoci, pena il fallimento del sistema. Questo potrebbe essere un problema nel caso venga effettuato un merge tra cluster diversi: se due nodi avevano lo stesso identificativo, almeno uno di essi deve essere rinominato, assieme a tutte le chiavi da esso generate. Ciò potrebbe non essere possibile.  
 
-\paragraph{} Non potendo garantire che tutti i nodi mondiali (quindi appartenenti ad organizzazioni diverse, che non si conoscono), una delle soluzioni maggiormente impiegate consiste nell'utilizzo di UUID. Gli UUID (Universally Unique Identifier) sono stringhe binarie di 128 cifre generate con precise regole, dipendenti dalla versione. Vengono usati generatori di numeri pseudocasuali (con distribuzione uniforme) e funzioni di hash per creare valori apparentemente casuali. Sebbene l'impiego di UUID non garantisca la certezza di generare un valore non visto in precedenza, per avere il 50\% di probabilità di avere almeno una collisione è necessario generare $2.71*10^{18}$ valori.
+\paragraph{} Una delle soluzioni più comunemente usate per la generazione di identificativi è l'utilizzo degli \emph{UUID}. Gli \textbf{UUID} (Universally Unique Identifier) sono stringhe binarie di 128 cifre generate con precise regole, dipendenti dalla versione. Spesso vengono rappresentati in esadecimale ed compaiono tra i tipi primitivi di molti linguaggi (tra cui CQL).
 
-\paragraph{} Quando si lavora con UUID ci sono due grandi filosofie: controllare che il valore generato effettivamente non sia già presente o non fare nulla, contando sul fatto che la collisione non si verifichi. La prima soluzione è più dispendiosa e non sempre più essere implementata in modo efficace, la seconda necessita di meccanismi di recovery che permettono di recuperare il sistema nel caso una collisione si sia verificata. 
+\paragraph{} Gli UUID di tipo 4 sono generati casualmente. Se viene utilizzato un generatore con distibuzione uniforme, per avere il 50\% di probabilità di registrare almeno una collisione è necessario generare $2.71*10^{18}$ valori. Questa probabilità, seppur non nulla, quasi sempre viene trascurata. Quando però la generazione di un duplicato potrebbe portare il sistema in uno stato inconsistente, è necessario adottare accorgimenti specifici per riportare il sistema ad uno stato safe. 
+
+\paragraph{} Gli UUID di tipo 1, o \emph{TimeUUID}, sono invece generati a partire da istante temporale (UTC), un identificativo del nodo e un numero di sequenza. Come identificativo del nodo si adotta l'indirizzo MAC della scheda di rete del pc, il quale è garantito essere univoco dal costruttore. La presenza dell'istante temporale permette di ordinare gli identificativi per ordine cronologico. L'identificativo del nodo impedisce collisioni tra nodi diversi. Il numero di sequenza elimina le collisioni (fino a $2^{12}$) per elementi generati dallo stesso nodo nello stesso millisecondo: la capacità di generazione garantita è quindi di 4096 UUID tipo 1 al millisecondo. 
+
+\paragraph{} Il problema principale degli UUID tipo 1 è causata dalla presenza di due nodi associati alla medesima scheda di rete, per i quali la probabilità di conflitto è estremamente elevata. Ciò si risolve imponendo l'esecuzione di una sola istanza del software per host, dato un cluster.   
+
+
+https://tools.ietf.org/html/rfc4122.html
+
+
+\section{Problema della consistenza in un sistema distribuito}
+
+\paragraph{} I sistemi distribuiti sono per loro natura soggetti a frequenti errori, ritardi di comunicazione e problemi di concorrenza. È quindi fondamentale assicurarsi di mantenere la consistenza dello stato globale in modo che eventuali vincoli di integrità non siano violati. 
+
+\paragraph{} Un esempio lampante è quello delle richieste del tipo "INSERT .. IF NOT EXISTS". Tale operazione non può essere valutata in un solo nodo, in quanto l'identificativo cercato potrebbe essere stato inserito in un altro nodo ma non ancora propagato all'intero sistema. 
+
+\paragraph{} Per verificare l'esito di tale richiesta è quindi necessario adottare una politica specifica, quale potrebbe essere il meccanismo del \textbf{QUORUM}. Essa stabisce che se almeno la metà+1 (maggioranza assoluta) dei nodi concorda su una proprietà, allora essa in quell'istante è vera. Capiamo meglio con un esempio: viene inserito il valore 1 all'interno di un nodo. Esso propaga il valore ad un numero di nodi almeno pari alla metà. Al termine dell'operazione almeno la metà+1 nodi contengono il valore 1. Per verificare la presenza del valore 1, viene effettuata una richiesta ad almeno metà+1 nodi qualsiasi. Per il principio della piccionaia, almeno uno di essi conterrà il valore specificato e quindi risponderà "yes", dando il risultato corretto. 
+
+\paragraph{} Cassandra utilizza in particolare il protocollo \emph{PAXOS} per verificare l'esito delle \emph{Lightweight transactions}. Le LWT sono utilizzate nell'esecuzione di comandi "INSERT $\dots$ IF NOT EXISTS" e "UPDATE ... IF CONDITION".
+
+https://en.wikipedia.org/wiki/Paxos\_(computer\_science)  
+
+\paragraph{} Inoltre Cassandra permette di stabilire il livello di consistenza per ogni query di tipo select. Esso può essere ANY, ONE, TWO, THREE, \dots, QUORUM, $\dots$, ALL, in base alle necessità del sistema. Questa scelta consente di valutare il tradeoff tra \emph{disponibilità} e \emph{consistenza}. ONE fornisce la maggiore disponibilità, ALL la maggiore consistenza. Per questo progetto è stata scelta l'opzione QUORUM. 
+
+https://docs.datastax.com/en/cassandra-oss/3.0/cassandra/dml/dmlConfigConsistency.html
 
 
 \section{Implementazione}
@@ -668,7 +691,7 @@ create table object(
     priority int,     //livello di priorita' (di replicazione)
     checksum text,      
     deleted timestamp,       //istante di eliminazione (NULL se non eliminato)
-    primary key(uid, created)
+    primary key(uid)
 );
 
 //lock attivi
@@ -711,9 +734,9 @@ create custom index object_path_idx on object(path)
 using 'org.apache.cassandra.index.sasi.SASIIndex';
 
 //utilizzato per selezionare l'ultima versione di un documento, dato il path (con cql non e' possibile ordinare nella query)
-create materialized view pathToObject as select * from object where path is not null and created is not null
-primary key (path, created, uid)
-with clustering order by (created desc);
+create materialized view pathToObject as select * from object where path is not null
+primary key (path, uid)
+with clustering order by (uid desc);
 
 
 \end{lstlisting}
@@ -722,6 +745,17 @@ with clustering order by (created desc);
 \begin{lstlisting}[language=Python, title=Codice]
 class Database:
     def __init__(self):
+        from cassandra import ConsistencyLevel
+        from cassandra.cluster import Cluster, ExecutionProfile, EXEC_PROFILE_DEFAULT
+        from cassandra.policies import WhiteListRoundRobinPolicy, DowngradingConsistencyRetryPolicy
+        from cassandra.query import tuple_factory
+
+        profile = ExecutionProfile(
+            consistency_level=ConsistencyLevel.QUORUM,
+            serial_consistency_level=ConsistencyLevel.SERIAL
+        )
+
+        cluster = Cluster(execution_profiles={EXEC_PROFILE_DEFAULT: profile})
         self.cluster = Cluster(protocol_version=4)
 
         self.session = self.cluster.connect("metaserver")
@@ -733,7 +767,7 @@ class Database:
     def addObject(self, uid, path, owner, size, priority, checksum):
         if type(uid) == "str":
             uid = UUID(uid)
-        created = datetime.now()
+        created = datetime_from_uuid1(uid)
         size = int(size)
         priority = int(priority)
         self.session.execute("insert into object(uid, path, created, owner, size, priority, checksum) "
@@ -767,10 +801,9 @@ class Database:
         return self.session.execute("select * from object where uid = %s", (uid, )).one()
 
     def list(self, path):
-        if path == "":
+        if path == "" or path == '%':
             return self.session.execute("select * from object").all()
         else:
-            path = path + "%"
             return self.session.execute("select * from object where path like %s", (path, )).all()
 
     def getDataServers(self, onlyOnline=True):
@@ -823,23 +856,24 @@ class Database:
         res = self.getUidForPath(path)
         timestamp = datetime.now()
         if res is not None:
-            self.session.execute("update object set deleted = %s where uid = %s and created = %s",
-                                 (timestamp, res.uid, res.created))
+            self.session.execute("update object set deleted = %s where uid = %s",
+                                 (timestamp, res.uid))
 
-    def markUidDeleted(self, uid, created):
+    def markUidDeleted(self, uid):
         uid = makeUUID(uid)
         timestamp = datetime.now()
-        self.session.execute("update object set deleted = %s where uid = %s and created = %s",
-                             (timestamp, uid, created))
+        self.session.execute("update object set deleted = %s where uid = %s",
+                             (timestamp, uid))
 
     def getUidForPath(self, path):
         print("path", path)
         path = str(path)
         return self.session.execute("select * from pathToObject where path = %s", (path, )).one()
 
-    def getUidsForPath(self, path, noDeleted=False):
+    def getUidsForPath(self, path):
         print("path", path)
         path = str(path)
+
         return self.session.execute("select * from object where path like %s", (path, )).all()
 
     def getUidsForServer(self, server):
@@ -849,9 +883,9 @@ class Database:
         uid = makeUUID(uid)
         self.session.execute("insert into pending_object(uid, enabled) values (%s, True)", (uid, ))
 
-    def updatePriority(self, uid, created, priority):
+    def updatePriority(self, uid, priority):
         uid = makeUUID(uid)
-        self.session.execute("update object set priority=%s where uid=%s and created=%s", (priority, uid, created))
+        self.session.execute("update object set priority=%s where uid=%s", (priority, uid))
 
     def getPendingUids(self, onlyEnabled=True):
         if onlyEnabled:
@@ -1046,7 +1080,8 @@ def processPendingUid(database, uid):
     numCopies = len(serversContaining)
 
     print("serversContaining", serversContaining)
-    availableServers = [x.server for x in database.getDataServers() if x.server not in serversContaining]
+    availableServers = [x.server for x in database.getDataServers() if x.server not in serversContaining
+                        and x.remaining_capacity > size]
 
     print("availableServers", availableServers)
 
@@ -1062,12 +1097,16 @@ def processPendingUid(database, uid):
 
         print("remove", uid, "target", target)
 
-        with Connection(target) as conn:
-            conn.write("deleteUid", uid)
-            res = conn.readline()
-            print(res)
+        try:
+            with Connection(target) as conn:
+                conn.write("deleteUid", uid)
+                res = conn.readline()
+                print(res)
 
-        database.removeStoredObject(uid, target)
+            database.removeStoredObject(uid, target)
+        except:
+            pass
+
         return
 
     if numCopies < priority:
@@ -1086,14 +1125,22 @@ def processPendingUid(database, uid):
 
                 database.addStoredObject(uid, target)
 
-                with Connection(target) as conn:
-                    conn.write("createUid", uid, size, checksum)
-                    print(conn.readline())
+                def process():
+                    try:
+                        with Connection(target) as conn:
+                            conn.write("createUid", uid, size, checksum)
+                            print(conn.readline())
 
-                with Connection(source) as conn:
-                    conn.write("transfer", uid, target)
-                    print(conn.readline())
+                        with Connection(source) as conn:
+                            conn.write("transfer", uid, target)
+                            print(conn.readline())
+                    except:
+                        database.removeStoredObject(uid, target)
+                        database.addPendingUid(uid)
 
+                _thread.start_new_thread(process)
+
+                #database.removePendingUid(uid)
             except:
                 print("ERROR")
         else:
@@ -1244,32 +1291,21 @@ def sendFile(localPath = "small_file.txt", remotePath="testfile.txt", priority=1
 \begin{lstlisting}[language=Python, title=Metaserver]
 def pushPath(self, args):
     path, size, checksum, priority, user = args
+    size = int(size)
 
     lock, lockUser = self.database.getPathLock(path)
     if lock and lockUser != user:
         self.write("err", "path locked by " + lockUser)
         return False
-    
-    dataservers = self.database.getDataServers()
+
+    dataservers = [x for x in self.database.getDataServers() if x.remaining_capacity > size]
 
     if len(dataservers) == 0:
         self.write("err", "no data servers available")
         return False
 
     random.shuffle(dataservers)
-
-    size = int(size)
-    target = None
-    for target in dataservers:
-        print("option server", target.server, "rem capacity", target.remaining_capacity, "file size", size)
-        if target.remaining_capacity > size:
-            break
-        else:
-            target = None
-
-    if target is None:
-        self.write("err", "no dataserver with sufficient capacity")
-        return False
+    target = dataservers[0]
 
     uid = uuid4()
     addr = target.server
@@ -1469,7 +1505,7 @@ def get(localPath = "testin.txt", remotePath = "ale/file1", newFile=True, user="
         print("ERR", res)
         return False
 
-    status, uid, addr = res
+    status, uid, addr, checksum = res
 \end{lstlisting}
 
 \paragraph{} Il metaserver verifca che il path non sia bloccato da un altro utente, cerca l'uid associato al path (quello che corrisponde all'ultima versione del documento), cerca un dataserver che lo contenga (possibilmente seleziona il migliore) e risponde al client indicando \emph{uid, indirizzo dataserver}.
@@ -1493,18 +1529,18 @@ def getPath(self, args):
         self.write("err", "path deleted")
         return False
 
-    uid = res.uid
+    uid, checksum = res.uid, res.checksum
     print("uid", uid)
 
     addr = self._getServerForUid(uid)
 
-    self.write("ok", uid, addr)
+    self.write("ok", uid, addr, checksum)
 \end{lstlisting}
 
-\paragraph{} A quel punto il client si collega al dataserver sorgente, invia la posizione da cui vuole iniziare a leggere il documento (usato per riprendere il trasferimento interrotto di un file di grandi dimensioni) e legge il file. La chiamata usata in questo caso è \emph{getUid}. 
+\paragraph{} A quel punto il client si collega al dataserver sorgente, invia la posizione da cui vuole iniziare a leggere il documento (usato per riprendere il trasferimento interrotto di un file di grandi dimensioni) e legge il file. La chiamata usata in questo caso è \emph{getUid}. Al termine viene verificato il checksum del file per individuare eventuali errori o manomissioni. 
 
 \begin{lstlisting}[language=Python, title=Client]
-startIndex = 0
+    startIndex = 0
     if os.path.exists(localPath):
         startIndex = os.path.getsize(localPath)
 
@@ -1513,9 +1549,15 @@ startIndex = 0
         res = conn.readline()
         print(res)
         status, size = res
-    
+
         with open(localPath, "a+b") as out:
             conn.readFile(size, out)
+
+    if checksum != hashFile(localPath):
+        logging.error("HASH don't match")
+        return False
+
+    return True
 \end{lstlisting}
 
 \begin{lstlisting}[language=Python, title=Codice]
@@ -1566,11 +1608,18 @@ def _getServerForUid(self, uid):
     return addr
 
 def getUid(self, args):
-    uid, = args
+    uid, user = args
 
+    res = self.database.getObjectByUid(uid)
+
+    if res is None:
+        self.write("err", "uid " + uid + " not found")
+        return False
+
+    checksum = res.checksum
     addr = self._getServerForUid(uid)
 
-    self.write("ok", addr)
+    self.write("ok", addr, checksum)
 \end{lstlisting}
 
 \subsubsection{Eliminazione di un path}
@@ -1595,17 +1644,25 @@ def deletePath(self, args):
 
     res = self.database.getUidsForPath(path)
 
+    lockedPaths = []
+
     for elem in res:
+        if elem.deleted is not None:
+            continue
+
         lock, lockUser = self.database.getPathLock(elem.path)
         if lock and lockUser != user:
-            self.write("err", "path locked by " + lockUser)
+            lockedPaths.append(elem.path)
         else:
             uid = elem.uid
             print("delete", uid)
             if elem.deleted is None:
-                self.database.markUidDeleted(uid, elem.created)
+                self.database.markUidDeleted(uid)
 
-    self.write("ok")
+    if len(lockedPaths):
+        self.write("err", "paths locked :", lockedPaths)
+    else:
+        self.write("ok")
 \end{lstlisting}
 
 \subsubsection{Eliminazione permanente di un path}
@@ -1630,20 +1687,24 @@ def permanentlyDeletePath(self, args):
 
     res = self.database.getUidsForPath(path)
 
+    lockedPaths = []
+
     for elem in res:
         lock, lockUser = self.database.getPathLock(elem.path)
-        if lock and lockUser != user:
-            self.write("err", "path locked by " + lockUser)
+        if lock and lockUser != user and elem.priority > 0:
+            lockedPaths.append(elem.path)
         else:
             uid = elem.uid
-            print("permanentlyDelete", uid)
-
+            print("delete", uid)
             if elem.deleted is None:
-                self.database.markUidDeleted(uid, elem.created)
-            self.database.updatePriority(uid, elem.created, 0)
+                self.database.markUidDeleted(uid)
+            self.database.updatePriority(uid, 0)
             self.database.addPendingUid(uid)
 
-    self.write("ok")
+    if len(lockedPaths):
+        self.write("err", "paths locked :", lockedPaths)
+    else:
+        self.write("ok")
 \end{lstlisting}
 
 \subsubsection{Lock}
@@ -1698,34 +1759,42 @@ def unlockPath(self, args):
 
 \begin{lstlisting}[language=Python, title=Metaserver]
 def updatePriorityForPath(self, args):
-    path, priority = args
+    path, priority, user = args
     priority = int(priority)
 
     if priority <= 0:
         self.write("err", "priority must be >0")
         return False
 
-    res = self.database.getUidForPath(path)
+    res = self.database.getUidsForPath(path)
 
-    if res is None:
-        self.write("err", "path " + path + " not found")
-        return False
+    lockedPaths = []
 
-    uid = res.uid
-    print(uid)
+    for elem in res:
+        if elem.priority <= 0:
+            continue
 
-    self.database.updatePriority(uid, res.created, priority)
-    self.database.addPendingUid(uid)
+        lock, lockUser = self.database.getPathLock(elem.path)
+        if lock and lockUser != user:
+            lockedPaths.append(elem.path)
+        else:
+            uid = elem.uid
+            print("delete", uid)
+            self.database.updatePriority(uid, priority)
+            self.database.addPendingUid(uid)
 
-    self.write("ok")
+    if len(lockedPaths):
+        self.write("err", "paths locked :", lockedPaths)
+    else:
+        self.write("ok")
 
 def updatePriorityForUid(self, args):
     uid, priority = args
     priority = int(priority)
 
-    res = self.getUid(uid)
+    res = self.database.getObjectByUid(uid)
 
-    self.database.updatePriority(uid, res.created, priority)
+    self.database.updatePriority(uid, priority)
     self.database.addPendingUid(uid)
 
     self.write("ok")
