@@ -9,9 +9,9 @@
 \BOOKMARK [2][-]{subsection.2.7}{Meta server as distributed system}{section.2}% 9
 \BOOKMARK [1][-]{section.3}{Struttura del filesytem}{}% 10
 \BOOKMARK [2][-]{subsection.3.1}{Semantica dei path}{section.3}% 11
-\BOOKMARK [2][-]{subsection.3.2}{Metadati di un path}{section.3}% 12
-\BOOKMARK [1][-]{section.4}{Comandi del client}{}% 13
-\BOOKMARK [1][-]{section.5}{Protocollo comunicazione}{}% 14
+\BOOKMARK [2][-]{subsection.3.2}{Metadati di un documento}{section.3}% 12
+\BOOKMARK [1][-]{section.4}{Comandi gestiti client}{}% 13
+\BOOKMARK [1][-]{section.5}{Protocollo di comunicazione}{}% 14
 \BOOKMARK [2][-]{subsection.5.1}{get}{section.5}% 15
 \BOOKMARK [2][-]{subsection.5.2}{push}{section.5}% 16
 \BOOKMARK [2][-]{subsection.5.3}{rem}{section.5}% 17
@@ -34,8 +34,8 @@
 \BOOKMARK [3][-]{subsubsection.10.6.1}{Metaserver}{subsection.10.6}% 34
 \BOOKMARK [3][-]{subsubsection.10.6.2}{Dataserver}{subsection.10.6}% 35
 \BOOKMARK [2][-]{subsection.10.7}{ServerSocket e relativo handler}{section.10}% 36
-\BOOKMARK [3][-]{subsubsection.10.7.1}{Caricamento di un file}{subsection.10.7}% 37
-\BOOKMARK [3][-]{subsubsection.10.7.2}{Trasferimento di un file}{subsection.10.7}% 38
+\BOOKMARK [3][-]{subsubsection.10.7.1}{Caricamento di un documento}{subsection.10.7}% 37
+\BOOKMARK [3][-]{subsubsection.10.7.2}{Trasferimento di un documento}{subsection.10.7}% 38
 \BOOKMARK [3][-]{subsubsection.10.7.3}{Scaricamento sul client di un documento \(dato il path\)}{subsection.10.7}% 39
 \BOOKMARK [3][-]{subsubsection.10.7.4}{Scaricamento di un documento dato l'uid}{subsection.10.7}% 40
 \BOOKMARK [3][-]{subsubsection.10.7.5}{Eliminazione di un path}{subsection.10.7}% 41
@@ -44,3 +44,4 @@
 \BOOKMARK [3][-]{subsubsection.10.7.8}{Modificare la priorit\340 di un documento}{subsection.10.7}% 44
 \BOOKMARK [3][-]{subsubsection.10.7.9}{Aggiungere un dataserver}{subsection.10.7}% 45
 \BOOKMARK [1][-]{section.11}{Considerazioni finali}{}% 46
+\BOOKMARK [1][-]{section*.159}{Bibliography}{}% 47

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2020.2.24)  29 SEP 2020 16:59
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2020.2.24)  1 OCT 2020 09:58
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -8,8 +8,8 @@ LaTeX2e <2016/02/01>
 Babel <3.9q> and hyphenation patterns for 3 language(s) loaded.
 (/usr/share/texlive/texmf-dist/tex/latex/base/article.cls
 Document Class: article 2014/09/29 v1.4h Standard LaTeX document class
-(/usr/share/texlive/texmf-dist/tex/latex/base/size10.clo
-File: size10.clo 2014/09/29 v1.4h Standard LaTeX file (size option)
+(/usr/share/texlive/texmf-dist/tex/latex/base/size11.clo
+File: size11.clo 2014/09/29 v1.4h Standard LaTeX file (size option)
 )
 \c@part=\count79
 \c@section=\count80
@@ -333,13 +333,6 @@ Now handling font encoding U ...
    defining Unicode char U+2122 (decimal 8482)
    defining Unicode char U+2423 (decimal 9251)
 ))
-(/usr/share/texlive/texmf-dist/tex/latex/natbib/natbib.sty
-Package: natbib 2010/09/13 8.31b (PWD, AO)
-\bibhang=\skip43
-\bibsep=\skip44
-LaTeX Info: Redefining \cite on input line 694.
-\c@NAT@ctr=\count87
-)
 (/usr/share/texlive/texmf-dist/tex/generic/babel/babel.sty
 Package: babel 2016/02/24 3.9q The Babel package
 
@@ -348,7 +341,7 @@ Language: english 2012/08/20 v3.3p English support from the babel system
 
 (/usr/share/texlive/texmf-dist/tex/generic/babel/babel.def
 File: babel.def 2016/02/24 3.9q Babel common definitions
-\babel@savecnt=\count88
+\babel@savecnt=\count87
 \U@D=\dimen103
 )
 \l@british = a dialect from \language\l@english 
@@ -417,9 +410,9 @@ Package ifvtex Info: VTeX not detected.
 (/usr/share/texlive/texmf-dist/tex/generic/ifxetex/ifxetex.sty
 Package: ifxetex 2010/09/12 v0.6 Provides ifxetex conditional
 )
-\Gm@cnth=\count89
-\Gm@cntv=\count90
-\c@Gm@tempcnt=\count91
+\Gm@cnth=\count88
+\Gm@cntv=\count89
+\c@Gm@tempcnt=\count90
 \Gm@bindingoffset=\dimen104
 \Gm@wd@mp=\dimen105
 \Gm@odd@mp=\dimen106
@@ -440,7 +433,7 @@ LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
 )
 (/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsmath.sty
 Package: amsmath 2016/03/03 v2.15a AMS math features
-\@mathmargin=\skip45
+\@mathmargin=\skip43
 
 For additional information on amsmath, use the `?' option.
 (/usr/share/texlive/texmf-dist/tex/latex/amsmath/amstext.sty
@@ -458,13 +451,13 @@ Package: amsbsy 1999/11/29 v1.2d Bold Symbols
 (/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsopn.sty
 Package: amsopn 1999/12/14 v2.01 operator names
 )
-\inf@bad=\count92
+\inf@bad=\count91
 LaTeX Info: Redefining \frac on input line 199.
-\uproot@=\count93
-\leftroot@=\count94
+\uproot@=\count92
+\leftroot@=\count93
 LaTeX Info: Redefining \overline on input line 297.
-\classnum@=\count95
-\DOTSCASE@=\count96
+\classnum@=\count94
+\DOTSCASE@=\count95
 LaTeX Info: Redefining \ldots on input line 394.
 LaTeX Info: Redefining \dots on input line 397.
 LaTeX Info: Redefining \cdots on input line 518.
@@ -473,15 +466,15 @@ LaTeX Info: Redefining \cdots on input line 518.
 \big@size=\dimen114
 LaTeX Font Info:    Redeclaring font encoding OML on input line 630.
 LaTeX Font Info:    Redeclaring font encoding OMS on input line 631.
-\macc@depth=\count97
-\c@MaxMatrixCols=\count98
+\macc@depth=\count96
+\c@MaxMatrixCols=\count97
 \dotsspace@=\muskip10
-\c@parentequation=\count99
-\dspbrk@lvl=\count100
+\c@parentequation=\count98
+\dspbrk@lvl=\count99
 \tag@help=\toks20
-\row@=\count101
-\column@=\count102
-\maxfields@=\count103
+\row@=\count100
+\column@=\count101
+\maxfields@=\count102
 \andhelp@=\toks21
 \eqnshift@=\dimen115
 \alignsep@=\dimen116
@@ -490,8 +483,8 @@ LaTeX Font Info:    Redeclaring font encoding OMS on input line 631.
 \totwidth@=\dimen119
 \lineht@=\dimen120
 \@envbody=\toks22
-\multlinegap=\skip46
-\multlinetaggap=\skip47
+\multlinegap=\skip44
+\multlinetaggap=\skip45
 \mathdisplay@stack=\toks23
 LaTeX Info: Redefining \[ on input line 2735.
 LaTeX Info: Redefining \] on input line 2736.
@@ -504,16 +497,16 @@ Package: mathtools 2015/11/12 v1.18 mathematical typesetting tools
 
 (/usr/share/texlive/texmf-dist/tex/latex/tools/calc.sty
 Package: calc 2014/10/28 v4.3 Infix arithmetic (KKT,FJ)
-\calc@Acount=\count104
-\calc@Bcount=\count105
+\calc@Acount=\count103
+\calc@Bcount=\count104
 \calc@Adimen=\dimen121
 \calc@Bdimen=\dimen122
-\calc@Askip=\skip48
-\calc@Bskip=\skip49
+\calc@Askip=\skip46
+\calc@Bskip=\skip47
 LaTeX Info: Redefining \setlength on input line 80.
 LaTeX Info: Redefining \addtolength on input line 81.
-\calc@Ccount=\count106
-\calc@Cskip=\skip50
+\calc@Ccount=\count105
+\calc@Cskip=\skip48
 )
 (/usr/share/texlive/texmf-dist/tex/latex/mathtools/mhsetup.sty
 Package: mhsetup 2010/01/21 v1.2a programming setup (MH)
@@ -522,9 +515,9 @@ LaTeX Info: Thecontrolsequence`\('isalreadyrobust on input line 129.
 LaTeX Info: Thecontrolsequence`\)'isalreadyrobust on input line 129.
 LaTeX Info: Thecontrolsequence`\['isalreadyrobust on input line 129.
 LaTeX Info: Thecontrolsequence`\]'isalreadyrobust on input line 129.
-\g_MT_multlinerow_int=\count107
+\g_MT_multlinerow_int=\count106
 \l_MT_multwidth_dim=\dimen123
-\origjot=\skip51
+\origjot=\skip49
 \l_MT_shortvdotswithinadjustabove_dim=\dimen124
 \l_MT_shortvdotswithinadjustbelow_dim=\dimen125
 \l_MT_above_intertext_sep=\dimen126
@@ -532,7 +525,21 @@ LaTeX Info: Thecontrolsequence`\]'isalreadyrobust on input line 129.
 \l_MT_above_shortintertext_sep=\dimen128
 \l_MT_below_shortintertext_sep=\dimen129
 )
-(/usr/share/texlive/texmf-dist/tex/latex/paralist/paralist.sty
+(/usr/share/texlive/texmf-dist/tex/latex/natbib/natbib.sty
+Package: natbib 2010/09/13 8.31b (PWD, AO)
+\bibhang=\skip50
+\bibsep=\skip51
+LaTeX Info: Redefining \cite on input line 694.
+\c@NAT@ctr=\count107
+)
+(/usr/share/texlive/texmf-dist/tex/latex/tocbibind/tocbibind.sty
+Package: tocbibind 2010/10/13 v1.5k extra ToC listings
+Package tocbibind Info: The document has section divisions on input line 50.
+
+
+Package tocbibind Note: Using section or other style headings.
+
+) (/usr/share/texlive/texmf-dist/tex/latex/paralist/paralist.sty
 Package: paralist 2015/12/30 v2.5 Extended list environments
 \pltopsep=\skip52
 \plpartopsep=\skip53
@@ -593,12 +600,6 @@ Package caption3 Info: TeX engine: e-TeX on input line 67.
 (/usr/share/texlive/texmf-dist/tex/latex/multirow/multirow.sty
 \bigstrutjot=\dimen139
 )
-(/usr/share/texlive/texmf-dist/tex/latex/tools/verbatim.sty
-Package: verbatim 2014/10/28 v1.5q LaTeX2e package for verbatim enhancements
-\every@verbatim=\toks25
-\verbatim@line=\toks26
-\verbatim@in@stream=\read1
-)
 (/usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty
 Package: multicol 2015/08/19 v1.8n multicolumn formatting (FMi)
 \c@tracingmulticols=\count112
@@ -656,7 +657,7 @@ Package: pgfplots 2016/01/06 v1.13 Data Visualization (1.13)
 (/usr/share/texlive/texmf-dist/tex/latex/pgf/basiclayer/pgf.sty
 (/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgfrcs.sty
 (/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfutil-common.tex
-\pgfutil@everybye=\toks27
+\pgfutil@everybye=\toks25
 \pgfutil@tempdima=\dimen149
 \pgfutil@tempdimb=\dimen150
 
@@ -677,12 +678,12 @@ Package: pgf 2015/08/07 v3.0.1a (rcs-revision 1.15)
 Package: pgfsys 2014/07/09 v3.0.1a (rcs-revision 1.48)
 
 (/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex
-\pgfkeys@pathtoks=\toks28
-\pgfkeys@temptoks=\toks29
+\pgfkeys@pathtoks=\toks26
+\pgfkeys@temptoks=\toks27
 
 (/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfkeysfiltered.code.t
 ex
-\pgfkeys@tmptoks=\toks30
+\pgfkeys@tmptoks=\toks28
 ))
 \pgf@x=\dimen151
 \pgf@y=\dimen152
@@ -693,14 +694,14 @@ ex
 \pgf@xc=\dimen157
 \pgf@yc=\dimen158
 \w@pgf@writea=\write3
-\r@pgf@reada=\read2
+\r@pgf@reada=\read1
 \c@pgf@counta=\count121
 \c@pgf@countb=\count122
 \c@pgf@countc=\count123
 \c@pgf@countd=\count124
-\t@pgf@toka=\toks31
-\t@pgf@tokb=\toks32
-\t@pgf@tokc=\toks33
+\t@pgf@toka=\toks29
+\t@pgf@tokb=\toks30
+\t@pgf@tokc=\toks31
  (/usr/share/texlive/texmf-dist/tex/generic/pgf/systemlayer/pgf.cfg
 File: pgf.cfg 2008/05/14  (rcs-revision 1.7)
 )
@@ -749,9 +750,9 @@ Package: pgfcore 2010/04/11 v3.0.1a (rcs-revision 1.7)
 \pgfmath@dimen=\dimen159
 \pgfmath@count=\count127
 \pgfmath@box=\box55
-\pgfmath@toks=\toks34
-\pgfmath@stack@operand=\toks35
-\pgfmath@stack@operation=\toks36
+\pgfmath@toks=\toks32
+\pgfmath@stack@operand=\toks33
+\pgfmath@stack@operation=\toks34
 )
 (/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.code.tex
 (/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.basic.code
@@ -890,8 +891,8 @@ Package: pgffor 2013/12/13 v3.0.1a (rcs-revision 1.25)
 (/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex)
 \pgffor@iter=\dimen186
 \pgffor@skip=\dimen187
-\pgffor@stack=\toks37
-\pgffor@toks=\toks38
+\pgffor@stack=\toks35
+\pgffor@toks=\toks36
 ))
 (/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
 Package: tikz 2015/08/07 v3.0.1a (rcs-revision 1.151)
@@ -931,9 +932,9 @@ File: tikzlibrarytopaths.code.tex 2008/06/17 v3.0.1a (rcs-revision 1.2)
 )))
 (/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplots.code.tex
 (/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplotscore.code.tex
-\t@pgfplots@toka=\toks39
-\t@pgfplots@tokb=\toks40
-\t@pgfplots@tokc=\toks41
+\t@pgfplots@toka=\toks37
+\t@pgfplots@tokb=\toks38
+\t@pgfplots@tokc=\toks39
 \pgfplots@tmpa=\dimen195
 \c@pgfplots@coordindex=\count140
 \c@pgfplots@scanlineindex=\count141
@@ -968,7 +969,7 @@ x.code.tex)
 (/usr/share/texlive/texmf-dist/tex/generic/pgfplots/numtable/pgfplotstableshare
 d.code.tex
 \c@pgfplotstable@counta=\count144
-\t@pgfplotstable@a=\toks42
+\t@pgfplotstable@a=\toks40
 )
 (/usr/share/texlive/texmf-dist/tex/generic/pgfplots/liststructure/pgfplotsdeque
 .code.tex)
@@ -1044,7 +1045,7 @@ File: pgflibraryplotmarks.code.tex 2015/08/03 v3.0.1a (rcs-revision 1.14)
 ))) (/usr/share/texlive/texmf-dist/tex/latex/listings/listings.sty
 \lst@mode=\count148
 \lst@gtempboxa=\box66
-\lst@token=\toks43
+\lst@token=\toks41
 \lst@length=\count149
 \lst@currlwidth=\dimen265
 \lst@column=\count150
@@ -1172,9 +1173,9 @@ subscribe by emailing sympa@lirmm.fr with 'subscribe <list> <firstname name>'
 ) (/usr/share/texlive/texmf-dist/tex/latex/float/float.sty
 Package: float 2001/11/08 v1.3d Float enhancements (AL)
 \c@float@type=\count160
-\float@exts=\toks44
+\float@exts=\toks42
 \float@box=\box76
-\@float@everytoks=\toks45
+\@float@everytoks=\toks43
 \@floatcapt=\box77
 )
 (/usr/share/texlive/texmf-dist/tex/latex/hyperref/hyperref.sty
@@ -1278,7 +1279,7 @@ Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
 )
 (/usr/share/texlive/texmf-dist/tex/latex/microtype/microtype.sty
 Package: microtype 2013/05/23 v2.5a Micro-typographical refinements (RS)
-\MT@toks=\toks46
+\MT@toks=\toks44
 \MT@count=\count171
 LaTeX Info: Redefining \textls on input line 766.
 \MT@outer@kern=\dimen279
@@ -1299,21 +1300,21 @@ File: microtype.cfg 2013/05/23 v2.5a microtype main configuration file (RS)
 )) (./main.aux)
 \openout1 = `main.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 57.
-LaTeX Font Info:    ... okay on input line 57.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 57.
-LaTeX Font Info:    ... okay on input line 57.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 57.
-LaTeX Font Info:    ... okay on input line 57.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 57.
-LaTeX Font Info:    ... okay on input line 57.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 57.
-LaTeX Font Info:    ... okay on input line 57.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 57.
-LaTeX Font Info:    ... okay on input line 57.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 57.
-LaTeX Font Info:    ... okay on input line 57.
-LaTeX Font Info:    Try loading font information for T1+lmr on input line 57.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 54.
+LaTeX Font Info:    ... okay on input line 54.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 54.
+LaTeX Font Info:    ... okay on input line 54.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 54.
+LaTeX Font Info:    ... okay on input line 54.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 54.
+LaTeX Font Info:    ... okay on input line 54.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 54.
+LaTeX Font Info:    ... okay on input line 54.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 54.
+LaTeX Font Info:    ... okay on input line 54.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 54.
+LaTeX Font Info:    ... okay on input line 54.
+LaTeX Font Info:    Try loading font information for T1+lmr on input line 54.
 (/usr/share/texmf/tex/latex/lm/t1lmr.fd
 File: t1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
@@ -1321,27 +1322,27 @@ File: t1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
 *geometry* detected driver: pdftex
 *geometry* verbose mode - [ preamble ] result:
 * driver: pdftex
-* paper: <default>
+* paper: a4paper
 * layout: <same size as paper>
 * layoutoffset:(h,v)=(0.0pt,0.0pt)
 * modes: 
-* h-part:(L,W,R)=(92.14519pt, 430.00462pt, 92.14519pt)
-* v-part:(T,H,B)=(95.39737pt, 556.47656pt, 143.09605pt)
-* \paperwidth=614.295pt
-* \paperheight=794.96999pt
-* \textwidth=430.00462pt
-* \textheight=556.47656pt
-* \oddsidemargin=19.8752pt
-* \evensidemargin=19.8752pt
-* \topmargin=-13.87262pt
+* h-part:(L,W,R)=(89.62709pt, 418.25368pt, 89.6271pt)
+* v-part:(T,H,B)=(101.40665pt, 591.5302pt, 152.11pt)
+* \paperwidth=597.50787pt
+* \paperheight=845.04684pt
+* \textwidth=418.25368pt
+* \textheight=591.5302pt
+* \oddsidemargin=17.3571pt
+* \evensidemargin=17.3571pt
+* \topmargin=-7.86334pt
 * \headheight=12.0pt
 * \headsep=25.0pt
-* \topskip=10.0pt
+* \topskip=11.0pt
 * \footskip=30.0pt
-* \marginparwidth=65.0pt
-* \marginparsep=11.0pt
+* \marginparwidth=50.0pt
+* \marginparsep=10.0pt
 * \columnsep=10.0pt
-* \skip\footins=9.0pt plus 4.0pt minus 2.0pt
+* \skip\footins=10.0pt plus 4.0pt minus 2.0pt
 * \hoffset=0.0pt
 * \voffset=0.0pt
 * \mag=1000
@@ -1358,12 +1359,12 @@ File: t1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
 \scratchbox=\box78
 \nofMPsegments=\count174
 \nofMParguments=\count175
-\everyMPshowfont=\toks47
+\everyMPshowfont=\toks45
 \MPscratchCnt=\count176
 \MPscratchDim=\dimen281
 \MPnumerator=\count177
 \makeMPintoPDFobject=\count178
-\everyMPtoPDFconversion=\toks48
+\everyMPtoPDFconversion=\toks46
 )
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: float package is loaded.
@@ -1375,11 +1376,11 @@ Package caption Info: End \AtBeginDocument code.
 Package pgfplots Warning: running in backwards compatibility mode (unsuitable t
 ick labels; missing features). Consider writing \pgfplotsset{compat=1.13} into 
 your preamble.
- on input line 57.
+ on input line 54.
 
 \c@lstlisting=\count179
 \AtBeginShipoutBox=\box79
-Package hyperref Info: Link coloring OFF on input line 57.
+Package hyperref Info: Link coloring OFF on input line 54.
 (/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2012/10/27 v2.43 Cross-referencing by name of section
 
@@ -1388,15 +1389,15 @@ Package: gettitlestring 2010/12/03 v1.4 Cleanup title references (HO)
 )
 \c@section@level=\count180
 )
-LaTeX Info: Redefining \ref on input line 57.
-LaTeX Info: Redefining \pageref on input line 57.
-LaTeX Info: Redefining \nameref on input line 57.
+LaTeX Info: Redefining \ref on input line 54.
+LaTeX Info: Redefining \pageref on input line 54.
+LaTeX Info: Redefining \nameref on input line 54.
 
 (./main.out) (./main.out)
 \@outlinefile=\write4
 \openout4 = `main.out'.
 
-LaTeX Info: Redefining \microtypecontext on input line 57.
+LaTeX Info: Redefining \microtypecontext on input line 54.
 Package microtype Info: Generating PDF output.
 Package microtype Info: Character protrusion enabled (level 2).
 Package microtype Info: Using default protrusion set `alltext'.
@@ -1411,35 +1412,59 @@ Package microtype Info: No adjustment of character kerning.
 File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman 
 (RS)
 )
-LaTeX Font Info:    Try loading font information for OT1+lmr on input line 60.
+Package epstopdf Info: Source file: <polloPallido.eps>
+(epstopdf)                    date: 2019-07-05 10:38:30
+(epstopdf)                    size: 219063 bytes
+(epstopdf)             Output file: <polloPallido-eps-converted-to.pdf>
+(epstopdf)                    date: 2020-10-01 08:37:10
+(epstopdf)                    size: 47225 bytes
+(epstopdf)             Command: <repstopdf --outfile=polloPallido-eps-converted
+-to.pdf polloPallido.eps>
+(epstopdf)             \includegraphics on input line 62.
+Package epstopdf Info: Output file is already uptodate.
+
+
+pdfTeX warning: /usr/bin/pdflatex (file ./polloPallido-eps-converted-to.pdf): P
+DF inclusion: found PDF version <1.7>, but at most version <1.5> allowed
+<polloPallido-eps-converted-to.pdf, id=195, 406.51875pt x 406.51875pt>
+File: polloPallido-eps-converted-to.pdf Graphic file (type pdf)
+
+<use polloPallido-eps-converted-to.pdf>
+Package pdftex.def Info: polloPallido-eps-converted-to.pdf used on input line 6
+2.
+(pdftex.def)             Requested size: 388.97285pt x 388.98814pt.
+Package microtype Info: Character `029' is missing
+(microtype)             in font `T1/lmr/m/sc/14.4'.
+(microtype)             Ignoring protrusion settings for this character.
+LaTeX Font Info:    Try loading font information for OT1+lmr on input line 80.
 
 (/usr/share/texmf/tex/latex/lm/ot1lmr.fd
 File: ot1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-LaTeX Font Info:    Try loading font information for OML+lmm on input line 60.
+LaTeX Font Info:    Try loading font information for OML+lmm on input line 80.
 
 (/usr/share/texmf/tex/latex/lm/omllmm.fd
 File: omllmm.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-LaTeX Font Info:    Try loading font information for OMS+lmsy on input line 60.
+LaTeX Font Info:    Try loading font information for OMS+lmsy on input line 80.
 
 
 (/usr/share/texmf/tex/latex/lm/omslmsy.fd
 File: omslmsy.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-LaTeX Font Info:    Try loading font information for OMX+lmex on input line 60.
+LaTeX Font Info:    Try loading font information for OMX+lmex on input line 80.
 
 
 (/usr/share/texmf/tex/latex/lm/omxlmex.fd
 File: omxlmex.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <12> on input line 60.
+(Font)              <12> on input line 80.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <8> on input line 60.
+(Font)              <8> on input line 80.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <6> on input line 60.
-LaTeX Font Info:    Try loading font information for U+msa on input line 60.
+(Font)              <6> on input line 80.
+LaTeX Font Info:    Try loading font information for U+msa on input line 80.
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
@@ -1447,175 +1472,220 @@ File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 (/usr/share/texlive/texmf-dist/tex/latex/microtype/mt-msa.cfg
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 60.
+LaTeX Font Info:    Try loading font information for U+msb on input line 80.
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 (/usr/share/texlive/texmf-dist/tex/latex/microtype/mt-msb.cfg
 File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
-) (./main.toc
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 8.
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 8.
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 8.
+)
+Package microtype Info: Character `029' is missing
+(microtype)             in font `T1/lmr/m/sc/12'.
+(microtype)             Ignoring protrusion settings for this character.
+ [1
 
-[1
-
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}])
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./polloPallido-eps-convert
+ed-to.pdf>]
+(./main.toc
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <10.95> on input line 8.
+pdfTeX warning (ext4): destination with the same identifier (name{page.A}) has 
+been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.135 ... e relativo handler}{34}{subsection.10.7}
+                                                   [1])
 \tf@toc=\write5
 \openout5 = `main.toc'.
 
-LaTeX Font Info:    Try loading font information for OMS+lmr on input line 69.
+ [2]
+LaTeX Font Info:    Try loading font information for OMS+lmr on input line 128.
+
 
 (/usr/share/texmf/tex/latex/lm/omslmr.fd
 File: omslmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-LaTeX Font Info:    Font shape `OMS/lmr/m/n' in size <10> not available
-(Font)              Font shape `OMS/lmsy/m/n' tried instead on input line 69.
- [2]
-<../diagrams/architettura/1.png, id=257, 382.42876pt x 91.34125pt>
+LaTeX Font Info:    Font shape `OMS/lmr/m/n' in size <10.95> not available
+(Font)              Font shape `OMS/lmsy/m/n' tried instead on input line 128.
+ [1]
+Overfull \hbox (33.66566pt too wide) in paragraph at lines 163--164
+ [][] \T1/lmr/m/n/10.95 (-20) La \T1/lmr/m/it/10.95 (-20) repli-cazione dei dat
+i \T1/lmr/m/n/10.95 (-20) avviene me-di-ante il sal-vatag-gio in $[]$
+ []
+
+
+Overfull \hbox (10.54797pt too wide) in paragraph at lines 177--178
+[]\T1/lmr/m/n/10.95 (-20) Nessuna pro-tezione per \T1/lmr/m/it/10.95 (-20) even
+ti ec-cezion-ali \T1/lmr/m/n/10.95 (-20) (eg. catas-trofe nat-u-rale, in-cen-di
+o nell'edificio,
+ []
+
+<../diagrams/architettura/1.png, id=276, 382.42876pt x 91.34125pt>
 File: ../diagrams/architettura/1.png Graphic file (type png)
 
 <use ../diagrams/architettura/1.png>
-Package pdftex.def Info: ../diagrams/architettura/1.png used on input line 121.
+Package pdftex.def Info: ../diagrams/architettura/1.png used on input line 183.
 
-(pdftex.def)             Requested size: 258.00539pt x 61.62619pt.
- [3]
-<../diagrams/architettura/2.png, id=271, 419.5675pt x 92.345pt>
+(pdftex.def)             Requested size: 250.95476pt x 59.93974pt.
+ [2]
+<../diagrams/architettura/2.png, id=288, 419.5675pt x 92.345pt>
 File: ../diagrams/architettura/2.png Graphic file (type png)
 
 <use ../diagrams/architettura/2.png>
-Package pdftex.def Info: ../diagrams/architettura/2.png used on input line 149.
+Package pdftex.def Info: ../diagrams/architettura/2.png used on input line 212.
 
-(pdftex.def)             Requested size: 258.00539pt x 56.78548pt.
- [4 <../diagrams/architettura/1.png> <../diagrams/architettura/2.png>]
-<../diagrams/architettura/3.png, id=287, 723.70375pt x 181.67876pt>
+(pdftex.def)             Requested size: 250.95476pt x 55.2341pt.
+ [3 <../diagrams/architettura/1.png> <../diagrams/architettura/2.png>]
+<../diagrams/architettura/3.png, id=303, 723.70375pt x 181.67876pt>
 File: ../diagrams/architettura/3.png Graphic file (type png)
 
 <use ../diagrams/architettura/3.png>
-Package pdftex.def Info: ../diagrams/architettura/3.png used on input line 172.
+Package pdftex.def Info: ../diagrams/architettura/3.png used on input line 236.
 
-(pdftex.def)             Requested size: 344.005pt x 86.35928pt.
+(pdftex.def)             Requested size: 334.60422pt x 84.00015pt.
 
-Overfull \hbox (5.10754pt too wide) in paragraph at lines 181--182
- [][] \T1/lmr/m/n/10 (-20) Al posto di uti-liz-zare il file sys-tem del sis-tem
-a op-er-a-tivo, è pos-si-bile uti-liz-zare un $[]$.
- []
-
-<../diagrams/architettura/4.png, id=288, 710.655pt x 302.12875pt>
+<../diagrams/architettura/4.png, id=304, 710.655pt x 302.12875pt>
 File: ../diagrams/architettura/4.png Graphic file (type png)
 
 <use ../diagrams/architettura/4.png>
-Package pdftex.def Info: ../diagrams/architettura/4.png used on input line 198.
+Package pdftex.def Info: ../diagrams/architettura/4.png used on input line 262.
 
-(pdftex.def)             Requested size: 344.005pt x 146.25565pt.
- [5 <../diagrams/architettura/3.png>]
-[6 <../diagrams/architettura/4.png>]
-<../diagrams/architettura/5.png, id=312, 382.42876pt x 358.33875pt>
+(pdftex.def)             Requested size: 334.60422pt x 142.2587pt.
+ [4 <../diagrams/architettura/3.png>]
+[5 <../diagrams/architettura/4.png>]
+<../diagrams/architettura/5.png, id=330, 382.42876pt x 358.33875pt>
 File: ../diagrams/architettura/5.png Graphic file (type png)
 
 <use ../diagrams/architettura/5.png>
-Package pdftex.def Info: ../diagrams/architettura/5.png used on input line 230.
+Package pdftex.def Info: ../diagrams/architettura/5.png used on input line 294.
 
-(pdftex.def)             Requested size: 258.00539pt x 241.76433pt.
- [7 <../diagrams/architettura/5.png>]
-<../diagrams/architettura/6.png, id=327, 382.42876pt x 358.33875pt>
+(pdftex.def)             Requested size: 250.95476pt x 235.14828pt.
+ [6 <../diagrams/architettura/5.png>]
+<../diagrams/architettura/6.png, id=343, 382.42876pt x 358.33875pt>
 File: ../diagrams/architettura/6.png Graphic file (type png)
 
 <use ../diagrams/architettura/6.png>
-Package pdftex.def Info: ../diagrams/architettura/6.png used on input line 261.
+Package pdftex.def Info: ../diagrams/architettura/6.png used on input line 325.
 
-(pdftex.def)             Requested size: 258.00539pt x 241.76433pt.
-
-<../diagrams/architettura/7.png, id=328, 673.51625pt x 523.9575pt>
+(pdftex.def)             Requested size: 250.95476pt x 235.14828pt.
+ [7 <../diagrams/architettura/6.png>]
+<../diagrams/architettura/7.png, id=354, 673.51625pt x 523.9575pt>
 File: ../diagrams/architettura/7.png Graphic file (type png)
 
 <use ../diagrams/architettura/7.png>
-Package pdftex.def Info: ../diagrams/architettura/7.png used on input line 288.
+Package pdftex.def Info: ../diagrams/architettura/7.png used on input line 352.
 
-(pdftex.def)             Requested size: 344.005pt x 267.61453pt.
- [8 <../diagrams/architettura/6.png>]
-[9 <../diagrams/architettura/7.png>] [10]
-<../diagrams/requests/get_request.png, id=359, 683.55376pt x 765.86125pt>
+(pdftex.def)             Requested size: 334.60422pt x 260.30716pt.
+ [8 <../diagrams/architettura/7.png>]
+[9]
+Overfull \hbox (2.357pt too wide) in paragraph at lines 423--424
+ [][] \T1/lmr/m/n/10.95 (-20) Il \T1/lmr/m/it/10.95 (-20) client \T1/lmr/m/n/10
+.95 (-20) si con-nette al \T1/lmr/m/it/10.95 (-20) data server \T1/lmr/m/n/10.9
+5 (-20) in-viando una richi-esta \T1/lmr/m/it/10.95 (-20) get(uid,start_pos)\T1
+/lmr/m/n/10.95 (-20) . L'argomento
+ []
+
+[10] <../diagrams/requests/get_request.png, id=385, 683.55376pt x 765.86125pt>
 File: ../diagrams/requests/get_request.png Graphic file (type png)
 
 <use ../diagrams/requests/get_request.png>
 Package pdftex.def Info: ../diagrams/requests/get_request.png used on input lin
-e 360.
-(pdftex.def)             Requested size: 344.005pt x 385.4305pt.
- [11] [12 <../diagrams/requests/get_request.png>]
-<../diagrams/requests/push_request.png, id=376, 734.745pt x 946.53625pt>
+e 428.
+(pdftex.def)             Requested size: 334.60422pt x 374.90134pt.
+ [11 <../diagrams/requests/get_request.png>]
+<../diagrams/requests/push_request.png, id=395, 734.745pt x 946.53625pt>
 File: ../diagrams/requests/push_request.png Graphic file (type png)
 
 <use ../diagrams/requests/push_request.png>
 Package pdftex.def Info: ../diagrams/requests/push_request.png used on input li
-ne 382.
-(pdftex.def)             Requested size: 344.005pt x 443.16783pt.
- [13]
-<../diagrams/requests/rem_request.png, id=385, 683.55376pt x 585.18625pt>
+ne 450.
+(pdftex.def)             Requested size: 334.60422pt x 431.06464pt.
+ [12]
+<../diagrams/requests/rem_request.png, id=404, 683.55376pt x 585.18625pt>
 File: ../diagrams/requests/rem_request.png Graphic file (type png)
 
 <use ../diagrams/requests/rem_request.png>
 Package pdftex.def Info: ../diagrams/requests/rem_request.png used on input lin
-e 398.
-(pdftex.def)             Requested size: 344.005pt x 294.50325pt.
- [14 <../diagrams/requests/push_request.png>]
-<../diagrams/requests/transfer_request.png, id=394, 675.52374pt x 783.92876pt>
+e 466.
+(pdftex.def)             Requested size: 334.60422pt x 286.45804pt.
+ [13 <../diagrams/requests/push_request.png>]
+<../diagrams/requests/transfer_request.png, id=414, 675.52374pt x 783.92876pt>
 File: ../diagrams/requests/transfer_request.png Graphic file (type png)
 
 <use ../diagrams/requests/transfer_request.png>
 Package pdftex.def Info: ../diagrams/requests/transfer_request.png used on inpu
-t line 416.
-(pdftex.def)             Requested size: 344.005pt x 399.21225pt.
- [15 <../diagrams/requests/rem_request.png>] [16 <../diagrams/requests/transfer
-_request.png>] [17] [18]
-[19] (/usr/share/texlive/texmf-dist/tex/latex/listings/lstlang1.sty
+t line 484.
+(pdftex.def)             Requested size: 334.60422pt x 388.30312pt.
+ [14 <../diagrams/requests/rem_request.png>] [15 <../diagrams/requests/transfer
+_request.png>] [16] [17]
+Overfull \hbox (33.44522pt too wide) in paragraph at lines 549--550
+[]\T1/lmr/m/n/10.95 (-20) https://docs.datastax.com/en/cassandra-oss/3.0/cassan
+dra/dml/dmlConfigConsistency.html 
+ []
+
+[18]
+Overfull \hbox (14.92635pt too wide) in paragraph at lines 577--578
+ [][] \T1/lmr/m/n/10.95 (-20) Il client dispone soltanto dell'interfaccia di co
+n-nes-sione/s-cam-bio dati e dell'implementazione
+ []
+
+(/usr/share/texlive/texmf-dist/tex/latex/listings/lstlang1.sty
 File: lstlang1.sty 2015/06/04 1.6 listings language file
-) [20]
-[21]
-LaTeX Font Info:    Font shape `OMS/lmr/m/n' in size <8> not available
-(Font)              Font shape `OMS/lmsy/m/n' tried instead on input line 604.
- [22] [23] [24] [25] [26] [27] [28] [29] [30] [31] [32] [33] [34] [35]
-[36] [37] [38] [39] [40] [41] [42] [43] [44] [45] [46] (./main.bbl
+) [19]
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <9> on input line 604.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <5> on input line 604.
+ [20]
+LaTeX Font Info:    Font shape `OMS/lmr/m/n' in size <9> not available
+(Font)              Font shape `OMS/lmsy/m/n' tried instead on input line 670.
+
+[21] [22] [23] [24] [25] [26] [27] [28] [29] [30] [31] [32] [33] [34] [35]
+[36] [37] [38] [39] [40] [41] [42] [43] [44] [45] [46] [47]
+Overfull \hbox (3.71997pt too wide) in paragraph at lines 1929--1929
+ []\T1/lmr/bx/n/10.95 Perchè questo ap-proc-cio è migliore rispetto ad us-are d
+i-ret-ta-mente un database
+ []
+
+[48] [49] (./main.bbl
 
 Package natbib Warning: Empty `thebibliography' environment on input line 3.
 
-) [47]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1872.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 1872.
+) [50]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1960.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 1960.
  (./main.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1872.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1872.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1960.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1960.
 
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 4333D1AA519238A82E4AF2D137E3E9E0;3300.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1872.
+(rerunfilecheck)             Checksum: 4F786BB0C1C37F17D6FB63A45C297951;3373.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1960.
  ) 
 Here is how much of TeX's memory you used:
- 34947 strings out of 494953
- 758419 string characters out of 6180977
- 1116312 words of memory out of 5000000
- 36149 multiletter control sequences out of 15000+600000
- 64235 words of font info for 129 fonts, out of 8000000 for 9000
+ 35103 strings out of 494953
+ 760728 string characters out of 6180977
+ 1102310 words of memory out of 5000000
+ 36232 multiletter control sequences out of 15000+600000
+ 83058 words of font info for 147 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 62i,8n,77p,809b,1932s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 62i,8n,77p,841b,1941s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf/fonts/enc/dvips/lm/lm-mathsy.enc}{/usr/share/texmf/fonts/en
 c/dvips/lm/lm-ec.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-rm.enc}{/usr/share
 /texmf/fonts/enc/dvips/lm/lm-mathit.enc}</usr/share/texmf/fonts/type1/public/lm
 /lmbx10.pfb></usr/share/texmf/fonts/type1/public/lm/lmbx12.pfb></usr/share/texm
-f/fonts/type1/public/lm/lmmi10.pfb></usr/share/texmf/fonts/type1/public/lm/lmr1
-0.pfb></usr/share/texmf/fonts/type1/public/lm/lmr12.pfb></usr/share/texmf/fonts
-/type1/public/lm/lmr17.pfb></usr/share/texmf/fonts/type1/public/lm/lmr7.pfb></u
-sr/share/texmf/fonts/type1/public/lm/lmr8.pfb></usr/share/texmf/fonts/type1/pub
-lic/lm/lmri10.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy10.pfb></usr/shar
-e/texmf/fonts/type1/public/lm/lmsy8.pfb>
-Output written on main.pdf (47 pages, 638673 bytes).
+f/fonts/type1/public/lm/lmcsc10.pfb></usr/share/texmf/fonts/type1/public/lm/lmm
+i10.pfb></usr/share/texmf/fonts/type1/public/lm/lmr10.pfb></usr/share/texmf/fon
+ts/type1/public/lm/lmr12.pfb></usr/share/texmf/fonts/type1/public/lm/lmr17.pfb>
+</usr/share/texmf/fonts/type1/public/lm/lmr8.pfb></usr/share/texmf/fonts/type1/
+public/lm/lmr9.pfb></usr/share/texmf/fonts/type1/public/lm/lmri10.pfb></usr/sha
+re/texmf/fonts/type1/public/lm/lmsy10.pfb></usr/share/texmf/fonts/type1/public/
+lm/lmsy9.pfb>
+Output written on main.pdf (53 pages, 713886 bytes).
 PDF statistics:
- 2044 PDF objects out of 2073 (max. 8388607)
- 1942 compressed objects within 20 object streams
- 1335 named destinations out of 1440 (max. 500000)
- 18868 words of extra memory for PDF output out of 20736 (max. 10000000)
+ 2109 PDF objects out of 2487 (max. 8388607)
+ 1999 compressed objects within 20 object streams
+ 1364 named destinations out of 1440 (max. 500000)
+ 25025 words of extra memory for PDF output out of 29859 (max. 10000000)
 

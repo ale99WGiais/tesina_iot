@@ -1,11 +1,7 @@
-\documentclass{article}
-\usepackage[utf8]{inputenc}
+%!TEX TS-program = pdflatex
+%!TEX encoding = UTF-8 Unicode
+\documentclass[11pt,a4paper,english]{article}
 
-\title{Tesina Distributed FS (main)}
-\author{alessiocorrado99 }
-\date{September 2020}
-
-\usepackage{natbib}
 \usepackage[utf8]{inputenc} %input chars
 \usepackage[english]{babel} %language
 \usepackage[T1]{fontenc} %output chars
@@ -15,15 +11,16 @@
 \usepackage{amsmath} %math equations
 \usepackage{amssymb} %math symbols
 \usepackage{mathtools} %other math
+\usepackage[numbers]{natbib} %bibliography
+\usepackage[nottoc]{tocbibind} %other bib
 \usepackage{paralist} %lists
 \usepackage{graphicx}
 \usepackage{subcaption}
 \usepackage{multirow}
-\usepackage{verbatim}
 \usepackage{multicol}
 \usepackage{pgfplots} %plots
 \usepackage{listings} %listings
-\usepackage[outdir=./images]{epstopdf} %eps images
+\usepackage{epstopdf} %eps images
 \usepackage{color} %colored text
 \usepackage{algorithm2e}
 \usepackage{float} %images going to end of the document
@@ -55,9 +52,71 @@
 \allowdisplaybreaks
 
 \begin{document}
+	
+\pagenumbering{Alph}
+\begin{titlepage}
+	
+	\begin{center}
+		%	\includegraphics[width=2cm]{logo_univ_udine}
+		\vbox to0pt{\vbox to\textheight{\vfil
+{\tiny }				\includegraphics[width=0.93\textwidth]{polloPallido}\vfil}\vss}
+	\end{center}
+	
+	\begin{center}  
+		\univsc{Scuola Superiore\\dell'Universit\`a degli Studi di Udine}
+		\medskip   
+		\rule{10cm}{.4pt}\\
+		\medskip\begin{Large}
+			{Classe Scientifico-Economica}\\    % Eventualmente Classe Umanistica
+			\medskip
+			\vspace{\stretch{0.6}}
+			Colloquio di fine anno\end{Large}\\
+		\medskip
+		\vspace{\stretch{0.25}}
+		\titlesc{Tensorflow probability - Probabilistic programming with Tensorflow and physical applications}       % Inserire il titolo
+		
+		\bigskip\vfill
+		\large
+		\begin{tabular*}{\textwidth}{@{}l@{\extracolsep{\fill}}r@{}}
+			\large Relatore:&Allievo:\\			% Eventualmente cambiare Allievo con Allieva. 
+			% Relatore va lasciato invariato anche se è una donna.
+			%  
+			%Se il titolo onorifico del relatore è troppo lungo per stare sulla stessa riga (es:Chiar.mo Prof.)
+			%cancellare il simbolo % nella riga qui sotto, sostituire i dati e inserire % all'inizio delle 2 righe sotto
+			%Chiar.mo Prof.& \namesc{Nome studente}\\\namesc{Nome docente}&
+			Prof.
+			\namesc{Scagnetto Ivan}&% Inserire il nome del relatore. 
+			% Se il relatore è un ricercatore sostituire Prof.\ con Dott.\
+			% Se il relatore è una donna sostituire con Prof.ssa o Dott.ssa  															
+			\namesc{Corrado Alessio}				% Inserire il proprio nome
+			
+		\end{tabular*}
+		
+	\end{center}
+	
+	\begin{center}
+		\vfill
+		\rule{10cm}{.4pt}\\
+		\medskip
+		\univsc{Anno Accademico 2019-20}\\  %verificare che l'anno accademico sia quello 
+		%in cui si è seguito il corso su cui si è svolta la tesina 
+	\end{center}	
+	
+\end{titlepage}
+%\clearpage{\pagestyle{empty}\cleardoublepage} 
+% In caso di inserimento nel file della tesina, 
+% il comando produce una pagina bianca dopo il frontespizio. 
+% Rimuovere se in caso di stampa solo fronte.
 
-\maketitle
+%se non funziona usare questo che è brutale
+%\newpage\shipout\null\stepcounter{page}
+
+\newpage
+
 \tableofcontents
+
+\newpage
+\pagenumbering{arabic}
 
 \section{Introduzione} 
 
@@ -69,22 +128,25 @@
 	\item \emph{Efficienza}: I tempi di risposta devono essere ragionevoli e non degradare con l'aumento del numero di nodi. L'utilizzo delle risorse a disposizione deve essere massimizzato, ovvero non devono esserci risorse inutilizzate o carichi di lavoro troppo sbilanciati.  
 	
 	\item \emph{Accesso concorrente}: Più client possono effettuare richieste in modo concorrente. Deve essere tenuta in considerazione qualche politica di \emph{fairness}, 
-	in modo che nessun client sia privilegiato o venga escluso. Deve essere garantita la 
-	\emph{consistenza} specificamente in caso di accessi concorrenti alla stessa risorsa. 
+	in modo che nessun client sia eccessivamente privilegiato o venga escluso. Deve essere garantita la \emph{consistenza} specificamente in caso di accessi concorrenti alla stessa risorsa. 
 	 
-	\item \emph{Replicazione dei dati (files)}: Per garantire un buon livello di \emph{fault tolerance}, tutti i dati devono essere replicati. In questo modo problematiche su un nodo non compromettono il contenuto di un file. 
+	\item \emph{Replicazione dei dati (files)}: Per garantire un buon livello di \emph{fault tolerance}, tutti i dati devono poter essere replicati. In questo modo problematiche su un nodo non compromettono il contenuto di un file. 
 	
-	\item \emph{Replicazione dei metadati (struttura del fs)}: La struttura del \emph{file system} deve essere sempre replicata, in modo che non possa essere persa o corrotta a seguito di problemi. 
+	\item \emph{Replicazione dei metadati (struttura del fs)}: La struttura del \emph{file system} deve essere sempre replicata, in modo che non possa essere persa o corrotta .
+	
+	\item \emph{Disponibilità e consistenza}: deve essere massimizzata la disponibilità delle risorse, mantenendo al contempo una consistenza forte. In particolare, ogni richiesta deve riferirsi all'ultima versione della risorsa (se non diversamente indicato).  
+	
+	\item \emph{Sicurezza}: Deve essere curata la gestione della sicurezza: sia a livello di connessione (utilizzando opportunamente cifratura e autenticazione) che di accesso (autenticazione dell'utente, privilegi sul fs). Deve essere minimizzata l'esposizione ad attacchi malevoli. Deve essere possibile ripristinare il sistema a seguito di un attacco o errore. 
 \end{itemize} 
 
 
 
-\paragraph{Numero di repliche}
+\paragraph{Numero di repliche dei dati}
 
-Il numero di repliche di un file deve essere \underline{proporzionale} sia all'importanza che al numero di accessi di esso: file con \emph{dati critici} hanno numero di copie maggiore, per agevolarne la \emph{disponibilità} e diminuire le \emph{probabilità di perdita}. 
+Il numero di repliche di un file deve essere \underline{proporzionale} sia all'importanza che al numero di accessi di esso: documenti con \emph{dati critici} hanno numero di copie maggiore, per agevolarne la \emph{disponibilità} e diminuire le \emph{probabilità di perdita}. 
 
 
-\paragraph{Bilanciamento del carico} Per migliorare l'efficienza viene effettuato un bilanciamento del carico: in ogni momento i file vengono \underline{copiati} o \underline{spostati} in modo da non sovraccaricare un singolo nodo. Inoltre, per il trasferimento di un file si cerca di utilizzare il nodo con maggiore \emph{banda disponibile}. 
+\paragraph{Bilanciamento del carico} Per migliorare l'efficienza viene effettuato un bilanciamento del carico: in ogni momento il sistema può \underline{copiare} o \underline{spostare} dati in modo da non sovraccaricare un singolo nodo. Inoltre, per il trasferimento in uscita di un documento si cerca di utilizzare il nodo con maggiore \emph{banda disponibile}. 
 
 
 
@@ -134,7 +196,8 @@ Verranno di seguito analizzate diverse possibili architetture del sistema, compa
 \paragraph{} Nel caso ci fosse un \emph{crash} o \emph{errore critico del sistema operativo}, basta ricaricare la macchina virtuale più recente. La \emph{perdita di dati} è limitata all'età dell'ultimo backup. 
 
 \paragraph{Vantaggi} \begin{itemize}
-	\item \emph{Recovery} buona e in tempi brevi in caso di crash. 
+	\item \emph{Recovery} buona e in tempi brevi in caso di crash 
+	\item Naturale implementazione in ambienti di loro natura virtualizzati (es \emph{container})
 \end{itemize}
 
 
@@ -158,12 +221,13 @@ Verranno di seguito analizzate diverse possibili architetture del sistema, compa
 \paragraph{} Il backup può essere effettuato nel \underline{cloud}, al posto che in un dispositivo dedicato all'interno del datacenter. Inoltre il backup può essere esteso anche ai dati, oltre che al fs. 
 
 \paragraph{Vantaggi} \begin{itemize}
-	\item Protezione in caso di \emph{eventi eccezionali}
+	\item Protezione in caso di \emph{eventi eccezionali}: i dati non risiedono in un unico luogo fisico
+	\item Il provider può fornire ulteriori garanzie di replicazione
 \end{itemize}
 
 \paragraph{Svantaggi} \begin{itemize}
 	\item In generale effettuare un backup nel cloud, anche se solo incrementale, richiede un \emph{elevato utilizzo di banda} e \emph{tempi maggiori} 
-	\item \emph{Costi} maggiori 
+	\item I \emph{costi} possono essere maggiori 
 \end{itemize}
 
 \begin{figure}[H]
@@ -178,7 +242,7 @@ Verranno di seguito analizzate diverse possibili architetture del sistema, compa
 
 \subsection{Server as distributed database}
 
-\paragraph{} Al posto di utilizzare il file system del sistema operativo, è possibile utilizzare un \underline{database distribuito}. Sia metadati che dati vengono \emph{distribuiti automaticamente} nei nodi, garantendo consistenza e fault tolerance. 
+\paragraph{} Al posto di utilizzare il filesystem del sistema operativo, è possibile utilizzare un \underline{database distribuito}. Sia metadati che dati vengono \emph{distribuiti automaticamente} nei nodi, garantendo consistenza e fault tolerance. 
 
 
 \paragraph{Vantaggi} \begin{itemize}
@@ -189,7 +253,7 @@ Verranno di seguito analizzate diverse possibili architetture del sistema, compa
 
 \paragraph{Svantaggi} \begin{itemize}
 	\item Maggiore complessità
-	\item La connessione avviene tra il client ed un nodo, il quale poi distribuisce i dati agli altri nodi. Se questo nodo dispone di una banda limitata, ciò può rappresentare un bottleneck dal punto di vista delle prestazioni. Inoltre l'utilizzo di banda può essere doppio rispetto al necessario: nel caso i dati vadano trasferiti dal client al server (gateway) al server di destinazione o vice versa. 
+	\item La connessione avviene tra il client ed un nodo, il quale poi distribuisce i dati bidirezionalmente agli altri nodi. Se questo nodo dispone di una banda limitata, ciò può rappresentare un bottleneck dal punto di vista delle prestazioni. Inoltre l'utilizzo di banda complessiva può essere doppio rispetto al necessario: nel caso i dati vadano trasferiti dal client al server (gateway) al server di destinazione o vice versa. 
 \end{itemize}
 
 \begin{figure}[H]
@@ -206,17 +270,17 @@ Verranno di seguito analizzate diverse possibili architetture del sistema, compa
 
 \paragraph{} L'idea è di far \emph{comunicare direttamente il client con i server in cui verranno memorizzati i dati}. Così facendo si elimina il bottleneck del nodo che prima doveva fungere da "gateway". 
 
-\paragraph{} Un primo sviluppo è quello di \emph{separare i compiti}: si hanno quindi \underline{un} \textbf{meta server} e \underline{uno o più} \textbf{data server}. Il meta server si occupa di memorizzare e gestire il file system (metadati), mentre i data server memorizzano soltanto i dati conenuti nei file. 
+\paragraph{} Un primo sviluppo è quello di \emph{separare i compiti}: si hanno quindi \underline{un} \textbf{meta server} e \underline{uno o più} \textbf{data server}. Il meta server si occupa di memorizzare e gestire il filesystem (metadati), mentre i data server memorizzano soltanto i dati conenuti nei documenti. 
 
 \paragraph{} Per effettuare una qualsiasi \emph{operazione di trasferimento} il client si rivolge inizialmente al meta server, dal quale ottiene la configurazione per contattare il giusto data server e trasferire i dati. Le \emph{operazioni sul filesystem} sono eseguite all'interno del meta server. In questo modo ci sono \emph{due comunicazioni bidirezionali}: client-meta, per la gestione del fs; client-data, per il trasferimento dei dati.
 
-\paragraph{} Per migliorare le prestazioni, soprattutto nel caso in cui il client abbia una banda più ampia rispetto ai data server, i file di grandi dimensioni vengono spezzati in \underline{chunks} e distribuiti. 
+\paragraph{} Per migliorare le prestazioni, soprattutto nel caso in cui il client abbia una banda più ampia rispetto ai data server, i documenti di grandi dimensioni vengono spezzati in \underline{chunks} e distribuiti. 
 
 \paragraph{} Come nel caso single-sever, il meta server è unico, virtualizzato e sottoposto a backup periodico. 
 
 \paragraph{Vantaggi} \begin{itemize}
-	\item Trasferimenti concorrenti con data server multipli permettono di migliorare le prestazioni nel caso in cui il client abbia una banda elevata
-	\item Un \emph{unico meta server} permette di mantenere in modo semplice la consistenza del file system
+	\item Trasferimenti concorrenti con data server multipli permettono di migliorare le prestazioni nel caso in cui il client abbia una banda elevata rispetto ai dataserver
+	\item Un \emph{unico meta server} permette di mantenere in modo semplice la consistenza del filesystem
 \end{itemize}
 
 \paragraph{Svantaggi} \begin{itemize}
@@ -238,7 +302,7 @@ Verranno di seguito analizzate diverse possibili architetture del sistema, compa
 
 \paragraph{} Facendo dialogare meta e data server, è possibile:\begin{enumerate}
 	\item Spostare l'\emph{onere di configurazione dei data server} da client a meta server
-	\item Gestire in qualsiasi momento la \emph{replicazione dei dati}, esempio per bilanciare il carico o far fronte alla perdita di un nodo
+	\item Gestire in qualsiasi momento la \emph{replicazione dei dati}, ad esempio per bilanciare il carico o far fronte alla perdita di un nodo
 	\item Il meta server può monitorare \emph{prestazioni} e \emph{stato di salute} dei data sever
 \end{enumerate}
 
@@ -267,7 +331,7 @@ Verranno di seguito analizzate diverse possibili architetture del sistema, compa
 
 \subsection{Meta server as distributed system}
 
-\paragraph{} In questa soluzione non è presente un unico meta server, ma viene utilizzato un sistema distribuito. In generale è preferibile utilizzare un dbms distribuito presente in commercio.
+\paragraph{} In questa soluzione non è presente un unico meta server, ma viene utilizzato un sistema distribuito. In generale è preferibile utilizzare un dbms distribuito presente in commercio per gestire i dati a basso livello. 
 
 \paragraph{} Come dimostrato dal teorema CAP bisogna rinunciare alla disponibilità per garantire la coerenza del fs. 
 
@@ -297,33 +361,33 @@ Verranno di seguito analizzate diverse possibili architetture del sistema, compa
 
 \subsection{Semantica dei path}
 
-\paragraph{} Nei sistemi tradizionali il filesystem è formato da cartelle, file e link (associabili a file). La struttura è ad albero oppure grafo, con o senza la possibilità di cicli. La cartella "base" è root (nei sistemi unix-like denotata con il simbolo '/'). Un path può essere associato ad uno delle tre tipologie sopra menzionate; il filesystem memorizza questa associazione oltre che agli altri metadati. 
+\paragraph{} Nei \emph{sistemi tradizionali} il filesystem è formato da \emph{cartelle, file e link}. La \emph{struttura} è ad albero oppure grafo, con o senza la possibilità di cicli. La cartella "base" è root (nei sistemi unix-like denotata con la stringa "/"). Un \emph{path} può essere associato ad uno delle tre tipologie sopra menzionate; il filesystem memorizza questa associazione oltre che ad altri metadati. 
 
-\paragraph{} Il simbolo '/' viene usato per separare i componenti di un path: ad esempio il path "/dir1/dir2/file1" identifica il file "file1" figlio della directory "dir2" che a sua volta è figlia della directory "dir1" che è figlia di root. Per questo "/" compare tra i caratteri vietati per la nominazione di un oggetto.  
+\paragraph{} Il simbolo '/' viene usato per separare i \emph{componenti di un path}: ad esempio il path "/dir1/dir2/file1" identifica il file "file1" figlio della directory "dir2" che a sua volta è figlia della directory "dir1" che è figlia di root. Per questo '/' compare tra i caratteri vietati per la nominazione di un oggetto.  
 
-\paragraph{} Nel sistema presentato esistono soltanto i documenti. Essi sono contenitori di dati, ed hanno associati alcuni metadati (in versione semplificata rispetto unix). 
+\paragraph{} Nel \emph{sistema presentato} esistono soltanto i \textbf{documenti}. Essi sono \emph{contenitori di dati}, ed hanno associati alcuni \emph{metadati} (in versione semplificata rispetto unix). 
 
-\paragraph{} Un path che termina con un carattere diverso da $\%$ rappresenta un singolo documento (es: "documento1", "home/lavoro\#foto/mare-foto1"). Un path che termina con '\%' rappresenta l'insieme di documenti che ha come prefisso i caratteri antecedenti al simbolo finale (es. "home/lavoro\#foto\%" include tutti i path che rispettano l'espressione regolare "home/lavoro\#foto*"). Il carattere '\%' può essere usato solo come terminatore. Il carattere ';' è vietato in quanto usato come separatore degli argomenti. 
+\paragraph{} Un path che termina con un carattere diverso da '\%' rappresenta un \emph{singolo documento} (es: "documento1", "home/lavoro\#foto/mare-foto1"). Un path che termina con '\%' rappresenta l'\emph{insieme di documenti} che ha come prefisso i caratteri antecedenti al simbolo finale (es. "home/lavoro\#foto\%" include tutti i path che rispettano l'espressione regolare "home/lavoro\#foto*"). Il carattere '\%' può essere usato solo come terminatore. Il carattere ';' è vietato in quanto usato come separatore degli argomenti. 
 
-\paragraph{} Questa organizzazione possiede intrinsecamente una struttura ad albero. I path che rappresentano insiemi di documenti sono chiamati \emph{repository}. Le operazioni effettuate su repository hanno effetto su tutti i documenti (anche non ancora creati) appartenenti alla repository. La repository root è naturalmente identificata con il path "\%". "" è un documento valido: si consiglia di usarlo per salvare un documento con le informazioni sul sistema (es proprietario, descrizione, contatti). 
+\paragraph{} Questa organizzazione possiede intrinsecamente una \emph{struttura ad albero}. I path che rappresentano insiemi di documenti sono chiamati \emph{repository}. Le operazioni effettuate su repository hanno effetto su tutti i documenti (anche non ancora creati) appartenenti alla repository. La repository root è naturalmente identificata con il path "\%". "" è un documento valido: si consiglia di usarlo per salvare le informazioni sul sistema (es proprietario, descrizione, contatti) in formato testuale con codifica utf. 
 
-\subsection{Metadati di un path}
+\subsection{Metadati di un documento}
 
-\paragraph{} I metadati associati ad un path sono: 
+\paragraph{} I metadati associati ad un documento sono: 
 
 \begin{itemize}
-	\item uid: identificatore univoco dell'oggetto
-	\item path: deve rappresentare un documento
-	\item created: timestamp di creazione
-	\item size: dimensione in byte, 0 per le directory
-	\item owner: utente proprietario, default chi l'ha creato
-	\item priority: numero minimo di copie, coincide con la priorità 
-	\item checksum: checksum sha1
-	\item deleted: timestamp di eliminazione (vuoto se non eliminato)
+	\item uid: identificatore univoco dell'oggetto, in formato UUID Type 1
+	\item path: deve rappresentare un documento, stringa utf
+	\item created: timestamp di creazione in formato UTC
+	\item size: dimensione in byte, 0 per le directory, formato unsigned int 
+	\item owner: utente proprietario, stringa utf
+	\item priority: numero minimo di copie, coincide con la priorità, formato unsigned int 
+	\item checksum: checksum sha1, formato esadecimale
+	\item deleted: timestamp di eliminazione (vuoto se non eliminato), formato UTC
 \end{itemize}
 
 
-\section{Comandi del client}
+\section{Comandi gestiti client}
 
 \paragraph{} Di seguito l'elenco e descrizione dei comandi gestiti dal client, su cui deve basarsi l'implementazione del sistema.
 
@@ -334,25 +398,29 @@ Verranno di seguito analizzate diverse possibili architetture del sistema, compa
 	
 	\item push: upload di un documento
 	
-	\item rem: eliminazione di path (documento o documenti attualmente in una repository)
+	\item rem: eliminazione di path (documento o repository)
 	
-	\item lock: lock e unlock di un path (documento o documenti attualmente in una repository)
+	\item lock: lock e unlock di un path (documento o repository)
 	
-	\item setPriority: aggiornare la priorità di un path (documento o documenti attualmente in una repository)
+	\item setPriority: aggiornare la priorità di un path (documento o repository)
 \end{itemize}
 
 
-\section{Protocollo comunicazione}
+\section{Protocollo di comunicazione}
 
-Di seguito i flussi di dati coinvolti nelle diverse tipologie di richieste.
+\paragraph{} Il protocollo di comunicazione tra nodi diversi si basa sullo scambio di messaggi. Il flusso di dati è binario. Viene utilizzata una connessione di tipo TCP per garantire ordine di consegna, affidabilità, gestione della connessione. 
+
+\paragraph{} Il formato dei comandi è testuale (codifica utf). Un comando è formato dalla parola chiave che lo identifica e dalla lista degli argomenti. Il separatore utilizzato è il punto e virgola; i comandi sono terminati dal newline.
+
+\paragraph{} Di seguito i flussi di dati coinvolti nelle diverse tipologie di richieste.
 
 \subsection{get}
 
-\paragraph{} La richiesta di tipo \emph{get(path)} richiede il trasferimento in entrata di un file. 
+\paragraph{} La richiesta di tipo \emph{get} richiede il trasferimento in entrata di un documento. 
 
-\paragraph{} Inizialmente il \emph{client} contatta il \emph{meta server}, richiedendo un particolare \emph{path}. Il \emph{meta server} seleziona il \emph{data server} ottimale per gestire la richiesta (deve essere online, contenere la risorsa e non essere sovraccarico). Il \emph{meta server} risponde quindi al client specificando l'uid della risorsa (richiesto per identificarla) e l'indirizzo del \emph{data server} a cui collegarsi. Il \emph{client} si disconnette dal \emph{meta server}.
+\paragraph{} Inizialmente il \emph{client} contatta il \emph{meta server}, richiedendo un particolare \emph{documento} (mediante path o uid). Il \emph{meta server} seleziona il \emph{data server} ottimale per gestire la richiesta (deve essere online, contenere la risorsa e non essere sovraccarico). Il \emph{meta server} risponde quindi al client specificando l'uid della risorsa (richiesto per identificarla) e l'indirizzo del \emph{data server} a cui collegarsi. Il \emph{client} si disconnette dal \emph{meta server}.
 
-\paragraph{} Il \emph{client} si connette al \emph{data server} inviando una richiesta \emph{get(uid,start\_pos)}. L'argomento \emph{start\_pos} indica da che byte iniziare a trasferire il file (indice 0-based). Se la risorsa è disponibile (come dovrebbe essere) il \emph{data server} invia un \emph{ack} seguito dal flusso di dati del file. Altrimenti risponde con \emph{err} seguito dai dettagli. 
+\paragraph{} Il \emph{client} si connette al \emph{data server} inviando una richiesta \emph{get(uid,start\_pos)}. L'argomento \emph{start\_pos} indica da che byte iniziare a trasferire il documento (indice 0-based). Se la risorsa è disponibile (come dovrebbe essere) il \emph{data server} invia un \emph{ack} seguito dal flusso di dati del documento. Altrimenti risponde con \emph{err} seguito dai dettagli. 
 
 \begin{figure}[H]
 	\centering
@@ -364,13 +432,13 @@ Di seguito i flussi di dati coinvolti nelle diverse tipologie di richieste.
 
 \subsection{push}
 
-\paragraph{} La richiesta di tipo \emph{push(path, data)} richiede il trasferimento in uscita di un file da parte del client. 
+\paragraph{} La richiesta di tipo \emph{push} richiede il trasferimento in uscita di un documento. 
 
 \paragraph{} Inizialmente il \emph{client} contatta il \emph{meta server}, inviando \emph{path} e \emph{size}. Il \emph{meta server} seleziona il \emph{data server} ottimale per gestire la richiesta (deve essere online, poter contenere la risorsa e non essere sovraccarico). Il \emph{meta server} si occupa anche di generare un nuovo \emph{uid} da assegnare alla risorsa. 
 
 \paragraph{} Il \emph{meta server} si collega al \emph{data server} dove verrà inizialmente salvata la risorsa, inviando un comando \emph{create(uid, size)}. Questo comando predispone il \emph{data server} per ospitare un nuovo documento con tale uid e dimensione. Se non ci sono errori, il \emph{data server} risponde al \emph{meta server} con \emph{ack}. Altrimenti con \emph{err} seguito dai dettagli.
 
-\paragraph{} Il \emph{meta server} risponde quindi al client specificando l'uid della risorsa (richiesto per identificarla) e l'indirizzo del \emph{data server} a cui collegarsi. Il \emph{meta server} si disconnette dal \emph{client} e invia le eventuali richieste di eliminazione ai data server (se il file è una nuova versione di uno esistente).
+\paragraph{} Il \emph{meta server} risponde quindi al client specificando l'uid della risorsa (richiesto per identificarla) e l'indirizzo del \emph{data server} a cui collegarsi. Il \emph{meta server} si disconnette dal \emph{client} e invia le eventuali richieste di eliminazione ai data server (se il documento è una nuova versione di uno esistente).
 
 \paragraph{} Inizia quindi il caricamento del documento. Il \emph{client} si collega al \emph{data server} e invia una \emph{push(uid)}. Se non ci sono errori, il \emph{data server} risponde con \emph{ack} e invia la posizione (indice 0-based) \emph{last\_pos} del primo byte non trasferito (equivalente al numero di byte già trasferiti). A quel punto il \emph{client} trasferisce la porzione rimanente di documento. Al termine del trasferimento, se non ci sono errori, il \emph{data server} risponde con \emph{ack}. La connessione viene chiusa.
 
@@ -386,11 +454,11 @@ Di seguito i flussi di dati coinvolti nelle diverse tipologie di richieste.
 
 \subsection{rem}
 
-\paragraph{} La richiesta di tipo \emph{rem(path)} richiede l'eliminazione di un file/directory dallo storage.
+\paragraph{} La richiesta di tipo \emph{rem} richiede l'eliminazione di un intero path o singolo uid dallo storage.
 
-\paragraph{} Il \emph{client} invia al \emph{meta server} una richiesta \emph{rem(path)}. Se non ci sono errori, il \emph{meta server} risponde con \emph{ack} e chiude la connessione.
+\paragraph{} Il \emph{client} invia al \emph{meta server} una richiesta \emph{rem}. Se non ci sono errori, il \emph{meta server} risponde con \emph{ack} e chiude la connessione.
 
-\paragraph{} Il \emph{meta server} contatta separatamente tutti i \emph{data server} contenenti dati relativi a quel particolare \emph{uid} e invia una richiesta \emph{rem(uid)}.  
+\paragraph{} Nel caso la richiesta di eliminazione sia di tipo fisico, il \emph{meta server} contatta separatamente tutti i \emph{data server} contenenti dati relativi a quel particolare \emph{uid} e invia una richiesta \emph{rem(uid)}.  
 
 \begin{figure}[H]
 	\centering
@@ -403,9 +471,9 @@ Di seguito i flussi di dati coinvolti nelle diverse tipologie di richieste.
 
 \subsection{transfer}
 
-\paragraph{} La richiesta di tipo \emph{transfer} richiede la copia di un file (uid) da un \emph{data server} ad un altro. Viene usata dal \emph{meta server} per trasferire i dati tra i nodi e gestire la ridondanza.
+\paragraph{} La richiesta di tipo \emph{transfer}, effettuata esclusivamente dal metaserver, richiede la copia di un documento da un \emph{data server} ad un altro. Viene usata per trasferire i dati tra i nodi in modo da gestire la ridondanza.
 
-\paragraph{} Inizialmente, come nel caso di una \emph{push}, il meta server contatta il \emph{data server} di destinazione (\emph{DATA2}) tramite una richiesta \emph{create(uid)}, per inizializzarlo a ricevere il file. Se non ci sono errori il \emph{data server} risponde con \emph{ack}. La connessione viene chiusa. 
+\paragraph{} Inizialmente, come nel caso di una \emph{push}, il meta server contatta il \emph{data server} di destinazione (\emph{DATA2}) tramite una richiesta \emph{create(uid)}, per inizializzarlo a ricevere il documento. Se non ci sono errori il \emph{data server} risponde con \emph{ack}. La connessione viene chiusa. 
 
 \paragraph{} A questo punto il \emph{meta server} invia al \emph{data server} di origine (\emph{DATA1}) una richiesta \emph{transfer(uid, to)} per ordinare il trasferimento. Se \emph{DATA1} riesce a connettersi con successo a \emph{DATA2}, risponde a \emph{META} con \emph{begin\_transfer(uid)}. \emph{META1} invia a \emph{META2} una richiesta di tipo \emph{push(uid)} e da luogo al trasferimento. Al termine \emph{DATA1} invia un messaggio \emph{end\_transfer(uid)} a \emph{META} per notificare l'avvenuto trasferimento.
 
@@ -428,13 +496,13 @@ Di seguito i flussi di dati coinvolti nelle diverse tipologie di richieste.
 
 \section{Sicurezza ed autenticazione}
 
-\paragraph{} Tutte le connessioni vengono cifrate tramite protocollo TLS over TCP. In questo modo la cifratura è invisibile alla logica dell'application e può in ogni momento essere modificata dal programmatore. Inoltre, essendo una tecnologia ampiamente diffusa e collaudata, presenta una vulnerabilità minima. 
+\paragraph{} Tutte le connessioni vengono cifrate a livello intermedio tramite protocollo TLS over TCP. In questo modo la cifratura è invisibile alla logica dell'application e può in ogni momento essere modificata dal programmatore. Inoltre, essendo una tecnologia ampiamente diffusa e collaudata, presenta una vulnerabilità minima. 
 
-\paragraph{} L'autenticazione da client a server avviene tramite coppia \emph{(username, password)} all'inizio della connessione. La password di ciascun utente può essere cambiata in ogni momento dall'utente stesso, dopo essersi loggato. 
+\paragraph{} L'autenticazione da client a server avviene tramite token all'inizio della connessione. La password di ciascun utente può essere cambiata in ogni momento dall'utente stesso, dopo essersi loggato. 
 
 \paragraph{} L'autenticazione da server a server avviene tramite certificato digitale.
 
-\paragraph{} Per garantire sia l'integrità che la sicurezza (per evitare modifiche volute) viene conservato e verificato il checksum (sha1) di tutti i file in ingresso. 
+\paragraph{} Per garantire sia l'integrità che la sicurezza (per evitare modifiche volute) viene conservato e verificato il checksum (sha1) di tutti i documenti in ingresso. 
 
 
 \section{Generazione di una chiave identificativa}
@@ -466,17 +534,17 @@ https://tools.ietf.org/html/rfc4122.html
 
 \section{Problema della consistenza in un sistema distribuito}
 
-\paragraph{} I sistemi distribuiti sono per loro natura soggetti a frequenti errori, ritardi di comunicazione e problemi di concorrenza. È quindi fondamentale assicurarsi di mantenere la consistenza dello stato globale in modo che eventuali vincoli di integrità non siano violati. 
+\paragraph{} I sistemi distribuiti sono per loro natura soggetti a frequenti errori, ritardi di comunicazione e situazioni di concorrenza. È quindi fondamentale assicurarsi di mantenere la consistenza dello stato globale in modo che eventuali vincoli di integrità non siano violati. 
 
 \paragraph{} Un esempio lampante è quello delle richieste del tipo "INSERT .. IF NOT EXISTS". Tale operazione non può essere valutata in un solo nodo, in quanto l'identificativo cercato potrebbe essere stato inserito in un altro nodo ma non ancora propagato all'intero sistema. 
 
-\paragraph{} Per verificare l'esito di tale richiesta è quindi necessario adottare una politica specifica, quale potrebbe essere il meccanismo del \textbf{QUORUM}. Essa stabisce che se almeno la metà+1 (maggioranza assoluta) dei nodi concorda su una proprietà, allora essa in quell'istante è vera. Capiamo meglio con un esempio: viene inserito il valore 1 all'interno di un nodo. Esso propaga il valore ad un numero di nodi almeno pari alla metà. Al termine dell'operazione almeno la metà+1 nodi contengono il valore 1. Per verificare la presenza del valore 1, viene effettuata una richiesta ad almeno metà+1 nodi qualsiasi. Per il principio della piccionaia, almeno uno di essi conterrà il valore specificato e quindi risponderà "yes", dando il risultato corretto. 
+\paragraph{} Per verificare l'esito di tale richiesta è quindi necessario adottare una politica specifica, quale potrebbe essere il meccanismo del \textbf{QUORUM}. Essa stabisce che se in un istante la maggioranza assoluta ($Q=floor(N/2) + 1$, con $N$ numero di nodi) dei nodi concorda su una proprietà, allora essa in quell'istante è vera. Capiamo meglio con un esempio: viene inserito il valore 1 all'interno di un nodo. Esso propaga il valore ad almeno $Q-1$ nodi distinti. Al termine dell'operazione almeno la $Q$ nodi contengono il valore 1. Per verificare la presenza del valore 1, viene effettuata una richiesta ad almeno $Q$ nodi distinti qualsiasi. Per il principio della piccionaia, almeno uno di essi conterrà il valore specificato e quindi risponderà "yes", dando il risultato corretto. 
 
-\paragraph{} Cassandra utilizza in particolare il protocollo \emph{PAXOS} per verificare l'esito delle \emph{Lightweight transactions}. Le LWT sono utilizzate nell'esecuzione di comandi "INSERT $\dots$ IF NOT EXISTS" e "UPDATE ... IF CONDITION".
+\paragraph{} Il nuovo problema da affrontare è che l'algoritmo precedente vale se e solo se tutte le richieste vengono valutate allo stesso istante, e il risultato ottenuto è garantito solo per lo stesso istante. Questo però è impossibile, in quanto comunicazioni e computazioni non sono istantanei. La soluzione adottata da Cassandra è l'utilizzo del protocollo \emph{PAXOS} per effettuare \emph{Lightweight transactions}. Le LWT sono utilizzate in particolare nell'esecuzione di comandi "INSERT $\dots$ IF NOT EXISTS" e "UPDATE ... IF CONDITION", in modo da garantire la consistenza. 
 
 https://en.wikipedia.org/wiki/Paxos\_(computer\_science)  
 
-\paragraph{} Inoltre Cassandra permette di stabilire il livello di consistenza per ogni query di tipo select. Esso può essere ANY, ONE, TWO, THREE, \dots, QUORUM, $\dots$, ALL, in base alle necessità del sistema. Questa scelta consente di valutare il tradeoff tra \emph{disponibilità} e \emph{consistenza}. ONE fornisce la maggiore disponibilità, ALL la maggiore consistenza. Per questo progetto è stata scelta l'opzione QUORUM. 
+\paragraph{} Inoltre, Cassandra permette di stabilire il livello di consistenza per ogni query di tipo select. Esso può essere ANY, ONE, TWO, THREE, \dots, QUORUM, $\dots$, ALL, in base alle necessità del sistema. Questa scelta consente di bilanciare il tradeoff tra \emph{disponibilità} e \emph{consistenza}. ANY fornisce la maggiore disponibilità (basta che un nodo qualsiasi risponda), ALL la maggiore consistenza (tutti i nodi devono concordare). Per questo progetto è stata scelta l'opzione QUORUM, in quanto garantisce forte consistenza ma tolleranza ai guasti fino a $floor(N)$ nodi. 
 
 https://docs.datastax.com/en/cassandra-oss/3.0/cassandra/dml/dmlConfigConsistency.html
 
@@ -487,13 +555,13 @@ https://docs.datastax.com/en/cassandra-oss/3.0/cassandra/dml/dmlConfigConsistenc
 
 \subsection{Strumenti software}
 
-\paragraph{} Il linguaggio scelto per implementare client, dataserver e metaserver è Python 3. Questo linguaggio ha numerosi vantaggi: è platform-independent, è semplice ma efficace da utilizzare, permette la scrittura di codice abbastanza compatto, possiede una collezione di librerie praticamente illimitata, si adatta bene alla programmazione concorrente. Unico punto debole è l'efficienza, minore rispetto al C++, ma comunque più che sufficiente per lo scopo. 
+\paragraph{} Il linguaggio scelto per implementare client, dataserver e metaserver è \textbf{Python 3}. Questo linguaggio ha numerosi vantaggi: è \emph{platform-independent}, è \emph{semplice} ma \emph{efficace} da utilizzare, permette la scrittura di codice abbastanza \emph{compatto}, possiede una collezione di \emph{librerie} praticamente illimitata, si adatta bene alla programmazione \emph{concorrente}. Unico punto debole è l'\emph{efficienza}, minore rispetto al C++, ma comunque più che sufficiente per lo scopo. 
 
-\paragraph{} Come dbms per il metaserver ho scelto Apache Cassandra, uno dei più famosi sistemi NoSQL in commercio. Gestisce automaticamente la replicazione e concorrenza all'interno del cluster, con efficacia, in modo da assicurare disponibilità e affidabilità. Le prestazioni sono ottime, come il supporto della community e la documentazione. Cql (Cassandra Query Language) una sintassi molto simile a SQL, cosa che agevola molto l'intervento di programmatori non specializzati.  
+\paragraph{} Come dbms per il \underline{metaserver} ho scelto \textbf{Apache Cassandra}, uno dei più famosi sistemi \emph{NoSQL} distribuiti in commercio. Gestisce automaticamente la \emph{replicazione} e \emph{concorrenza} all'interno del cluster, con efficacia, in modo da assicurare \emph{disponibilità} e \emph{affidabilità}. Le \emph{prestazioni} sono ottime, come il supporto della \emph{community} e la \emph{documentazione}. \emph{Cql} (Cassandra Query Language) una sintassi molto simile a SQL, cosa che agevola molto l'intervento di programmatori non specializzati.  
 
-\paragraph{} Dato che i dataserver devono essere più leggeri possibile, come dbms per i dataserver ho scelto SQLite3. E' completamente integrato nella libreria standard di Python 3, quindi non necessita dell'installazione di software aggiuntivo. Tutti i dati vengono memorizzati all'interno di un unico file compresso. Le performances sono più che adatte per le operazioni richieste. Sia buona documentazione che facilità di utilizzo sono punti a favore. Il linguaggio è un dialetto SQL, molto simile a quello degli altri sistemi (l'unica differenza importante stà nei tipi di dato, che sono semplificati).  
+\paragraph{} Dato che i \underline{dataserver} devono essere più leggeri possibile, come dbms per i dataserver ho scelto \textbf{SQLite3}. E' completamente integrato nella libreria standard di Python 3, quindi non necessita dell'installazione di software aggiuntivo. Tutti i dati vengono memorizzati all'interno di un \emph{unico file compresso}. Le \emph{performances} sono più che adatte per le operazioni richieste. Sia buona \emph{documentazione} che \emph{facilità} di utilizzo sono punti a favore. Il linguaggio è un \emph{dialetto SQL}, molto simile a quello degli altri sistemi (l'unica differenza importante stà nei tipi di dato, che sono semplificati).  
 
-\paragraph{} I file di configurazione sono in formato YAML: un formato open, human-readable tra i più diffusi al mondo e intuitivi. 
+\paragraph{} I \emph{file di configurazione} sono in formato \textbf{YAML}: un formato \emph{open}, \emph{human-readable} tra i più diffusi al mondo e intuitivi. 
 
 
 \subsection{Struttura del codice}
@@ -587,13 +655,11 @@ metaserver: localhost:10000
 
 \subsection{Interfaccia di connessione e scambio dati}
 
-\paragraph{} L'interfaccia è unica per client, metaserver e dataserver. E' implementata come decorator per la classe socket e StreamRequestHandler. Utilizza gli oggetti \emph{rfile} (lettura) e \emph{wfile} (scrittura), ottenuti dal socket, per effettuare i trasferimenti. 
+\paragraph{} L'interfaccia è unica per client, metaserver e dataserver. E' implementata come \emph{decorator} per la classe socket e StreamRequestHandler. Utilizza gli oggetti \emph{rfile} (lettura) e \emph{wfile} (scrittura), ottenuti dal socket, per effettuare i trasferimenti. 
 
-\paragraph{} Il trasferimento dati avviene in modalità binaria, per ragioni di efficienza. 
+\paragraph{} Il trasferimento dati avviene in \emph{modalità binaria}, per ragioni di efficienza. 
 
-\paragraph{} Il formato dei comandi è testuale (codifica utf). Un comando è formato dalla parola chiave che lo identifica e dalla lista degli argomenti. Il separatore utilizzato è il punto e virgola, i comandi sono terminati dal newline.
-
-\paragraph{} I file vengono scritti dal metodo ad alta efficienza \emph{socket.sendfile}, il quale permette di evitare il double buffering. Vengono letti a blocchi di 1024 byte con il metodo \emph{socket.read}.
+\paragraph{} I file vengono scritti dal metodo ad alta efficienza \emph{socket.sendfile}, il quale permette di evitare il \emph{double buffering}. Vengono letti a blocchi di 1024 byte con il metodo \emph{socket.read}.
 
 \begin{lstlisting}[language=Python, title=Codice]
 def CustomConnection(cls):
@@ -656,7 +722,7 @@ class DataServerHandler(StreamRequestHandler):
 
 \subsection{Interfaccia al database}
 
-\paragraph{} Per interfacciarsi al database metaserver e dataserver hanno degli oggetti dedicati, chiamati \emph{Database}. Essi espongono tutte le query sotto forma di \emph{API}: in questo modo gli utilizzatori del database sono svincolati dall'effettiva implementazione sottostante. Questo è un vantaggio sia in termini di incapsulamento, che rende più semplice la progettazione e manutenzione del software, che nel caso in cui si voglia cambiare dbms, perchè l'utilizzatore non deve essere modificato. 
+\paragraph{} Per interfacciarsi al database metaserver e dataserver hanno degli oggetti dedicati, chiamati \emph{Database}. Essi espongono tutte le query sotto forma di \emph{API}: in questo modo gli utilizzatori del database sono svincolati dall'effettiva implementazione sottostante. Questo è un vantaggio sia in termini di \emph{incapsulamento}, che rende più semplice la progettazione e manutenzione del software, che nel caso in cui si voglia cambiare dbms, perchè l'utilizzatore non deve essere modificato. 
 
 \subsubsection{Metaserver}
 
@@ -1002,9 +1068,9 @@ database = Database()
 
 \subsection{Operazioni periodiche}
 
-\paragraph{} Le operazioni che non possono essere eseguite subito (es: eliminazione di un documento mentre sta venendo trasferito) oppure che vanno eseguite regolarmente (es: monitoraggio delle prestazioni del dataserver) sono valutate periodicamente ed eseguite nel primo momento utile. 
+\paragraph{} Le operazioni che non possono essere eseguite subito (es: eliminazione di un documento mentre sta venendo trasferito) oppure che vanno eseguite regolarmente (es: monitoraggio delle prestazioni del dataserver) sono valutate \emph{periodicamente} ed eseguite nel primo momento utile. 
 
-\paragraph{} Lo schema di esecuzione è molto semplice: ogni operazione periodica è schedulata ad intervalli regolari (es 10 secondi) e viene eseguita da un looper thread.
+\paragraph{} Lo schema di esecuzione è molto semplice: ogni operazione periodica è \emph{schedulata ad intervalli regolari} (es 10 secondi) e viene eseguita da un \emph{looper thread}.
 
 \subsubsection{Metaserver}
 
@@ -1164,7 +1230,7 @@ _thread.start_new_thread(repeatedActions, (None,))
 \subsubsection{Dataserver}
 
 \paragraph{} Nel dataserver le operazioni periodiche sono:\begin{itemize}
-	\item Controllo dello stato interno (utilizzo della banda e della memoria di massa)
+	\item Controllo dello \emph{stato interno} (utilizzo della banda e della memoria di massa)
 	\item Eliminazione dei documenti in coda
 \end{itemize}
 
@@ -1186,7 +1252,7 @@ def getPerformance():
 \end{lstlisting}
 
 
-\paragraph{} Per tenere traccia dei documenti attualmente in trasferimento, che quindi non possono essere eliminati, viene utilizzato il set \emph{processing}. Esso contiene in ogni momento tutti gli uid relativi a documenti in caricamento e in trasferimento. 
+\paragraph{} Per tenere traccia dei documenti attualmente in trasferimento, che quindi non possono essere eliminati, viene utilizzato il set \emph{processing}. Esso contiene in ogni momento tutti gli \emph{uid} relativi a documenti in caricamento e in trasferimento. 
 
 \begin{lstlisting}[language=Python, title=Eliminazione dei documenti in coda]
 def processDeleteUids():
@@ -1221,9 +1287,9 @@ _thread.start_new_thread(runPeriodicTasks, (None,))
 
 \subsection{ServerSocket e relativo handler}
 
-\paragraph{} Il punto di contatto di metaserver è il metodo \emph{handle()}. Esso si occupa del \emph{dispatching} delle richieste, con l'ausilio di una mappa delle operazioni. Si ricorda che, secondo il protocollo di comunicazione, una richiesta è formata dal nome ed eventuali parametri, separati dal punto e virgola e terminati da newline. Una soluzione analoga è presente per il dataserver.
+\paragraph{} Il punto di contatto di metaserver è il metodo \emph{handle}. Esso si occupa del \emph{dispatching delle richieste}, con l'ausilio di una mappa delle operazioni. Si ricorda che, secondo il protocollo di comunicazione, una richiesta è formata dal nome ed eventuali parametri, separati dal punto e virgola e terminati da newline. Una soluzione analoga è presente per il dataserver.
 
-\paragraph{} Una eventuale richiesta non riconosciuta viene automaticamente scartata.
+\paragraph{} Una eventuale \emph{richiesta non riconosciuta} viene automaticamente scartata.
 
 \begin{lstlisting}[language=Python, title=Metaserver e relativo handler]
     ...
@@ -1261,7 +1327,7 @@ with MetaServer((HOST, PORT), MetaServerHandler, bind_and_activate=True) as serv
 
 \paragraph{} In questa sezione vengono analizzate le implementazioni di tutti i metodi/operazioni che possono essere eseguite. L'analisi è suddivisa per operazioni, in modo da poter apprezzare meglio le interazioni tra i componenti. 
 
-\subsubsection{Caricamento di un file}
+\subsubsection{Caricamento di un documento}
 
 \paragraph{} Questa azione viene usata dal client per caricare un documento.
 
@@ -1329,13 +1395,22 @@ def pushPath(self, args):
 
 \begin{lstlisting}[language=Python, title=Dataserver]
 def createUid(self, args):
-    uid, size, checksum = args
-    local_path = os.getcwd() + "/" + uid
-    print("local_path", local_path)
-
-    self.database.addObject(uid, local_path, size, checksum)
-
-    self.write("ok")
+	uid, size, checksum = args
+	local_path = os.getcwd() + "/" + uid
+	print("local_path", local_path)
+	size = int(size)
+	
+	with processingLock:
+		totCapacity, downSpeed, upspeed = self.database.nodeStats()
+		reservedCapacity = self.database.reservedSpace()
+		
+		if reservedCapacity + size > totCapacity:
+			self.write("err", "storage capacity exceeded")
+			return False
+		
+		self.database.addObject(uid, local_path, size, checksum)
+		
+	self.write("ok")
 \end{lstlisting}
 
 \paragraph{} Il metaserver marca come eliminato l'oggetto associato al path (se esiste) e aggiunge il nuovo oggetto al database. Risponde al client indicando \emph{uid, addr}. 
@@ -1348,7 +1423,7 @@ def createUid(self, args):
     self.write("ok", uid, addr)
 \end{lstlisting}
 
-\paragraph{} Il client si collega al dataserver target e invia il file. Se il file era stato già parzialmente caricato nel dataserver (es. file di grosse dimensioni), il caricamento riprende da dover era rimasto. Se il file era già stato caricato completamente (ovvero il client tenta di caricare un file già completo), viene generato un errore. Se il checksum al termine del caricamento non corrisponde, il documento viene subito eliminato per essere ricaricato in futuro. 
+\paragraph{} Il client si collega al dataserver target e invia il documento. Se il documento era stato già parzialmente caricato nel dataserver (es. file di grosse dimensioni), il caricamento riprende da dover era rimasto. Se il documento era già stato caricato completamente (ovvero il client tenta di caricare un documento già completo), viene generato un errore. Se il checksum al termine del caricamento non corrisponde, il documento viene subito eliminato per essere ricaricato in futuro. 
 
 \begin{lstlisting}[language=Python, title=Client]
     ...
@@ -1439,7 +1514,7 @@ def pushComplete(self, args):
 \end{lstlisting}
 
 
-\subsubsection{Trasferimento di un file}
+\subsubsection{Trasferimento di un documento}
 
 \paragraph{} Il trasferimento viene usato dal metaserver per copiare un documento da un dataserver ad un altro, aumentandone così il grado di replicazione.
 
@@ -1511,6 +1586,19 @@ def get(localPath = "testin.txt", remotePath = "ale/file1", newFile=True, user="
 \paragraph{} Il metaserver verifca che il path non sia bloccato da un altro utente, cerca l'uid associato al path (quello che corrisponde all'ultima versione del documento), cerca un dataserver che lo contenga (possibilmente seleziona il migliore) e risponde al client indicando \emph{uid, indirizzo dataserver}.
 
 \begin{lstlisting}[language=Python, title=Metaserver]
+def _getServerForUid(self, uid):
+	res = self.database.getServersForUid(uid)
+	print("servers", res)
+	
+	if len(res) == 0:
+		self.write("err", "no copies available")
+		return False
+	
+	random.shuffle(res)
+	
+	addr = res[0].server
+	return addr	
+
 def getPath(self, args):
     path, user = args
 
@@ -1537,7 +1625,7 @@ def getPath(self, args):
     self.write("ok", uid, addr, checksum)
 \end{lstlisting}
 
-\paragraph{} A quel punto il client si collega al dataserver sorgente, invia la posizione da cui vuole iniziare a leggere il documento (usato per riprendere il trasferimento interrotto di un file di grandi dimensioni) e legge il file. La chiamata usata in questo caso è \emph{getUid}. Al termine viene verificato il checksum del file per individuare eventuali errori o manomissioni. 
+\paragraph{} A quel punto il client si collega al dataserver sorgente, invia la posizione da cui vuole iniziare a leggere il documento (usato per riprendere il trasferimento interrotto di un documento di grandi dimensioni) e legge il documento. La chiamata usata in questo caso è \emph{getUid}. Al termine viene verificato il checksum del documento per individuare eventuali errori o manomissioni. 
 
 \begin{lstlisting}[language=Python, title=Client]
     startIndex = 0
@@ -1626,7 +1714,7 @@ def getUid(self, args):
 
 \paragraph{} Questa operazione permette di eliminare logicamente un path. Tutti i documenti interessati vengono marcati come eliminati ma conservati, in modo che sia possibile reperirli tramite l'uid.
 
-\paragraph{} Il client effettua una richesta del tipo \emph{deletePath} indicando \emph{path, utente}. Remind: path può riferirsi ad un documento (es "doc1") o ad una directory (es "dir1\%"). 
+\paragraph{} Il client effettua una richesta del tipo \emph{deletePath} indicando \emph{path, utente}. Remind: path può riferirsi ad un documento (es "doc1") o ad una repository (es "dir1\%"). 
 
 \begin{lstlisting}[language=Python, title=Client]
 def deletePath(path, user="default"):
@@ -1667,7 +1755,7 @@ def deletePath(self, args):
 
 \subsubsection{Eliminazione permanente di un path}
 
-\paragraph{} L'eliminazione permanente di un path causa la cancellazione logica e fisica di tutti i dati relativi ad un path. In questo modo tutto lo spazio verrà liberato e non sarà più possibile recuperare i dati. 
+\paragraph{} L'eliminazione permanente di un path causa la cancellazione logica e fisica di tutti i dati relativi ad un path. In questo modo tutto lo spazio verrà liberato e non sarà più possibile recuperare i dati. Questa operazione è simile all'eliminazione di un'intera repository di un sistema di versionamento. 
 
 \paragraph{} Il client invia una richiesta del tipo \emph{permanentlyDeletePath} al metaserver indicando \emph{path, utente}.
 
@@ -1753,7 +1841,7 @@ def unlockPath(self, args):
 
 \subsubsection{Modificare la priorità di un documento}
 
-\paragraph{} È possibile in ogni momento modificare la priorità di un determinato documento. Con \emph{updatePriorityForPath} viene modificata la priorità dell'ultima versione non eliminata di un documento, mentre con \emph{updatePriorityForUid} è possibile effettuare l'operazione su una versione specificata. 
+\paragraph{} È possibile in ogni momento modificare la priorità di un determinato path. Con \emph{updatePriorityForPath} viene modificata la priorità di ogni documento relativo al path specificato, mentre con \emph{updatePriorityForUid} è possibile effettuare l'operazione su una singola versione. 
 
 \paragraph{} Il client contatta il metaserver indicando \emph{path, utente, nuova priorità}. La nuova priorità deve essere >0. 
 
@@ -1855,7 +1943,7 @@ def getStoredData(self, args):
 
 \paragraph{} È interessante notare che il sistema può benissimo essere utilizzato come sistema di versionamento. Dato che i documenti non vengono mai eliminati, ma la modifica presuppone la creazione di un nuovo uid (quindi vecchia e nuova versione sono effettivamente documenti a se stanti che condividono solo il path), è possibile andare a selezionare una particolare versione di ogni documento basandosi sulla data di creazione. L'unico accorgimento è quello di effettuare dal client una richiesta del tipo \emph{getUid}, al posto di \emph{getPath}.
 
-\paragraph{} La creazione di una repository, a differenza di \emph{git}, è trasparente, in quanto ogni directory è in sè una repository (oppure da un altro punto di vista l'intero filesystem è una grande repository). L'eliminazione di un documento tramite \emph{deletePath} agisce soltanto sul fs, marcandolo come eliminato, ma non rimuove i dati dai dataserver. Quindi è sempre possibile recuperare i dati di un file eliminato in questo modo. Invece \emph{permanentlyDeletePath} elimina definitivamente un documento (o directory), permettendo la liberazione di spazio. 
+\paragraph{} La creazione di una repository, a differenza di \emph{git}, è trasparente, in quanto ogni path è in sè una repository (oppure da un altro punto di vista l'intero filesystem è una grande repository). L'eliminazione di un documento tramite \emph{deletePath} agisce soltanto sul fs, marcandolo come eliminato, ma non rimuove i dati dai dataserver. Quindi è sempre possibile recuperare i dati di un documento eliminato in questo modo. Invece \emph{permanentlyDeletePath} elimina definitivamente un documento (o repository), permettendo la liberazione di spazio. 
 
 \paragraph{Cosa ho imparato con questo progetto?}
 
