@@ -120,7 +120,7 @@
 
 \section{Introduzione} 
 
-\paragraph{} Lo scopo del progetto è la realizzazione di un \textbf{file storage distributito}. 
+\paragraph{} Lo scopo del progetto è la realizzazione di un \textbf{file storage distribuito}. 
 
 \paragraph{} Le caratteristiche che deve avere sono:
 
@@ -165,15 +165,15 @@ Verranno di seguito analizzate diverse possibili architetture del sistema, compa
 \paragraph{} Con \underline{schede di rete (e connessioni) multiple} è possibile migliorare la tolleranza sia ai \emph{guasti} che alle \emph{congestioni di rete}. 
 
 \paragraph{Vantaggi} \begin{itemize}
-	\item Semplice da implementare
-	\item Modello più economico
-	\item Il fs è gestito direttamente dal sistema operativo
-	\item Minima esposizione contro attacchi hacker
+	\item Semplice da implementare.
+	\item Modello più economico.
+	\item Il fs è gestito direttamente dal sistema operativo.
+	\item Minima esposizione contro attacchi hacker.
 	\item Con gli accorgimenti sopra descritti si ha già una buona fault tolerance. 
 \end{itemize} 
 
 \paragraph{Svantaggi} \begin{itemize}
-	\item \emph{Single point of failure} per quanto riguarda il server (i dati sono parzialmente protetti dal meccanismo RAID)
+	\item \emph{Single point of failure} per quanto riguarda il server (i dati sono parzialmente protetti dal meccanismo RAID).
 	\item Nessuna protezione per \emph{eventi eccezionali} (eg. catastrofe naturale, incendio nell'edificio, blocco della rete\dots). 
 \end{itemize}. 
 
@@ -196,14 +196,14 @@ Verranno di seguito analizzate diverse possibili architetture del sistema, compa
 \paragraph{} Nel caso ci fosse un \emph{crash} o \emph{errore critico del sistema operativo}, basta ricaricare la macchina virtuale più recente. La \emph{perdita di dati} è limitata all'età dell'ultimo backup. 
 
 \paragraph{Vantaggi} \begin{itemize}
-	\item \emph{Recovery} buona e in tempi brevi in caso di crash 
-	\item Naturale implementazione in ambienti di loro natura virtualizzati (es \emph{container})
+	\item \emph{Recovery} buona e in tempi brevi in caso di crash.
+	\item Naturale implementazione in ambienti di loro natura virtualizzati (es \emph{container}).
 \end{itemize}
 
 
 \paragraph{Svantaggi} \begin{itemize}
-	\item Durante il \emph{periodo di transizione} il sistema non risponde
-	\item \emph{Prestazioni} leggermente ridotte a causa della virtualizzazione
+	\item Durante il \emph{periodo di transizione} il sistema non risponde.
+	\item \emph{Prestazioni} leggermente ridotte a causa della virtualizzazione.
 \end{itemize}
 
 \begin{figure}[H]
@@ -218,16 +218,16 @@ Verranno di seguito analizzate diverse possibili architetture del sistema, compa
 
 \subsection{Cloud backup}
 
-\paragraph{} Il backup può essere effettuato nel \underline{cloud}, al posto che in un dispositivo dedicato all'interno del datacenter. Inoltre il backup può essere esteso anche ai dati, oltre che al fs. 
+\paragraph{} Il backup può essere effettuato nel \underline{cloud}, piuttosto che in un dispositivo dedicato all'interno del datacenter. Inoltre il backup può essere esteso anche ai dati, oltre che al fs. 
 
 \paragraph{Vantaggi} \begin{itemize}
-	\item Protezione in caso di \emph{eventi eccezionali}: i dati non risiedono in un unico luogo fisico
-	\item Il provider può fornire ulteriori garanzie di replicazione
+	\item Protezione in caso di \emph{eventi eccezionali}: i dati non risiedono in un unico luogo fisico.
+	\item Il provider può fornire ulteriori garanzie di replicazione.
 \end{itemize}
 
 \paragraph{Svantaggi} \begin{itemize}
-	\item In generale effettuare un backup nel cloud, anche se solo incrementale, richiede un \emph{elevato utilizzo di banda} e \emph{tempi maggiori} 
-	\item I \emph{costi} possono essere maggiori 
+	\item In generale effettuare un backup nel cloud, anche se solo incrementale, richiede un \emph{elevato utilizzo di banda} e \emph{tempi maggiori}.
+	\item I \emph{costi} possono essere maggiori.
 \end{itemize}
 
 \begin{figure}[H]
@@ -246,14 +246,14 @@ Verranno di seguito analizzate diverse possibili architetture del sistema, compa
 
 
 \paragraph{Vantaggi} \begin{itemize}
-	\item I dati vengono automaticamente replicati e gestiti dal dbms
+	\item I dati vengono automaticamente replicati e gestiti dal dbms.
 	\item Utilizzando un dbms in commercio, si beneficia dall'avere tutto già pronto e costantemente aggiornato.
 \end{itemize}
 
 
 \paragraph{Svantaggi} \begin{itemize}
-	\item Maggiore complessità
-	\item La connessione avviene tra il client ed un nodo, il quale poi distribuisce i dati bidirezionalmente agli altri nodi. Se questo nodo dispone di una banda limitata, ciò può rappresentare un bottleneck dal punto di vista delle prestazioni. Inoltre l'utilizzo di banda complessiva può essere doppio rispetto al necessario: nel caso i dati vadano trasferiti dal client al server (gateway) al server di destinazione o vice versa. 
+	\item Maggiore complessità.
+	\item La connessione avviene tra il client ed un nodo, il quale poi distribuisce i dati bidirezionalmente agli altri nodi. Inoltre l'utilizzo di banda complessiva può essere doppio rispetto al necessario: nel caso i dati vadano trasferiti dal client al server (gateway) al server di destinazione o vice versa. 
 \end{itemize}
 
 \begin{figure}[H]
@@ -279,13 +279,13 @@ Verranno di seguito analizzate diverse possibili architetture del sistema, compa
 \paragraph{} Come nel caso single-sever, il meta server è unico, virtualizzato e sottoposto a backup periodico. 
 
 \paragraph{Vantaggi} \begin{itemize}
-	\item Trasferimenti concorrenti con data server multipli permettono di migliorare le prestazioni nel caso in cui il client abbia una banda elevata rispetto ai dataserver
-	\item Un \emph{unico meta server} permette di mantenere in modo semplice la consistenza del filesystem
+	\item Trasferimenti concorrenti con data server multipli permettono di migliorare le prestazioni nel caso in cui il client abbia una banda elevata rispetto ai dataserver.
+	\item Un \emph{unico meta server} permette di mantenere in modo semplice la consistenza del filesystem.
 \end{itemize}
 
 \paragraph{Svantaggi} \begin{itemize}
-	\item La frequenza dei \emph{backup} del meta server è fondamentale per minimizzare la perdita di dati in caso di fault
-	\item Tutti i data server devono essere \emph{raggiungibili} dal client (maggiore attenzione alla sicurezza e struttura della rete)
+	\item La frequenza dei \emph{backup} del meta server è fondamentale per minimizzare la perdita di dati in caso di fault.
+	\item Tutti i data server devono essere \emph{raggiungibili} dal client (maggiore attenzione alla sicurezza e struttura della rete).
 \end{itemize}
 
 \begin{figure}[H]
@@ -301,22 +301,22 @@ Verranno di seguito analizzate diverse possibili architetture del sistema, compa
 \subsection{Meta+Data server 2}
 
 \paragraph{} Facendo dialogare meta e data server, è possibile:\begin{enumerate}
-	\item Spostare l'\emph{onere di configurazione dei data server} da client a meta server
-	\item Gestire in qualsiasi momento la \emph{replicazione dei dati}, ad esempio per bilanciare il carico o far fronte alla perdita di un nodo
-	\item Il meta server può monitorare \emph{prestazioni} e \emph{stato di salute} dei data sever
+	\item Spostare l'\emph{onere di configurazione dei data server} da client a meta server.
+	\item Gestire in qualsiasi momento la \emph{replicazione dei dati}, ad esempio per bilanciare il carico o far fronte alla perdita di un nodo.
+	\item Il meta server può monitorare \emph{prestazioni} e \emph{stato di salute} dei data sever.
 \end{enumerate}
 
 \paragraph{} Il client quindi si limita a trasferire i dati da/verso data server utilizzando \underline{token} forniti dal meta server. 
 
 \paragraph{Vantaggi} \begin{itemize}
-	\item Il sistema può \emph{riconfigurarsi} in ogni momento per far fronte a qualsiasi evenienza
-	\item Ruolo del client semplificato 
-	\item Maggiore sicurezza (minore esposizione) perchè il client non può inviare comandi ai data server
+	\item Il sistema può \emph{riconfigurarsi} in ogni momento per far fronte a qualsiasi evenienza.
+	\item Ruolo del client semplificato.
+	\item Maggiore sicurezza (minore esposizione) perché il client non può inviare comandi ai data server.
 \end{itemize}
 
 
 \paragraph{Svantaggi} \begin{itemize}
-	\item Maggiore complessità nel gestire operazioni \emph{concorrenti} ed \emph{asincrone} in nodi diversi
+	\item Maggiore complessità nel gestire operazioni \emph{concorrenti} ed \emph{asincrone} in nodi diversi.
 \end{itemize}
 
 \begin{figure}[H]
@@ -336,14 +336,14 @@ Verranno di seguito analizzate diverse possibili architetture del sistema, compa
 \paragraph{} Come dimostrato dal teorema CAP bisogna rinunciare alla disponibilità per garantire la coerenza del fs. 
 
 \paragraph{Vantaggi} \begin{itemize}
-	\item Possibilità di utilizzo di software in commercio
-	\item Maggiore fault tolerance dei metadati
-	\item Minore tempo di down in caso di malfunzionamenti
+	\item Possibilità di utilizzo di software in commercio.
+	\item Maggiore fault tolerance dei metadati.
+	\item Minore tempo di down in caso di malfunzionamenti.
 \end{itemize}
 
 \paragraph{Svantaggi} \begin{itemize}
 	\item Maggiore difficoltà nell'implementazione dei meta server e dei protocolli di comunicazione tra i vari componenti. 
-	\item Maggiore overhead (e quindi minori prestazioni) nel caso di sistemi di piccole/medie dimensioni
+	\item Maggiore overhead (e quindi minori prestazioni) nel caso di sistemi di piccole/medie dimensioni.
 \end{itemize}
 
 \begin{figure}[H]
@@ -365,44 +365,44 @@ Verranno di seguito analizzate diverse possibili architetture del sistema, compa
 
 \paragraph{} Il simbolo '/' viene usato per separare i \emph{componenti di un path}: ad esempio il path "/dir1/dir2/file1" identifica il file "file1" figlio della directory "dir2" che a sua volta è figlia della directory "dir1" che è figlia di root. Per questo '/' compare tra i caratteri vietati per la nominazione di un oggetto.  
 
-\paragraph{} Nel \emph{sistema presentato} esistono soltanto i \textbf{documenti}. Essi sono \emph{contenitori di dati}, ed hanno associati alcuni \emph{metadati} (in versione semplificata rispetto unix). 
+\paragraph{} Nel \emph{sistema presentato} esistono soltanto i \textbf{documenti}. Essi sono \emph{contenitori di dati}, ed hanno associati alcuni \emph{metadati} (in versione semplificata rispetto a UNIX). 
 
 \paragraph{} Un path che termina con un carattere diverso da '\%' rappresenta un \emph{singolo documento} (es: "documento1", "home/lavoro\#foto/mare-foto1"). Un path che termina con '\%' rappresenta l'\emph{insieme di documenti} che ha come prefisso i caratteri antecedenti al simbolo finale (es. "home/lavoro\#foto\%" include tutti i path che rispettano l'espressione regolare "home/lavoro\#foto*"). Il carattere '\%' può essere usato solo come terminatore. Il carattere ';' è vietato in quanto usato come separatore degli argomenti. 
 
-\paragraph{} Questa organizzazione possiede intrinsecamente una \emph{struttura ad albero}. I path che rappresentano insiemi di documenti sono chiamati \emph{repository}. Le operazioni effettuate su repository hanno effetto su tutti i documenti (anche non ancora creati) appartenenti alla repository. La repository root è naturalmente identificata con il path "\%". "" è un documento valido: si consiglia di usarlo per salvare le informazioni sul sistema (es proprietario, descrizione, contatti) in formato testuale con codifica utf. 
+\paragraph{} Questa organizzazione possiede intrinsecamente una \emph{struttura ad albero}. I path che rappresentano insiemi di documenti sono chiamati \emph{repository}. Le operazioni effettuate su repository hanno effetto su tutti i documenti (anche non ancora creati) appartenenti alla repository. La repository root è naturalmente identificata con il path "\%". "" è un documento valido: si consiglia di usarlo per salvare le informazioni sul sistema (es proprietario, descrizione, contatti) in formato testuale con codifica UTF. 
 
 \subsection{Metadati di un documento}
 
 \paragraph{} I metadati associati ad un documento sono: 
 
 \begin{itemize}
-	\item uid: identificatore univoco dell'oggetto, in formato UUID Type 1
-	\item path: deve rappresentare un documento, stringa utf
-	\item created: timestamp di creazione in formato UTC
-	\item size: dimensione in byte, 0 per le directory, formato unsigned int 
-	\item owner: utente proprietario, stringa utf
-	\item priority: numero minimo di copie, coincide con la priorità, formato unsigned int 
-	\item checksum: checksum sha1, formato esadecimale
-	\item deleted: timestamp di eliminazione (vuoto se non eliminato), formato UTC
+	\item uid: identificatore univoco dell'oggetto, in formato UUID Type 1;
+	\item path: deve rappresentare un documento, stringa UTF;
+	\item created: timestamp di creazione in formato UTC;
+	\item size: dimensione in byte, 0 per le directory, formato unsigned int;
+	\item owner: utente proprietario, stringa UTF;
+	\item priority: numero minimo di copie, coincide con la priorità, formato unsigned int;
+	\item checksum: checksum sha1, formato esadecimale;
+	\item deleted: timestamp di eliminazione (vuoto se non eliminato), formato UTC.
 \end{itemize}
 
 
-\section{Comandi gestiti client}
+\section{Comandi gestiti dal client}
 
-\paragraph{} Di seguito l'elenco e descrizione dei comandi gestiti dal client, su cui deve basarsi l'implementazione del sistema.
+\paragraph{} Di seguito l'elenco e la descrizione dei comandi gestiti dal client, su cui deve basarsi l'implementazione del sistema.
 
 \begin{itemize}
-	\item list: lista i metadati di un path (documento o documenti attualmente in una repository)
+	\item list: lista i metadati di un path (documento o documenti attualmente in una repository);
 	
-	\item get: download di un documento
+	\item get: download di un documento;
 	
-	\item push: upload di un documento
+	\item push: upload di un documento;
 	
-	\item rem: eliminazione di path (documento o repository)
+	\item rem: eliminazione di path (documento o repository);
 	
-	\item lock: lock e unlock di un path (documento o repository)
+	\item lock: lock e unlock di un path (documento o repository);
 	
-	\item setPriority: aggiornare la priorità di un path (documento o repository)
+	\item setPriority: aggiornare la priorità di un path (documento o repository).
 \end{itemize}
 
 
@@ -410,7 +410,7 @@ Verranno di seguito analizzate diverse possibili architetture del sistema, compa
 
 \paragraph{} Il protocollo di comunicazione tra nodi diversi si basa sullo scambio di messaggi. Il flusso di dati è binario. Viene utilizzata una connessione di tipo TCP per garantire ordine di consegna, affidabilità, gestione della connessione. 
 
-\paragraph{} Il formato dei comandi è testuale (codifica utf). Un comando è formato dalla parola chiave che lo identifica e dalla lista degli argomenti. Il separatore utilizzato è il punto e virgola; i comandi sono terminati dal newline.
+\paragraph{} Il formato dei comandi è testuale (codifica UTF). Un comando è formato dalla parola chiave che lo identifica e dalla lista degli argomenti. Il separatore utilizzato è il punto e virgola; i comandi sono terminati dal newline.
 
 \paragraph{} Di seguito i flussi di dati coinvolti nelle diverse tipologie di richieste.
 
@@ -510,10 +510,10 @@ Verranno di seguito analizzate diverse possibili architetture del sistema, compa
 \paragraph{} Il problema della generazione di una chiave identificativa è spesso sottovalutato. Consiste nella creazione di un codice che identifichi univocamente una risorsa, un oggetto o un sistema. Questa chiave deve avere la caratteristica di unicità, ovvero non devono esistere codici duplicati: altrimenti non sarebbe più possibile identificare correttamente la risorsa. Inoltre, per ragioni di efficienza, la chiava deve avere lunghezza limitata, in modo da limitarne il tempo di comparazione e lo spazio occupato. In genere le chiavi non hanno un significato, quindi possono essere interpretate indifferentemente come interi o stringhe esadecimali.  
 
 \paragraph{Strategie di generazione di una chiave} Alcune possibili strategie di generazione di chiavi sono: \begin{itemize}
-	\item Contatore intero
-	\item Funzione di hash applicata ad un insieme di proprietà variabili con il tempo
-	\item Numero casuale
-	\item UUID tipo 1
+	\item Contatore intero.
+	\item Funzione di hash applicata ad un insieme di proprietà variabili con il tempo.
+	\item Numero casuale.
+	\item UUID tipo 1.
 \end{itemize}
 
 \paragraph{} Il caso più semplice è quello del contatore intero. Solitamente si implementa con un contatore che parte da 0 e viene incrementato di un unità ad ogni generazione. I vantaggi sono: semplicità di implementazione e garanzia di unicità nel contesto del generatore, ovvero il generatore garantisce una sequenza di valori senza duplicati. Questa soluzione può essere implementata efficacemente soltanto all'interno di un sistema che disponga di un solo generatore, quindi di un solo nodo. Inoltre ciò espone all'esterno il numero di chiavi generate sin ora, informazione che potrebbe essere sfruttata per attacchi al sistema. 
@@ -536,11 +536,11 @@ https://tools.ietf.org/html/rfc4122.html
 
 \paragraph{} I sistemi distribuiti sono per loro natura soggetti a frequenti errori, ritardi di comunicazione e situazioni di concorrenza. È quindi fondamentale assicurarsi di mantenere la consistenza dello stato globale in modo che eventuali vincoli di integrità non siano violati. 
 
-\paragraph{} Un esempio lampante è quello delle richieste del tipo "INSERT .. IF NOT EXISTS". Tale operazione non può essere valutata in un solo nodo, in quanto l'identificativo cercato potrebbe essere stato inserito in un altro nodo ma non ancora propagato all'intero sistema. 
+\paragraph{} Un esempio lampante è quello delle richieste del tipo "INSERT .. IF NOT EXISTS". Tale operazione non può essere valutata in un solo nodo, in quanto l'identificativo cercato potrebbe essere stato inserito in un altro nodo, ma non ancora propagato all'intero sistema. 
 
 \paragraph{} Per verificare l'esito di tale richiesta è quindi necessario adottare una politica specifica, quale potrebbe essere il meccanismo del \textbf{QUORUM}. Essa stabisce che se in un istante la maggioranza assoluta ($Q=floor(N/2) + 1$, con $N$ numero di nodi) dei nodi concorda su una proprietà, allora essa in quell'istante è vera. Capiamo meglio con un esempio: viene inserito il valore 1 all'interno di un nodo. Esso propaga il valore ad almeno $Q-1$ nodi distinti. Al termine dell'operazione almeno la $Q$ nodi contengono il valore 1. Per verificare la presenza del valore 1, viene effettuata una richiesta ad almeno $Q$ nodi distinti qualsiasi. Per il principio della piccionaia, almeno uno di essi conterrà il valore specificato e quindi risponderà "yes", dando il risultato corretto. 
 
-\paragraph{} Il nuovo problema da affrontare è che l'algoritmo precedente vale se e solo se tutte le richieste vengono valutate allo stesso istante, e il risultato ottenuto è garantito solo per lo stesso istante. Questo però è impossibile, in quanto comunicazioni e computazioni non sono istantanei. La soluzione adottata da Cassandra è l'utilizzo del protocollo \emph{PAXOS} per effettuare \emph{Lightweight transactions}. Le LWT sono utilizzate in particolare nell'esecuzione di comandi "INSERT $\dots$ IF NOT EXISTS" e "UPDATE ... IF CONDITION", in modo da garantire la consistenza. 
+\paragraph{} Il nuovo problema da affrontare è che l'algoritmo precedente vale se e solo se tutte le richieste vengono valutate allo stesso istante, e il risultato ottenuto è garantito solo per lo stesso istante. Questo però è impossibile, in quanto comunicazioni e computazioni non sono istantanee. La soluzione adottata da Cassandra è l'utilizzo del protocollo \emph{PAXOS} per effettuare \emph{Lightweight transactions}. Le LWT sono utilizzate in particolare nell'esecuzione di comandi "INSERT $\dots$ IF NOT EXISTS" e "UPDATE ... IF CONDITION", in modo da garantire la consistenza. 
 
 https://en.wikipedia.org/wiki/Paxos\_(computer\_science)  
 
@@ -555,11 +555,11 @@ https://docs.datastax.com/en/cassandra-oss/3.0/cassandra/dml/dmlConfigConsistenc
 
 \subsection{Strumenti software}
 
-\paragraph{} Il linguaggio scelto per implementare client, dataserver e metaserver è \textbf{Python 3}. Questo linguaggio ha numerosi vantaggi: è \emph{platform-independent}, è \emph{semplice} ma \emph{efficace} da utilizzare, permette la scrittura di codice abbastanza \emph{compatto}, possiede una collezione di \emph{librerie} praticamente illimitata, si adatta bene alla programmazione \emph{concorrente}. Unico punto debole è l'\emph{efficienza}, minore rispetto al C++, ma comunque più che sufficiente per lo scopo. 
+\paragraph{} Il linguaggio scelto per implementare client, dataserver e metaserver è \textbf{Python 3}. Questo linguaggio ha numerosi vantaggi: è \emph{platform-independent}, è \emph{semplice}, \emph{efficace} da utilizzare, permette la scrittura di codice abbastanza \emph{compatto}, possiede una collezione di \emph{librerie} praticamente illimitata, si adatta bene alla programmazione \emph{concorrente}. Unico punto debole è l'\emph{efficienza}, minore rispetto al C++, ma comunque più che sufficiente per lo scopo. 
 
 \paragraph{} Come dbms per il \underline{metaserver} ho scelto \textbf{Apache Cassandra}, uno dei più famosi sistemi \emph{NoSQL} distribuiti in commercio. Gestisce automaticamente la \emph{replicazione} e \emph{concorrenza} all'interno del cluster, con efficacia, in modo da assicurare \emph{disponibilità} e \emph{affidabilità}. Le \emph{prestazioni} sono ottime, come il supporto della \emph{community} e la \emph{documentazione}. \emph{Cql} (Cassandra Query Language) una sintassi molto simile a SQL, cosa che agevola molto l'intervento di programmatori non specializzati.  
 
-\paragraph{} Dato che i \underline{dataserver} devono essere più leggeri possibile, come dbms per i dataserver ho scelto \textbf{SQLite3}. E' completamente integrato nella libreria standard di Python 3, quindi non necessita dell'installazione di software aggiuntivo. Tutti i dati vengono memorizzati all'interno di un \emph{unico file compresso}. Le \emph{performances} sono più che adatte per le operazioni richieste. Sia buona \emph{documentazione} che \emph{facilità} di utilizzo sono punti a favore. Il linguaggio è un \emph{dialetto SQL}, molto simile a quello degli altri sistemi (l'unica differenza importante stà nei tipi di dato, che sono semplificati).  
+\paragraph{} Dato che i \underline{dataserver} devono essere più leggeri possibile, come dbms per i dataserver ho scelto \textbf{SQLite3}. E' completamente integrato nella libreria standard di Python 3, quindi non necessita dell'installazione di software aggiuntivo. Tutti i dati vengono memorizzati all'interno di un \emph{unico file compresso}. Le \emph{performances} sono più che adatte per le operazioni richieste. Sia buona \emph{documentazione} che \emph{facilità} di utilizzo sono punti a favore. Il linguaggio è un \emph{dialetto SQL}, molto simile a quello degli altri sistemi (l'unica differenza importante sta nei tipi di dato, che sono semplificati).  
 
 \paragraph{} I \emph{file di configurazione} sono in formato \textbf{YAML}: un formato \emph{open}, \emph{human-readable} tra i più diffusi al mondo e intuitivi. 
 
@@ -567,11 +567,11 @@ https://docs.datastax.com/en/cassandra-oss/3.0/cassandra/dml/dmlConfigConsistenc
 \subsection{Struttura del codice}
 
 \paragraph{} Il codice sia di dataserver che metaserver si articola in 5 parti:\begin{itemize}
-	\item Caricamento della cofigurazione
-	\item Interfaccia di connessione e scambio dati
-	\item Interfaccia al database
-	\item Operazioni periodiche
-	\item ServerSocket e relativo handler
+	\item Caricamento della cofigurazione.
+	\item Interfaccia di connessione e scambio dati.
+	\item Interfaccia al database.
+	\item Operazioni periodiche.
+	\item ServerSocket e relativo handler.
 \end{itemize}
 
 \paragraph{} Il client dispone soltanto dell'interfaccia di connessione/scambio dati e dell'implementazione delle operazioni. 
@@ -722,7 +722,7 @@ class DataServerHandler(StreamRequestHandler):
 
 \subsection{Interfaccia al database}
 
-\paragraph{} Per interfacciarsi al database metaserver e dataserver hanno degli oggetti dedicati, chiamati \emph{Database}. Essi espongono tutte le query sotto forma di \emph{API}: in questo modo gli utilizzatori del database sono svincolati dall'effettiva implementazione sottostante. Questo è un vantaggio sia in termini di \emph{incapsulamento}, che rende più semplice la progettazione e manutenzione del software, che nel caso in cui si voglia cambiare dbms, perchè l'utilizzatore non deve essere modificato. 
+\paragraph{} Per interfacciarsi al database metaserver e dataserver hanno degli oggetti dedicati, chiamati \emph{Database}. Essi espongono tutte le query sotto forma di \emph{API}: in questo modo gli utilizzatori del database sono svincolati dall'effettiva implementazione sottostante. Questo è un vantaggio sia in termini di \emph{incapsulamento}, che rende più semplice la progettazione e manutenzione del software, che nel caso in cui si voglia cambiare dbms, perché l'utilizzatore non deve essere modificato. 
 
 \subsubsection{Metaserver}
 
@@ -1075,8 +1075,8 @@ database = Database()
 \subsubsection{Metaserver}
 
 \paragraph{} Nel metaserver le operazioni periodiche sono:\begin{itemize}
-	\item Controllo dello stato dei dataserver
-	\item Mantenimento del grado di replicazione dei documenti
+	\item Controllo dello stato dei dataserver.
+	\item Mantenimento del grado di replicazione dei documenti.
 \end{itemize}
 
 \begin{lstlisting}[language=Python, title=Controllo dello stato dei dataserver]
@@ -1230,8 +1230,8 @@ _thread.start_new_thread(repeatedActions, (None,))
 \subsubsection{Dataserver}
 
 \paragraph{} Nel dataserver le operazioni periodiche sono:\begin{itemize}
-	\item Controllo dello \emph{stato interno} (utilizzo della banda e della memoria di massa)
-	\item Eliminazione dei documenti in coda
+	\item Controllo dello \emph{stato interno} (utilizzo della banda e della memoria di massa).
+	\item Eliminazione dei documenti in coda.
 \end{itemize}
 
 
@@ -1799,7 +1799,7 @@ def permanentlyDeletePath(self, args):
 
 \paragraph{} Mediante il meccanismo dei lock un client può "bloccare" un path (solo singolo documento). Quando un path è bloccato, tutte le richieste di altri utenti riguardanti quel path vengono respinte. 
 
-\paragraph{} Per effettuare un lock, il client specifica il \emph{path, utente}. 
+\paragraph{} Per effettuare un lock, il client specifica la coppia \emph{path, utente}. 
 
 \begin{lstlisting}[language=Python, title=Client]
 def lockPath(path, user="default"):
@@ -1810,7 +1810,7 @@ def lockPath(path, user="default"):
     return res
 \end{lstlisting}
 
-\paragraph{} Il metaserver risponde con True/False per indicare se il lock ha avuto successo. Fallisce quando si tenta di bloccare un path già bloccato da un altro utente.
+\paragraph{} Il metaserver risponde con \emph{True}/\emph{False} per indicare se il lock ha avuto successo. Fallisce quando si tenta di bloccare un path già bloccato da un altro utente.
 
 \begin{lstlisting}[language=Python, title=Metaserver]
 def lockPath(self, args):
@@ -1828,7 +1828,7 @@ def getPathLock(self, args):
     self.write(lock, user)
 \end{lstlisting}
 
-\paragraph{} Per sbloccare un path è sufficiente invocare la richiesta \emph{unlockPath}. Essa non effettua controlli e si affida alla correttezza di comportamento dei client: questo per permettere a chiunque di sbloccare un path bloccato da un utente che è andato offline (al posto che lasciarlo bloccato per tempo arbitrario). 
+\paragraph{} Per sbloccare un path è sufficiente invocare la richiesta \emph{unlockPath}. Essa non effettua controlli e si affida alla correttezza di comportamento dei client: questo per permettere a chiunque di sbloccare un path bloccato da un utente che è andato offline (piuttosto che lasciarlo bloccato per tempo arbitrario). 
 
 \begin{lstlisting}[language=Python, title=Metaserver]
 def unlockPath(self, args):
@@ -1837,7 +1837,7 @@ def unlockPath(self, args):
     self.write("ok")
 \end{lstlisting}
 
-\paragraph{} Gestire i lock su repository, al posto che singoli documenti, è tutt'altro che banale. Non avendo a disposizione all'interno di Cassandra l'operatore ILIKE, non ho trovato una soluzione efficiente per interrogare il database in modo da controllare se uno dei lock presenti sia prefisso del path che voglio controllare. 
+\paragraph{} Gestire i lock su repository, piuttosto che su singoli documenti, è tutt'altro che banale. Non avendo a disposizione all'interno di Cassandra l'operatore ILIKE, non ho trovato una soluzione efficiente per interrogare il database in modo da controllare se uno dei lock presenti sia prefisso del path che voglio controllare. 
 
 \subsubsection{Modificare la priorità di un documento}
 
@@ -1929,8 +1929,8 @@ def getStoredData(self, args):
 \paragraph{} L'utilizzo di un database distribuito è senza dubbio più semplice: basta installare il dbms nei nodi voluti e dialogarci tramite uno dei tanti client in commercio. 
 
 \paragraph{} Ci sono però numerosi aspetti negativi: \begin{itemize}
-	\item Non è possibile stabilire il livello di replicazione per un singolo documento. Un livello di replicazione unitario per file temporanei (es cache) riduce lo spreco di memoria, mentre un livello di replicazione elevato praticamente annulla la possibilità di perdita di dati di importanza inestimabile.
-	\item Il dbms è generalmente dispendioso di risorse. Mentre la semplicità di un dataserver ne permette persino l'installazione in un dispositivo come Raspberry. E' così possibile sfruttare ad esempio un impianto IoT per immagazzinare dati. 
+	\item Non è possibile stabilire il livello di replicazione per un singolo documento. Un livello di replicazione unitario per file temporanei (es. cache) riduce lo spreco di memoria, mentre un livello di replicazione elevato praticamente annulla la possibilità di perdita di dati di importanza inestimabile.
+	\item Il dbms è generalmente dispendioso in termini di risorse. Mentre la semplicità di un dataserver ne permette persino l'installazione in un dispositivo come \emph{Raspberry}. E' così possibile sfruttare ad esempio un impianto IoT per immagazzinare dati. 
 	\item Il client si collega ad un nodo il quale inoltra i dati alla destinazione. Con questa architettura invece invia direttamente i dati al dataserver di destinazione (e viceversa). Si ha quindi un risparmio di banda complessiva.  
 	\item Il metaserver fornisce funzionalità quali mantenimento di un filesystem, operazioni di lock, bilanciamento del carico personalizzato. 
 \end{itemize}
@@ -1951,10 +1951,13 @@ def getStoredData(self, args):
 
 \paragraph{} Ho usato per la prima volta un database NoSQL, in particolare Apache Cassandra. Essendoci molti punti a favore, oltre che molte limitazioni, rispetto ai "classici" database SQL, non è stato facile capire come sfruttarne al meglio le potenzialità. Solo per citare alcuni esempi, operazioni come la generazione delle chiavi primarie ed effettuare filtri/join sono tutt'altro che scontate. 
 
-\paragraph{} La gestione di un sistema distribuito conivolge, per sua natura, il dialogo di più programmi. Va posta particolare cura allo sviluppo dei protocolli di comunicazione, sincronizzazione e fault tolerance, in un ambiente in cui errori ed ritardi (sia interni che esterni al sistema) sono la norma. Tutte situazioni che in un sistema unitario non si presentano. 
+\paragraph{} La gestione di un sistema distribuito coinvolge, per sua natura, il dialogo di più programmi. Va posta particolare cura allo sviluppo dei protocolli di comunicazione, sincronizzazione e fault tolerance, in un ambiente in cui errori e ritardi (sia interni che esterni al sistema) sono la norma. Tutte situazioni che in un sistema unitario non si presentano. 
 
 \paragraph{} L'imprevedibilità elevata riduce drasticamente l'efficacia del testing. E' quindi ancora più fondamentale stabilire contratti, vincoli, invarianti, diagrammi di flusso, meccanismi di controllo, meccanismi di logging e criteri di scrittura del codice che aiutino a minimizzare sia la probabilità di errore che i danni a seguito di un errore. 
 
-\bibliographystyle{plain}
-\bibliography{references}
+\cite{adams1995hitchhiker}
+
+\bibliographystyle{unsrt}
+\bibliography[title=Sitography]{references}
+
 \end{document}

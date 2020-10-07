@@ -1,0 +1,194 @@
+\select@language {english}
+\contentsline {section}{\numberline {1}Introduzione}{1}{section.1}
+\contentsline {paragraph}{}{1}{section*.2}
+\contentsline {paragraph}{}{1}{section*.3}
+\contentsline {paragraph}{Numero di repliche dei dati}{1}{section*.4}
+\contentsline {paragraph}{Bilanciamento del carico}{1}{section*.5}
+\contentsline {section}{\numberline {2}Architettura del sistema}{2}{section.2}
+\contentsline {subsection}{\numberline {2.1}Single-server}{2}{subsection.2.1}
+\contentsline {paragraph}{}{2}{section*.6}
+\contentsline {paragraph}{}{2}{section*.7}
+\contentsline {paragraph}{}{2}{section*.8}
+\contentsline {paragraph}{}{2}{section*.9}
+\contentsline {paragraph}{Vantaggi}{2}{section*.10}
+\contentsline {paragraph}{Svantaggi}{2}{section*.11}
+\contentsline {subsection}{\numberline {2.2}Virtual server}{3}{subsection.2.2}
+\contentsline {paragraph}{}{3}{section*.13}
+\contentsline {paragraph}{}{3}{section*.14}
+\contentsline {paragraph}{}{3}{section*.15}
+\contentsline {paragraph}{Vantaggi}{3}{section*.16}
+\contentsline {paragraph}{Svantaggi}{3}{section*.17}
+\contentsline {subsection}{\numberline {2.3}Cloud backup}{3}{subsection.2.3}
+\contentsline {paragraph}{}{3}{section*.19}
+\contentsline {paragraph}{Vantaggi}{4}{section*.20}
+\contentsline {paragraph}{Svantaggi}{4}{section*.21}
+\contentsline {subsection}{\numberline {2.4}Server as distributed database}{4}{subsection.2.4}
+\contentsline {paragraph}{}{4}{section*.23}
+\contentsline {paragraph}{Vantaggi}{4}{section*.24}
+\contentsline {paragraph}{Svantaggi}{4}{section*.25}
+\contentsline {subsection}{\numberline {2.5}Meta+Data server}{5}{subsection.2.5}
+\contentsline {paragraph}{}{5}{section*.27}
+\contentsline {paragraph}{}{5}{section*.28}
+\contentsline {paragraph}{}{5}{section*.29}
+\contentsline {paragraph}{}{5}{section*.30}
+\contentsline {paragraph}{}{5}{section*.31}
+\contentsline {paragraph}{Vantaggi}{5}{section*.32}
+\contentsline {paragraph}{Svantaggi}{6}{section*.33}
+\contentsline {subsection}{\numberline {2.6}Meta+Data server 2}{6}{subsection.2.6}
+\contentsline {paragraph}{}{6}{section*.35}
+\contentsline {paragraph}{}{6}{section*.36}
+\contentsline {paragraph}{Vantaggi}{7}{section*.37}
+\contentsline {paragraph}{Svantaggi}{7}{section*.38}
+\contentsline {subsection}{\numberline {2.7}Meta server as distributed system}{7}{subsection.2.7}
+\contentsline {paragraph}{}{7}{section*.40}
+\contentsline {paragraph}{}{7}{section*.41}
+\contentsline {paragraph}{Vantaggi}{8}{section*.42}
+\contentsline {paragraph}{Svantaggi}{8}{section*.43}
+\contentsline {section}{\numberline {3}Struttura del filesytem}{8}{section.3}
+\contentsline {paragraph}{}{8}{section*.45}
+\contentsline {subsection}{\numberline {3.1}Semantica dei path}{9}{subsection.3.1}
+\contentsline {paragraph}{}{9}{section*.46}
+\contentsline {paragraph}{}{9}{section*.47}
+\contentsline {paragraph}{}{9}{section*.48}
+\contentsline {paragraph}{}{9}{section*.49}
+\contentsline {paragraph}{}{9}{section*.50}
+\contentsline {subsection}{\numberline {3.2}Metadati di un documento}{9}{subsection.3.2}
+\contentsline {paragraph}{}{9}{section*.51}
+\contentsline {section}{\numberline {4}Comandi gestiti dal client}{10}{section.4}
+\contentsline {paragraph}{}{10}{section*.52}
+\contentsline {section}{\numberline {5}Protocollo di comunicazione}{10}{section.5}
+\contentsline {paragraph}{}{10}{section*.53}
+\contentsline {paragraph}{}{10}{section*.54}
+\contentsline {paragraph}{}{10}{section*.55}
+\contentsline {subsection}{\numberline {5.1}get}{10}{subsection.5.1}
+\contentsline {paragraph}{}{10}{section*.56}
+\contentsline {paragraph}{}{10}{section*.57}
+\contentsline {paragraph}{}{11}{section*.58}
+\contentsline {subsection}{\numberline {5.2}push}{11}{subsection.5.2}
+\contentsline {paragraph}{}{11}{section*.60}
+\contentsline {paragraph}{}{11}{section*.61}
+\contentsline {paragraph}{}{11}{section*.62}
+\contentsline {paragraph}{}{11}{section*.63}
+\contentsline {paragraph}{}{12}{section*.64}
+\contentsline {paragraph}{}{12}{section*.65}
+\contentsline {subsection}{\numberline {5.3}rem}{13}{subsection.5.3}
+\contentsline {paragraph}{}{13}{section*.67}
+\contentsline {paragraph}{}{13}{section*.68}
+\contentsline {paragraph}{}{13}{section*.69}
+\contentsline {subsection}{\numberline {5.4}transfer}{13}{subsection.5.4}
+\contentsline {paragraph}{}{13}{section*.71}
+\contentsline {paragraph}{}{13}{section*.72}
+\contentsline {paragraph}{}{14}{section*.73}
+\contentsline {section}{\numberline {6}Logging}{14}{section.6}
+\contentsline {paragraph}{}{14}{section*.75}
+\contentsline {paragraph}{}{14}{section*.76}
+\contentsline {section}{\numberline {7}Sicurezza ed autenticazione}{15}{section.7}
+\contentsline {paragraph}{}{15}{section*.77}
+\contentsline {paragraph}{}{15}{section*.78}
+\contentsline {paragraph}{}{15}{section*.79}
+\contentsline {paragraph}{}{15}{section*.80}
+\contentsline {section}{\numberline {8}Generazione di una chiave identificativa}{15}{section.8}
+\contentsline {paragraph}{}{15}{section*.81}
+\contentsline {paragraph}{Strategie di generazione di una chiave}{15}{section*.82}
+\contentsline {paragraph}{}{15}{section*.83}
+\contentsline {paragraph}{}{16}{section*.84}
+\contentsline {paragraph}{}{16}{section*.85}
+\contentsline {paragraph}{}{16}{section*.86}
+\contentsline {paragraph}{}{16}{section*.87}
+\contentsline {paragraph}{}{16}{section*.88}
+\contentsline {section}{\numberline {9}Problema della consistenza in un sistema distribuito}{16}{section.9}
+\contentsline {paragraph}{}{16}{section*.89}
+\contentsline {paragraph}{}{17}{section*.90}
+\contentsline {paragraph}{}{17}{section*.91}
+\contentsline {paragraph}{}{17}{section*.92}
+\contentsline {paragraph}{}{17}{section*.93}
+\contentsline {section}{\numberline {10}Implementazione}{17}{section.10}
+\contentsline {paragraph}{}{17}{section*.94}
+\contentsline {subsection}{\numberline {10.1}Strumenti software}{17}{subsection.10.1}
+\contentsline {paragraph}{}{17}{section*.95}
+\contentsline {paragraph}{}{18}{section*.96}
+\contentsline {paragraph}{}{18}{section*.97}
+\contentsline {paragraph}{}{18}{section*.98}
+\contentsline {subsection}{\numberline {10.2}Struttura del codice}{18}{subsection.10.2}
+\contentsline {paragraph}{}{18}{section*.99}
+\contentsline {paragraph}{}{18}{section*.100}
+\contentsline {subsection}{\numberline {10.3}Caricamento della configurazione}{18}{subsection.10.3}
+\contentsline {paragraph}{}{18}{section*.101}
+\contentsline {subsubsection}{\numberline {10.3.1}Metaserver}{19}{subsubsection.10.3.1}
+\contentsline {subsubsection}{\numberline {10.3.2}Dataserver}{19}{subsubsection.10.3.2}
+\contentsline {subsection}{\numberline {10.4}Interfaccia di connessione e scambio dati}{20}{subsection.10.4}
+\contentsline {paragraph}{}{20}{section*.102}
+\contentsline {paragraph}{}{20}{section*.103}
+\contentsline {paragraph}{}{20}{section*.104}
+\contentsline {subsection}{\numberline {10.5}Interfaccia al database}{21}{subsection.10.5}
+\contentsline {paragraph}{}{21}{section*.105}
+\contentsline {subsubsection}{\numberline {10.5.1}Metaserver}{21}{subsubsection.10.5.1}
+\contentsline {subsubsection}{\numberline {10.5.2}Dataserver}{27}{subsubsection.10.5.2}
+\contentsline {subsection}{\numberline {10.6}Operazioni periodiche}{29}{subsection.10.6}
+\contentsline {paragraph}{}{29}{section*.106}
+\contentsline {paragraph}{}{29}{section*.107}
+\contentsline {subsubsection}{\numberline {10.6.1}Metaserver}{29}{subsubsection.10.6.1}
+\contentsline {paragraph}{}{29}{section*.108}
+\contentsline {subsubsection}{\numberline {10.6.2}Dataserver}{32}{subsubsection.10.6.2}
+\contentsline {paragraph}{}{32}{section*.109}
+\contentsline {paragraph}{}{33}{section*.110}
+\contentsline {subsection}{\numberline {10.7}ServerSocket e relativo handler}{33}{subsection.10.7}
+\contentsline {paragraph}{}{33}{section*.111}
+\contentsline {paragraph}{}{33}{section*.112}
+\contentsline {paragraph}{}{34}{section*.113}
+\contentsline {subsubsection}{\numberline {10.7.1}Caricamento di un documento}{34}{subsubsection.10.7.1}
+\contentsline {paragraph}{}{34}{section*.114}
+\contentsline {paragraph}{}{34}{section*.115}
+\contentsline {paragraph}{}{35}{section*.116}
+\contentsline {paragraph}{}{35}{section*.117}
+\contentsline {paragraph}{}{36}{section*.118}
+\contentsline {paragraph}{}{36}{section*.119}
+\contentsline {paragraph}{}{38}{section*.120}
+\contentsline {paragraph}{}{38}{section*.121}
+\contentsline {subsubsection}{\numberline {10.7.2}Trasferimento di un documento}{38}{subsubsection.10.7.2}
+\contentsline {paragraph}{}{38}{section*.122}
+\contentsline {paragraph}{}{38}{section*.123}
+\contentsline {paragraph}{}{39}{section*.124}
+\contentsline {subsubsection}{\numberline {10.7.3}Scaricamento sul client di un documento (dato il path)}{39}{subsubsection.10.7.3}
+\contentsline {paragraph}{}{39}{section*.125}
+\contentsline {paragraph}{}{39}{section*.126}
+\contentsline {paragraph}{}{40}{section*.127}
+\contentsline {paragraph}{}{40}{section*.128}
+\contentsline {subsubsection}{\numberline {10.7.4}Scaricamento di un documento dato l'uid}{42}{subsubsection.10.7.4}
+\contentsline {paragraph}{}{42}{section*.129}
+\contentsline {subsubsection}{\numberline {10.7.5}Eliminazione di un path}{42}{subsubsection.10.7.5}
+\contentsline {paragraph}{}{42}{section*.130}
+\contentsline {paragraph}{}{42}{section*.131}
+\contentsline {paragraph}{}{43}{section*.132}
+\contentsline {subsubsection}{\numberline {10.7.6}Eliminazione permanente di un path}{43}{subsubsection.10.7.6}
+\contentsline {paragraph}{}{43}{section*.133}
+\contentsline {paragraph}{}{43}{section*.134}
+\contentsline {paragraph}{}{43}{section*.135}
+\contentsline {subsubsection}{\numberline {10.7.7}Lock}{44}{subsubsection.10.7.7}
+\contentsline {paragraph}{}{44}{section*.136}
+\contentsline {paragraph}{}{44}{section*.137}
+\contentsline {paragraph}{}{44}{section*.138}
+\contentsline {paragraph}{}{45}{section*.139}
+\contentsline {paragraph}{}{45}{section*.140}
+\contentsline {paragraph}{}{45}{section*.141}
+\contentsline {subsubsection}{\numberline {10.7.8}Modificare la priorit\IeC {\`a} di un documento}{45}{subsubsection.10.7.8}
+\contentsline {paragraph}{}{45}{section*.142}
+\contentsline {paragraph}{}{45}{section*.143}
+\contentsline {subsubsection}{\numberline {10.7.9}Aggiungere un dataserver}{46}{subsubsection.10.7.9}
+\contentsline {paragraph}{}{46}{section*.144}
+\contentsline {paragraph}{}{46}{section*.145}
+\contentsline {section}{\numberline {11}Considerazioni finali}{47}{section.11}
+\contentsline {paragraph}{Perch\IeC {\`e} questo approccio \IeC {\`e} migliore rispetto ad usare direttamente un database distribuito?}{47}{section*.146}
+\contentsline {paragraph}{}{47}{section*.147}
+\contentsline {paragraph}{}{47}{section*.148}
+\contentsline {paragraph}{Sviluppi futuri?}{47}{section*.149}
+\contentsline {paragraph}{}{48}{section*.150}
+\contentsline {paragraph}{Sistema di versionamento}{48}{section*.151}
+\contentsline {paragraph}{}{48}{section*.152}
+\contentsline {paragraph}{}{48}{section*.153}
+\contentsline {paragraph}{Cosa ho imparato con questo progetto?}{48}{section*.154}
+\contentsline {paragraph}{}{48}{section*.155}
+\contentsline {paragraph}{}{48}{section*.156}
+\contentsline {paragraph}{}{48}{section*.157}
+\contentsline {paragraph}{}{49}{section*.158}
+\contentsline {section}{Bibliography}{49}{section*.159}

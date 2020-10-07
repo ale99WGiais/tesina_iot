@@ -10,7 +10,7 @@
 \BOOKMARK [1][-]{section.3}{Struttura del filesytem}{}% 10
 \BOOKMARK [2][-]{subsection.3.1}{Semantica dei path}{section.3}% 11
 \BOOKMARK [2][-]{subsection.3.2}{Metadati di un documento}{section.3}% 12
-\BOOKMARK [1][-]{section.4}{Comandi gestiti client}{}% 13
+\BOOKMARK [1][-]{section.4}{Comandi gestiti dal client}{}% 13
 \BOOKMARK [1][-]{section.5}{Protocollo di comunicazione}{}% 14
 \BOOKMARK [2][-]{subsection.5.1}{get}{section.5}% 15
 \BOOKMARK [2][-]{subsection.5.2}{push}{section.5}% 16
