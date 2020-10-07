@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2020.2.24)  7 OCT 2020 08:44
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2020.2.24)  7 OCT 2020 10:42
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -525,18 +525,6 @@ LaTeX Info: Thecontrolsequence`\]'isalreadyrobust on input line 129.
 \l_MT_above_shortintertext_sep=\dimen128
 \l_MT_below_shortintertext_sep=\dimen129
 )
-
-! LaTeX Error: Missing \begin{document}.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.14 /
-      /\usepackage[numbers]{natbib} %bibliography
-You're in trouble here.  Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
 (/usr/share/texlive/texmf-dist/tex/latex/natbib/natbib.sty
 Package: natbib 2010/09/13 8.31b (PWD, AO)
 \bibhang=\skip50
@@ -544,18 +532,6 @@ Package: natbib 2010/09/13 8.31b (PWD, AO)
 LaTeX Info: Redefining \cite on input line 694.
 \c@NAT@ctr=\count107
 )
-
-! LaTeX Error: Missing \begin{document}.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.15 /
-      /\usepackage[nottoc]{tocbibind} %other bib
-You're in trouble here.  Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
 (/usr/share/texlive/texmf-dist/tex/latex/tocbibind/tocbibind.sty
 Package: tocbibind 2010/10/13 v1.5k extra ToC listings
 Package tocbibind Info: The document has section divisions on input line 50.
@@ -1435,9 +1411,7 @@ Package microtype Info: No adjustment of character kerning.
 (/usr/share/texlive/texmf-dist/tex/latex/microtype/mt-cmr.cfg
 File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman 
 (RS)
-) [1
-
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
+)
 Package epstopdf Info: Source file: <polloPallido.eps>
 (epstopdf)                    date: 2019-07-05 10:38:30
 (epstopdf)                    size: 219063 bytes
@@ -1452,7 +1426,7 @@ Package epstopdf Info: Output file is already uptodate.
 
 pdfTeX warning: /usr/bin/pdflatex (file ./polloPallido-eps-converted-to.pdf): P
 DF inclusion: found PDF version <1.7>, but at most version <1.5> allowed
-<polloPallido-eps-converted-to.pdf, id=202, 406.51875pt x 406.51875pt>
+<polloPallido-eps-converted-to.pdf, id=195, 406.51875pt x 406.51875pt>
 File: polloPallido-eps-converted-to.pdf Graphic file (type pdf)
 
 <use polloPallido-eps-converted-to.pdf>
@@ -1509,12 +1483,11 @@ File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 Package microtype Info: Character `029' is missing
 (microtype)             in font `T1/lmr/m/sc/12'.
 (microtype)             Ignoring protrusion settings for this character.
-pdfTeX warning (ext4): destination with the same identifier (name{page.A}) has 
-been already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.105 \end{titlepage}
-                      [1 <./polloPallido-eps-converted-to.pdf>] (./main.toc
+ [1
+
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./polloPallido-eps-convert
+ed-to.pdf>]
+(./main.toc
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <10.95> on input line 8.
 pdfTeX warning (ext4): destination with the same identifier (name{page.A}) has 
@@ -1548,7 +1521,7 @@ ti ec-cezion-ali \T1/lmr/m/n/10.95 (-20) (eg. catas-trofe nat-u-rale, in-cen-di
 o nell'edificio,
  []
 
-<../diagrams/architettura/1.png, id=280, 382.42876pt x 91.34125pt>
+<../diagrams/architettura/1.png, id=279, 382.42876pt x 91.34125pt>
 File: ../diagrams/architettura/1.png Graphic file (type png)
 
 <use ../diagrams/architettura/1.png>
@@ -1556,7 +1529,13 @@ Package pdftex.def Info: ../diagrams/architettura/1.png used on input line 183.
 
 (pdftex.def)             Requested size: 250.95476pt x 59.93974pt.
  [2]
-<../diagrams/architettura/2.png, id=292, 419.5675pt x 92.345pt>
+Overfull \hbox (11.61272pt too wide) in paragraph at lines 194--195
+ [][] \T1/lmr/m/n/10.95 (-20) La macchina vir-tuale viene pe-ri-odica-mente \T1
+/lmr/m/it/10.95 (-20) copi-ata \T1/lmr/m/n/10.95 (-20) (in-ter-a-mente o in mod
+o incrementale[[]])
+ []
+
+<../diagrams/architettura/2.png, id=294, 419.5675pt x 92.345pt>
 File: ../diagrams/architettura/2.png Graphic file (type png)
 
 <use ../diagrams/architettura/2.png>
@@ -1564,7 +1543,7 @@ Package pdftex.def Info: ../diagrams/architettura/2.png used on input line 212.
 
 (pdftex.def)             Requested size: 250.95476pt x 55.2341pt.
  [3 <../diagrams/architettura/1.png> <../diagrams/architettura/2.png>]
-<../diagrams/architettura/3.png, id=308, 723.70375pt x 181.67876pt>
+<../diagrams/architettura/3.png, id=311, 723.70375pt x 181.67876pt>
 File: ../diagrams/architettura/3.png Graphic file (type png)
 
 <use ../diagrams/architettura/3.png>
@@ -1572,7 +1551,7 @@ Package pdftex.def Info: ../diagrams/architettura/3.png used on input line 236.
 
 (pdftex.def)             Requested size: 334.60422pt x 84.00015pt.
 
-<../diagrams/architettura/4.png, id=309, 710.655pt x 302.12875pt>
+<../diagrams/architettura/4.png, id=313, 710.655pt x 302.12875pt>
 File: ../diagrams/architettura/4.png Graphic file (type png)
 
 <use ../diagrams/architettura/4.png>
@@ -1581,7 +1560,7 @@ Package pdftex.def Info: ../diagrams/architettura/4.png used on input line 262.
 (pdftex.def)             Requested size: 334.60422pt x 142.2587pt.
  [4 <../diagrams/architettura/3.png>]
 [5 <../diagrams/architettura/4.png>]
-<../diagrams/architettura/5.png, id=334, 382.42876pt x 358.33875pt>
+<../diagrams/architettura/5.png, id=340, 382.42876pt x 358.33875pt>
 File: ../diagrams/architettura/5.png Graphic file (type png)
 
 <use ../diagrams/architettura/5.png>
@@ -1589,7 +1568,7 @@ Package pdftex.def Info: ../diagrams/architettura/5.png used on input line 294.
 
 (pdftex.def)             Requested size: 250.95476pt x 235.14828pt.
  [6 <../diagrams/architettura/5.png>]
-<../diagrams/architettura/6.png, id=347, 382.42876pt x 358.33875pt>
+<../diagrams/architettura/6.png, id=353, 382.42876pt x 358.33875pt>
 File: ../diagrams/architettura/6.png Graphic file (type png)
 
 <use ../diagrams/architettura/6.png>
@@ -1597,7 +1576,7 @@ Package pdftex.def Info: ../diagrams/architettura/6.png used on input line 325.
 
 (pdftex.def)             Requested size: 250.95476pt x 235.14828pt.
  [7 <../diagrams/architettura/6.png>]
-<../diagrams/architettura/7.png, id=358, 673.51625pt x 523.9575pt>
+<../diagrams/architettura/7.png, id=364, 673.51625pt x 523.9575pt>
 File: ../diagrams/architettura/7.png Graphic file (type png)
 
 <use ../diagrams/architettura/7.png>
@@ -1613,7 +1592,7 @@ Overfull \hbox (2.357pt too wide) in paragraph at lines 423--424
 /lmr/m/n/10.95 (-20) . L'argomento
  []
 
-[10] <../diagrams/requests/get_request.png, id=389, 683.55376pt x 514.92375pt>
+[10] <../diagrams/requests/get_request.png, id=407, 683.55376pt x 514.92375pt>
 File: ../diagrams/requests/get_request.png Graphic file (type png)
 
 <use ../diagrams/requests/get_request.png>
@@ -1621,7 +1600,7 @@ Package pdftex.def Info: ../diagrams/requests/get_request.png used on input lin
 e 428.
 (pdftex.def)             Requested size: 334.60422pt x 252.06342pt.
  [11 <../diagrams/requests/get_request.png>]
-<../diagrams/requests/push_request.png, id=401, 736.7525pt x 946.53625pt>
+<../diagrams/requests/push_request.png, id=419, 736.7525pt x 946.53625pt>
 File: ../diagrams/requests/push_request.png Graphic file (type png)
 
 <use ../diagrams/requests/push_request.png>
@@ -1629,7 +1608,7 @@ Package pdftex.def Info: ../diagrams/requests/push_request.png used on input li
 ne 450.
 (pdftex.def)             Requested size: 334.60422pt x 429.86586pt.
  [12 <../diagrams/requests/push_request.png>]
-<../diagrams/requests/rem_request.png, id=410, 683.55376pt x 585.18625pt>
+<../diagrams/requests/rem_request.png, id=428, 683.55376pt x 585.18625pt>
 File: ../diagrams/requests/rem_request.png Graphic file (type png)
 
 <use ../diagrams/requests/rem_request.png>
@@ -1637,7 +1616,7 @@ Package pdftex.def Info: ../diagrams/requests/rem_request.png used on input lin
 e 466.
 (pdftex.def)             Requested size: 334.60422pt x 286.45804pt.
  [13 <../diagrams/requests/rem_request.png>]
-<../diagrams/requests/transfer_request.png, id=422, 676.5275pt x 685.56125pt>
+<../diagrams/requests/transfer_request.png, id=440, 676.5275pt x 685.56125pt>
 File: ../diagrams/requests/transfer_request.png Graphic file (type png)
 
 <use ../diagrams/requests/transfer_request.png>
@@ -1645,70 +1624,110 @@ Package pdftex.def Info: ../diagrams/requests/transfer_request.png used on inpu
 t line 484.
 (pdftex.def)             Requested size: 334.60422pt x 339.07664pt.
  [14 <../diagrams/requests/transfer_request.png>] [15] [16]
-Overfull \hbox (33.44522pt too wide) in paragraph at lines 549--550
-[]\T1/lmr/m/n/10.95 (-20) https://docs.datastax.com/en/cassandra-oss/3.0/cassan
-dra/dml/dmlConfigConsistency.html 
- []
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <9> on input line 543.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <5> on input line 543.
+LaTeX Font Info:    Try loading font information for T1+lmtt on input line 554.
 
-[17]
-Overfull \hbox (14.92635pt too wide) in paragraph at lines 577--578
+ (/usr/share/texmf/tex/latex/lm/t1lmtt.fd
+File: t1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
+)
+Package microtype Info: Loading generic settings for font family
+(microtype)             `lmtt' (encoding: T1).
+(microtype)             For optimal results, create family-specific settings.
+(microtype)             See the microtype manual for details.
+ [17]
+Overfull \hbox (14.92635pt too wide) in paragraph at lines 573--574
  [][] \T1/lmr/m/n/10.95 (-20) Il client dispone soltanto dell'interfaccia di co
 n-nes-sione/s-cam-bio dati e dell'implementazione
  []
 
-(/usr/share/texlive/texmf-dist/tex/latex/listings/lstlang1.sty
+[18] (/usr/share/texlive/texmf-dist/tex/latex/listings/lstlang1.sty
 File: lstlang1.sty 2015/06/04 1.6 listings language file
-) [18]
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <9> on input line 604.
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 604.
- [19]
+) [19]
 LaTeX Font Info:    Font shape `OMS/lmr/m/n' in size <9> not available
-(Font)              Font shape `OMS/lmsy/m/n' tried instead on input line 670.
+(Font)              Font shape `OMS/lmsy/m/n' tried instead on input line 666.
 
 [20] [21] [22] [23] [24] [25] [26] [27] [28] [29] [30] [31] [32] [33] [34]
 [35] [36] [37] [38] [39] [40] [41] [42] [43] [44] [45] [46]
-Overfull \hbox (3.71997pt too wide) in paragraph at lines 1929--1929
+Overfull \hbox (3.71997pt too wide) in paragraph at lines 1925--1925
  []\T1/lmr/bx/n/10.95 Perchè questo ap-proc-cio è migliore rispetto ad us-are d
 i-ret-ta-mente un database
  []
 
-[47] [48] (./main.bbl) [49]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1963.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 1963.
+[47] [48] (./main.bbl
+Overfull \hbox (94.73038pt too wide) in paragraph at lines 4--7
+[]\T1/lmr/m/n/10.95 (-20) Distributed file sys-tem.  https://en.wikipedia.org/w
+iki/Clustered_file_system#Distributed_file_systems. 
+ []
+
+
+Underfull \hbox (badness 2529) in paragraph at lines 13--15
+[]\T1/lmr/m/n/10.95 (+20) Virtual ma-chine.  https://www.vmware.com/topics/glos
+sary/content/virtual-
+ []
+
+
+Overfull \hbox (113.23824pt too wide) in paragraph at lines 22--25
+[]\T1/lmr/m/n/10.95 (-20) Distributed database.  https://www.tutorialspoint.com
+/distributed_dbms/distributed_dbms_databases.htm. 
+ []
+
+
+Underfull \hbox (badness 1838) in paragraph at lines 79--81
+[]\T1/lmr/m/n/10.95 (+20) Lightweight trans-ac-tions (cas-san-dra).  https://bl
+og.pythian.com/lightweight-
+ []
+
+[49]
+Underfull \hbox (badness 10000) in paragraph at lines 83--86
+[]\T1/lmr/m/n/10.95 (+20) Consistency level (cas-san-dra).  https://docs.datast
+ax.com/en/cassandra-
+ []
+
+
+Overfull \hbox (178.28177pt too wide) in paragraph at lines 92--95
+[]\T1/lmr/m/n/10.95 (-20) Adapter de-sign pat-tern.  https://www.tutorialspoint
+.com/python_design_patterns/python_design_patterns_adapter.htm. 
+ []
+
+) [50]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1957.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 1957.
  (./main.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1963.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1963.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1957.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1957.
 
 Package rerunfilecheck Info: File `main.out' has not changed.
 (rerunfilecheck)             Checksum: 91C18FEA07F04D7C7C5971292632F575;3377.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1963.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1957.
  ) 
 Here is how much of TeX's memory you used:
- 35110 strings out of 494953
- 760876 string characters out of 6180977
- 1102422 words of memory out of 5000000
- 36239 multiletter control sequences out of 15000+600000
- 83105 words of font info for 147 fonts, out of 8000000 for 9000
+ 35253 strings out of 494953
+ 762735 string characters out of 6180977
+ 1096825 words of memory out of 5000000
+ 36341 multiletter control sequences out of 15000+600000
+ 91058 words of font info for 154 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 62i,8n,77p,841b,1941s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 62i,8n,77p,854b,1941s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf/fonts/enc/dvips/lm/lm-mathsy.enc}{/usr/share/texmf/fonts/en
 c/dvips/lm/lm-ec.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-rm.enc}{/usr/share
-/texmf/fonts/enc/dvips/lm/lm-mathit.enc} </home/ale/.texmf-var/fonts/pk/ljfour/
-jknappen/ec/ecrm1095.600pk></usr/share/texmf/fonts/type1/public/lm/lmbx10.pfb><
-/usr/share/texmf/fonts/type1/public/lm/lmbx12.pfb></usr/share/texmf/fonts/type1
-/public/lm/lmcsc10.pfb></usr/share/texmf/fonts/type1/public/lm/lmmi10.pfb></usr
-/share/texmf/fonts/type1/public/lm/lmr10.pfb></usr/share/texmf/fonts/type1/publ
-ic/lm/lmr12.pfb></usr/share/texmf/fonts/type1/public/lm/lmr17.pfb></usr/share/t
-exmf/fonts/type1/public/lm/lmr8.pfb></usr/share/texmf/fonts/type1/public/lm/lmr
-9.pfb></usr/share/texmf/fonts/type1/public/lm/lmri10.pfb></usr/share/texmf/font
-s/type1/public/lm/lmsy10.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy9.pfb>
-
-Output written on main.pdf (53 pages, 725045 bytes).
+/texmf/fonts/enc/dvips/lm/lm-mathit.enc}</usr/share/texmf/fonts/type1/public/lm
+/lmbx10.pfb></usr/share/texmf/fonts/type1/public/lm/lmbx12.pfb></usr/share/texm
+f/fonts/type1/public/lm/lmcsc10.pfb></usr/share/texmf/fonts/type1/public/lm/lmm
+i10.pfb></usr/share/texmf/fonts/type1/public/lm/lmr10.pfb></usr/share/texmf/fon
+ts/type1/public/lm/lmr12.pfb></usr/share/texmf/fonts/type1/public/lm/lmr17.pfb>
+</usr/share/texmf/fonts/type1/public/lm/lmr6.pfb></usr/share/texmf/fonts/type1/
+public/lm/lmr8.pfb></usr/share/texmf/fonts/type1/public/lm/lmr9.pfb></usr/share
+/texmf/fonts/type1/public/lm/lmri10.pfb></usr/share/texmf/fonts/type1/public/lm
+/lmri9.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy10.pfb></usr/share/texmf
+/fonts/type1/public/lm/lmsy9.pfb></usr/share/texmf/fonts/type1/public/lm/lmtt9.
+pfb>
+Output written on main.pdf (53 pages, 754507 bytes).
 PDF statistics:
- 2116 PDF objects out of 2487 (max. 8388607)
- 2004 compressed objects within 21 object streams
- 1364 named destinations out of 1440 (max. 500000)
- 25025 words of extra memory for PDF output out of 29859 (max. 10000000)
+ 2185 PDF objects out of 2487 (max. 8388607)
+ 2071 compressed objects within 21 object streams
+ 1390 named destinations out of 1440 (max. 500000)
+ 28097 words of extra memory for PDF output out of 29859 (max. 10000000)
 

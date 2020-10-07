@@ -104,16 +104,16 @@
 \contentsline {paragraph}{}{17}{section*.93}
 \contentsline {section}{\numberline {10}Implementazione}{17}{section.10}
 \contentsline {paragraph}{}{17}{section*.94}
-\contentsline {subsection}{\numberline {10.1}Strumenti software}{17}{subsection.10.1}
-\contentsline {paragraph}{}{17}{section*.95}
+\contentsline {subsection}{\numberline {10.1}Strumenti software}{18}{subsection.10.1}
+\contentsline {paragraph}{}{18}{section*.95}
 \contentsline {paragraph}{}{18}{section*.96}
 \contentsline {paragraph}{}{18}{section*.97}
 \contentsline {paragraph}{}{18}{section*.98}
 \contentsline {subsection}{\numberline {10.2}Struttura del codice}{18}{subsection.10.2}
 \contentsline {paragraph}{}{18}{section*.99}
 \contentsline {paragraph}{}{18}{section*.100}
-\contentsline {subsection}{\numberline {10.3}Caricamento della configurazione}{18}{subsection.10.3}
-\contentsline {paragraph}{}{18}{section*.101}
+\contentsline {subsection}{\numberline {10.3}Caricamento della configurazione}{19}{subsection.10.3}
+\contentsline {paragraph}{}{19}{section*.101}
 \contentsline {subsubsection}{\numberline {10.3.1}Metaserver}{19}{subsubsection.10.3.1}
 \contentsline {subsubsection}{\numberline {10.3.2}Dataserver}{19}{subsubsection.10.3.2}
 \contentsline {subsection}{\numberline {10.4}Interfaccia di connessione e scambio dati}{20}{subsection.10.4}
@@ -122,7 +122,7 @@
 \contentsline {paragraph}{}{20}{section*.104}
 \contentsline {subsection}{\numberline {10.5}Interfaccia al database}{21}{subsection.10.5}
 \contentsline {paragraph}{}{21}{section*.105}
-\contentsline {subsubsection}{\numberline {10.5.1}Metaserver}{21}{subsubsection.10.5.1}
+\contentsline {subsubsection}{\numberline {10.5.1}Metaserver}{22}{subsubsection.10.5.1}
 \contentsline {subsubsection}{\numberline {10.5.2}Dataserver}{27}{subsubsection.10.5.2}
 \contentsline {subsection}{\numberline {10.6}Operazioni periodiche}{29}{subsection.10.6}
 \contentsline {paragraph}{}{29}{section*.106}
@@ -134,7 +134,7 @@
 \contentsline {paragraph}{}{33}{section*.110}
 \contentsline {subsection}{\numberline {10.7}ServerSocket e relativo handler}{33}{subsection.10.7}
 \contentsline {paragraph}{}{33}{section*.111}
-\contentsline {paragraph}{}{33}{section*.112}
+\contentsline {paragraph}{}{34}{section*.112}
 \contentsline {paragraph}{}{34}{section*.113}
 \contentsline {subsubsection}{\numberline {10.7.1}Caricamento di un documento}{34}{subsubsection.10.7.1}
 \contentsline {paragraph}{}{34}{section*.114}
@@ -153,7 +153,7 @@
 \contentsline {paragraph}{}{39}{section*.125}
 \contentsline {paragraph}{}{39}{section*.126}
 \contentsline {paragraph}{}{40}{section*.127}
-\contentsline {paragraph}{}{40}{section*.128}
+\contentsline {paragraph}{}{41}{section*.128}
 \contentsline {subsubsection}{\numberline {10.7.4}Scaricamento di un documento dato l'uid}{42}{subsubsection.10.7.4}
 \contentsline {paragraph}{}{42}{section*.129}
 \contentsline {subsubsection}{\numberline {10.7.5}Eliminazione di un path}{42}{subsubsection.10.7.5}
@@ -163,11 +163,11 @@
 \contentsline {subsubsection}{\numberline {10.7.6}Eliminazione permanente di un path}{43}{subsubsection.10.7.6}
 \contentsline {paragraph}{}{43}{section*.133}
 \contentsline {paragraph}{}{43}{section*.134}
-\contentsline {paragraph}{}{43}{section*.135}
+\contentsline {paragraph}{}{44}{section*.135}
 \contentsline {subsubsection}{\numberline {10.7.7}Lock}{44}{subsubsection.10.7.7}
 \contentsline {paragraph}{}{44}{section*.136}
 \contentsline {paragraph}{}{44}{section*.137}
-\contentsline {paragraph}{}{44}{section*.138}
+\contentsline {paragraph}{}{45}{section*.138}
 \contentsline {paragraph}{}{45}{section*.139}
 \contentsline {paragraph}{}{45}{section*.140}
 \contentsline {paragraph}{}{45}{section*.141}
@@ -181,7 +181,7 @@
 \contentsline {paragraph}{Perch\IeC {\`e} questo approccio \IeC {\`e} migliore rispetto ad usare direttamente un database distribuito?}{47}{section*.146}
 \contentsline {paragraph}{}{47}{section*.147}
 \contentsline {paragraph}{}{47}{section*.148}
-\contentsline {paragraph}{Sviluppi futuri?}{47}{section*.149}
+\contentsline {paragraph}{Sviluppi futuri?}{48}{section*.149}
 \contentsline {paragraph}{}{48}{section*.150}
 \contentsline {paragraph}{Sistema di versionamento}{48}{section*.151}
 \contentsline {paragraph}{}{48}{section*.152}
@@ -189,6 +189,6 @@
 \contentsline {paragraph}{Cosa ho imparato con questo progetto?}{48}{section*.154}
 \contentsline {paragraph}{}{48}{section*.155}
 \contentsline {paragraph}{}{48}{section*.156}
-\contentsline {paragraph}{}{48}{section*.157}
+\contentsline {paragraph}{}{49}{section*.157}
 \contentsline {paragraph}{}{49}{section*.158}
 \contentsline {section}{Bibliography}{49}{section*.159}

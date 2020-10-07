@@ -120,7 +120,7 @@
 
 \section{Introduzione} 
 
-\paragraph{} Lo scopo del progetto è la realizzazione di un \textbf{file storage distribuito}. 
+\paragraph{} Lo scopo del progetto è la realizzazione di un \textbf{file storage distribuito}\cite{distributedfs}. 
 
 \paragraph{} Le caratteristiche che deve avere sono:
 
@@ -160,7 +160,7 @@ Verranno di seguito analizzate diverse possibili architetture del sistema, compa
 
 \paragraph{} Il fs può essere memorizzato a partire da una \emph{directory nel filesystem del server}, oppure in una \emph{partizione separata}. Con entrambe le soluzioni è il sistema operativo ad occuparsi della sua gestione.
 
-\paragraph{} La \emph{replicazione dei dati} avviene mediante il salvataggio in \underline{diversi dispositivi di memorizzazione} (es HDD). Per far ciò la scelta più consona è di utilizzare un sistema \textbf{RAID 10}: i dati vengono \underline{salvati in copia} (RAID 1) per avere \emph{tolleranza ai guasti} e in \underline{striping} (RAID 0) per aumentare la \emph{velocità di lettura}. 
+\paragraph{} La \emph{replicazione dei dati} avviene mediante il salvataggio in \underline{diversi dispositivi di memorizzazione} (es HDD). Per far ciò la scelta più consona è di utilizzare un sistema \textbf{RAID 10}\cite{raid}: i dati vengono \underline{salvati in copia} (RAID 1) per avere \emph{tolleranza ai guasti} e in \underline{striping} (RAID 0) per aumentare la \emph{velocità di lettura}. 
 
 \paragraph{} Con \underline{schede di rete (e connessioni) multiple} è possibile migliorare la tolleranza sia ai \emph{guasti} che alle \emph{congestioni di rete}. 
 
@@ -189,9 +189,9 @@ Verranno di seguito analizzate diverse possibili architetture del sistema, compa
 
 \subsection{Virtual server}
 
-\paragraph{} La soluzione single-server può essere migliorata aggiungendo un \emph{livello di virtualizzazione}. Il sistema operativo non viene quindi eseguito direttamente sull'hardware ma all'interno di un \underline{container/VM}. 
+\paragraph{} La soluzione single-server può essere migliorata aggiungendo un \emph{livello di virtualizzazione}. Il sistema non viene quindi eseguito direttamente sull'hardware ma all'interno di una \underline{macchina virtuale (VM)}\cite{vm}. 
 
-\paragraph{} La macchina virtuale viene periodicamente \emph{copiata} (interamente o in modo incrementale) e salvata in un \underline{dispositivo di memorizzazione dedicato}. 
+\paragraph{} La macchina virtuale viene periodicamente \emph{copiata} (interamente o in modo incrementale\cite{backuptypes}) e salvata in un \underline{dispositivo di memorizzazione dedicato}. 
 
 \paragraph{} Nel caso ci fosse un \emph{crash} o \emph{errore critico del sistema operativo}, basta ricaricare la macchina virtuale più recente. La \emph{perdita di dati} è limitata all'età dell'ultimo backup. 
 
@@ -242,7 +242,7 @@ Verranno di seguito analizzate diverse possibili architetture del sistema, compa
 
 \subsection{Server as distributed database}
 
-\paragraph{} Al posto di utilizzare il filesystem del sistema operativo, è possibile utilizzare un \underline{database distribuito}. Sia metadati che dati vengono \emph{distribuiti automaticamente} nei nodi, garantendo consistenza e fault tolerance. 
+\paragraph{} Al posto di utilizzare il filesystem del sistema operativo, è possibile utilizzare un \underline{database distribuito}\cite{ddbms}. Sia metadati che dati vengono \emph{distribuiti automaticamente} nei nodi, garantendo consistenza e fault tolerance. 
 
 
 \paragraph{Vantaggi} \begin{itemize}
@@ -357,11 +357,11 @@ Verranno di seguito analizzate diverse possibili architetture del sistema, compa
 
 \section{Struttura del filesytem}
 
-\paragraph{} Il filesystem ha una struttura non convenzionale. Descriveremo quindi la semantica dei path e i metadati ad essi associati. 
+\paragraph{} Il filesystem\cite{fs} ha una struttura non convenzionale. Descriveremo quindi la semantica dei path e i metadati ad essi associati. 
 
 \subsection{Semantica dei path}
 
-\paragraph{} Nei \emph{sistemi tradizionali} il filesystem è formato da \emph{cartelle, file e link}. La \emph{struttura} è ad albero oppure grafo, con o senza la possibilità di cicli. La cartella "base" è root (nei sistemi unix-like denotata con la stringa "/"). Un \emph{path} può essere associato ad uno delle tre tipologie sopra menzionate; il filesystem memorizza questa associazione oltre che ad altri metadati. 
+\paragraph{} Nei \emph{sistemi tradizionali} il filesystem è formato da \emph{cartelle, file e link}. La \emph{struttura} è ad albero oppure grafo, con o senza la possibilità di cicli. La cartella "base" è root (nei sistemi unix-like denotata con la stringa "/"). Un \emph{path}\cite{path} può essere associato ad uno delle tre tipologie sopra menzionate; il filesystem memorizza questa associazione oltre che ad altri metadati. 
 
 \paragraph{} Il simbolo '/' viene usato per separare i \emph{componenti di un path}: ad esempio il path "/dir1/dir2/file1" identifica il file "file1" figlio della directory "dir2" che a sua volta è figlia della directory "dir1" che è figlia di root. Per questo '/' compare tra i caratteri vietati per la nominazione di un oggetto.  
 
@@ -376,9 +376,9 @@ Verranno di seguito analizzate diverse possibili architetture del sistema, compa
 \paragraph{} I metadati associati ad un documento sono: 
 
 \begin{itemize}
-	\item uid: identificatore univoco dell'oggetto, in formato UUID Type 1;
-	\item path: deve rappresentare un documento, stringa UTF;
-	\item created: timestamp di creazione in formato UTC;
+	\item uid: identificatore univoco dell'oggetto, in formato UUID Type 1\cite{uuid};
+	\item path: deve rappresentare un documento, stringa UTF\cite{utf};
+	\item created: timestamp di creazione in formato UTC\cite{utc};
 	\item size: dimensione in byte, 0 per le directory, formato unsigned int;
 	\item owner: utente proprietario, stringa UTF;
 	\item priority: numero minimo di copie, coincide con la priorità, formato unsigned int;
@@ -408,7 +408,7 @@ Verranno di seguito analizzate diverse possibili architetture del sistema, compa
 
 \section{Protocollo di comunicazione}
 
-\paragraph{} Il protocollo di comunicazione tra nodi diversi si basa sullo scambio di messaggi. Il flusso di dati è binario. Viene utilizzata una connessione di tipo TCP per garantire ordine di consegna, affidabilità, gestione della connessione. 
+\paragraph{} Il protocollo di comunicazione\cite{comproto} tra nodi diversi si basa sullo scambio di messaggi. Il flusso di dati è binario. Viene utilizzata una connessione di tipo TCP per garantire ordine di consegna, affidabilità, gestione della connessione. 
 
 \paragraph{} Il formato dei comandi è testuale (codifica UTF). Un comando è formato dalla parola chiave che lo identifica e dalla lista degli argomenti. Il separatore utilizzato è il punto e virgola; i comandi sono terminati dal newline.
 
@@ -489,38 +489,38 @@ Verranno di seguito analizzate diverse possibili architetture del sistema, compa
 
 \section{Logging}
 
-\paragraph{} Tutte le operazioni prima di essere eseguite vengono registrate in appositi database di log. In questo modo, se un'operazione viene interrotta per qualsiasi motivo, può essere analizzata e rieseguita, in modo da non lasciare spazzatura. 
+\paragraph{} Tutte le operazioni prima di essere eseguite vengono registrate in appositi database di log\cite{logfile}. In questo modo, se un'operazione viene interrotta per qualsiasi motivo, può essere analizzata e rieseguita, in modo da non lasciare spazzatura. 
 
 \paragraph{} Ciò è molto utile anche in fase di debugging/testing: analizzare lo stacktrace ed il flusso di operazioni avvenute precedentemente ad un problema è il modo più efficace per comprenderne le cause. Il modulo \emph{logging}, parte della libreria standard di Python3, permette di organizzare le operazioni di log in modo compatto ed efficace. 
 
 
 \section{Sicurezza ed autenticazione}
 
-\paragraph{} Tutte le connessioni vengono cifrate a livello intermedio tramite protocollo TLS over TCP. In questo modo la cifratura è invisibile alla logica dell'application e può in ogni momento essere modificata dal programmatore. Inoltre, essendo una tecnologia ampiamente diffusa e collaudata, presenta una vulnerabilità minima. 
+\paragraph{} Tutte le connessioni vengono cifrate a livello intermedio tramite protocollo TLS \cite{tls} over TCP. In questo modo la cifratura è invisibile alla logica dell'application e può in ogni momento essere modificata dal programmatore. Inoltre, essendo una tecnologia ampiamente diffusa e collaudata, presenta una vulnerabilità minima. 
 
 \paragraph{} L'autenticazione da client a server avviene tramite token all'inizio della connessione. La password di ciascun utente può essere cambiata in ogni momento dall'utente stesso, dopo essersi loggato. 
 
 \paragraph{} L'autenticazione da server a server avviene tramite certificato digitale.
 
-\paragraph{} Per garantire sia l'integrità che la sicurezza (per evitare modifiche volute) viene conservato e verificato il checksum (sha1) di tutti i documenti in ingresso. 
+\paragraph{} Per garantire sia l'integrità che la sicurezza (per evitare modifiche volute) viene conservato e verificato il checksum (sha1 \cite{sha1}) di tutti i documenti in ingresso. 
 
 
 \section{Generazione di una chiave identificativa}
 
-\paragraph{} Il problema della generazione di una chiave identificativa è spesso sottovalutato. Consiste nella creazione di un codice che identifichi univocamente una risorsa, un oggetto o un sistema. Questa chiave deve avere la caratteristica di unicità, ovvero non devono esistere codici duplicati: altrimenti non sarebbe più possibile identificare correttamente la risorsa. Inoltre, per ragioni di efficienza, la chiava deve avere lunghezza limitata, in modo da limitarne il tempo di comparazione e lo spazio occupato. In genere le chiavi non hanno un significato, quindi possono essere interpretate indifferentemente come interi o stringhe esadecimali.  
+\paragraph{} Il problema della generazione di una chiave identificativa\cite{key} è spesso sottovalutato. Consiste nella creazione di un codice che identifichi univocamente una risorsa, un oggetto o un sistema. Questa chiave deve avere la caratteristica di unicità, ovvero non devono esistere codici duplicati: altrimenti non sarebbe più possibile identificare correttamente la risorsa. Inoltre, per ragioni di efficienza, la chiava deve avere lunghezza limitata, in modo da limitarne il tempo di comparazione e lo spazio occupato. In genere le chiavi non hanno un significato, quindi possono essere interpretate indifferentemente come interi o stringhe esadecimali.  
 
 \paragraph{Strategie di generazione di una chiave} Alcune possibili strategie di generazione di chiavi sono: \begin{itemize}
 	\item Contatore intero.
 	\item Funzione di hash applicata ad un insieme di proprietà variabili con il tempo.
 	\item Numero casuale.
-	\item UUID tipo 1.
+	\item UUID.
 \end{itemize}
 
 \paragraph{} Il caso più semplice è quello del contatore intero. Solitamente si implementa con un contatore che parte da 0 e viene incrementato di un unità ad ogni generazione. I vantaggi sono: semplicità di implementazione e garanzia di unicità nel contesto del generatore, ovvero il generatore garantisce una sequenza di valori senza duplicati. Questa soluzione può essere implementata efficacemente soltanto all'interno di un sistema che disponga di un solo generatore, quindi di un solo nodo. Inoltre ciò espone all'esterno il numero di chiavi generate sin ora, informazione che potrebbe essere sfruttata per attacchi al sistema. 
 
 \paragraph{} Per superare il problema dell'unicità del nodo una soluzione è prependere al codice l'identificativo del nodo. Ciò garantisce l'unicità della chiave nell'insieme generato dall'intero cluster. È necessario che gli identificativi dei nodi siano univoci, pena il fallimento del sistema. Questo potrebbe essere un problema nel caso venga effettuato un merge tra cluster diversi: se due nodi avevano lo stesso identificativo, almeno uno di essi deve essere rinominato, assieme a tutte le chiavi da esso generate. Ciò potrebbe non essere possibile.  
 
-\paragraph{} Una delle soluzioni più comunemente usate per la generazione di identificativi è l'utilizzo degli \emph{UUID}. Gli \textbf{UUID} (Universally Unique Identifier) sono stringhe binarie di 128 cifre generate con precise regole, dipendenti dalla versione. Spesso vengono rappresentati in esadecimale ed compaiono tra i tipi primitivi di molti linguaggi (tra cui CQL).
+\paragraph{} Una delle soluzioni più comunemente usate per la generazione di identificativi è l'utilizzo degli \emph{UUID}\cite{uuid}. Gli \textbf{UUID} (Universally Unique Identifier) sono stringhe binarie di 128 cifre generate con precise regole, dipendenti dalla versione. Spesso vengono rappresentati in esadecimale ed compaiono tra i tipi primitivi di molti linguaggi (tra cui CQL).
 
 \paragraph{} Gli UUID di tipo 4 sono generati casualmente. Se viene utilizzato un generatore con distibuzione uniforme, per avere il 50\% di probabilità di registrare almeno una collisione è necessario generare $2.71*10^{18}$ valori. Questa probabilità, seppur non nulla, quasi sempre viene trascurata. Quando però la generazione di un duplicato potrebbe portare il sistema in uno stato inconsistente, è necessario adottare accorgimenti specifici per riportare il sistema ad uno stato safe. 
 
@@ -534,19 +534,15 @@ https://tools.ietf.org/html/rfc4122.html
 
 \section{Problema della consistenza in un sistema distribuito}
 
-\paragraph{} I sistemi distribuiti sono per loro natura soggetti a frequenti errori, ritardi di comunicazione e situazioni di concorrenza. È quindi fondamentale assicurarsi di mantenere la consistenza dello stato globale in modo che eventuali vincoli di integrità non siano violati. 
+\paragraph{} I sistemi distribuiti sono per loro natura soggetti a frequenti errori, ritardi di comunicazione e situazioni di concorrenza. È quindi fondamentale assicurarsi di mantenere la consistenza\cite{consistency} dello stato globale in modo che eventuali vincoli di integrità non siano violati. 
 
 \paragraph{} Un esempio lampante è quello delle richieste del tipo "INSERT .. IF NOT EXISTS". Tale operazione non può essere valutata in un solo nodo, in quanto l'identificativo cercato potrebbe essere stato inserito in un altro nodo, ma non ancora propagato all'intero sistema. 
 
-\paragraph{} Per verificare l'esito di tale richiesta è quindi necessario adottare una politica specifica, quale potrebbe essere il meccanismo del \textbf{QUORUM}. Essa stabisce che se in un istante la maggioranza assoluta ($Q=floor(N/2) + 1$, con $N$ numero di nodi) dei nodi concorda su una proprietà, allora essa in quell'istante è vera. Capiamo meglio con un esempio: viene inserito il valore 1 all'interno di un nodo. Esso propaga il valore ad almeno $Q-1$ nodi distinti. Al termine dell'operazione almeno la $Q$ nodi contengono il valore 1. Per verificare la presenza del valore 1, viene effettuata una richiesta ad almeno $Q$ nodi distinti qualsiasi. Per il principio della piccionaia, almeno uno di essi conterrà il valore specificato e quindi risponderà "yes", dando il risultato corretto. 
+\paragraph{} Per verificare l'esito di tale richiesta è quindi necessario adottare una politica specifica, quale potrebbe essere il meccanismo del \textbf{QUORUM}\cite{quorum}. Essa stabisce che se in un istante la maggioranza assoluta ($Q=floor(N/2) + 1$, con $N$ numero di nodi) dei nodi concorda su una proprietà, allora essa in quell'istante è vera. Capiamo meglio con un esempio: viene inserito il valore 1 all'interno di un nodo. Esso propaga il valore ad almeno $Q-1$ nodi distinti. Al termine dell'operazione almeno la $Q$ nodi contengono il valore 1. Per verificare la presenza del valore 1, viene effettuata una richiesta ad almeno $Q$ nodi distinti qualsiasi. Per il principio della piccionaia, almeno uno di essi conterrà il valore specificato e quindi risponderà "yes", dando il risultato corretto. 
 
-\paragraph{} Il nuovo problema da affrontare è che l'algoritmo precedente vale se e solo se tutte le richieste vengono valutate allo stesso istante, e il risultato ottenuto è garantito solo per lo stesso istante. Questo però è impossibile, in quanto comunicazioni e computazioni non sono istantanee. La soluzione adottata da Cassandra è l'utilizzo del protocollo \emph{PAXOS} per effettuare \emph{Lightweight transactions}. Le LWT sono utilizzate in particolare nell'esecuzione di comandi "INSERT $\dots$ IF NOT EXISTS" e "UPDATE ... IF CONDITION", in modo da garantire la consistenza. 
+\paragraph{} Il nuovo problema da affrontare è che l'algoritmo precedente vale se e solo se tutte le richieste vengono valutate allo stesso istante, e il risultato ottenuto è garantito solo per lo stesso istante. Questo però è impossibile, in quanto comunicazioni e computazioni non sono istantanee. La soluzione adottata da Cassandra\footnote{Cassandra è il \emph{distributed dbms} impiegato nella mia implementazione, uno tra i più attualmente utilizzati} è l'utilizzo del protocollo \emph{PAXOS}\cite{paxos} per effettuare \emph{Lightweight transactions}\cite{lwt}. Le LWT sono utilizzate in particolare nell'esecuzione di comandi "INSERT $\dots$ IF NOT EXISTS" e "UPDATE ... IF CONDITION", in modo da garantire la consistenza.  
 
-https://en.wikipedia.org/wiki/Paxos\_(computer\_science)  
-
-\paragraph{} Inoltre, Cassandra permette di stabilire il livello di consistenza per ogni query di tipo select. Esso può essere ANY, ONE, TWO, THREE, \dots, QUORUM, $\dots$, ALL, in base alle necessità del sistema. Questa scelta consente di bilanciare il tradeoff tra \emph{disponibilità} e \emph{consistenza}. ANY fornisce la maggiore disponibilità (basta che un nodo qualsiasi risponda), ALL la maggiore consistenza (tutti i nodi devono concordare). Per questo progetto è stata scelta l'opzione QUORUM, in quanto garantisce forte consistenza ma tolleranza ai guasti fino a $floor(N)$ nodi. 
-
-https://docs.datastax.com/en/cassandra-oss/3.0/cassandra/dml/dmlConfigConsistency.html
+\paragraph{} Inoltre, Cassandra permette di stabilire il livello di consistenza\cite{conslevel} per ogni query di tipo select. Esso può essere ANY, ONE, TWO, THREE, \dots, QUORUM, $\dots$, ALL, in base alle necessità del sistema. Questa scelta consente di bilanciare il tradeoff tra \emph{disponibilità} e \emph{consistenza}. ANY fornisce la maggiore disponibilità (basta che un nodo qualsiasi risponda), ALL la maggiore consistenza (tutti i nodi devono concordare). Per questo progetto è stata scelta l'opzione QUORUM, in quanto garantisce forte consistenza ma tolleranza ai guasti fino a $floor(N)$ nodi. 
 
 
 \section{Implementazione}
@@ -555,13 +551,13 @@ https://docs.datastax.com/en/cassandra-oss/3.0/cassandra/dml/dmlConfigConsistenc
 
 \subsection{Strumenti software}
 
-\paragraph{} Il linguaggio scelto per implementare client, dataserver e metaserver è \textbf{Python 3}. Questo linguaggio ha numerosi vantaggi: è \emph{platform-independent}, è \emph{semplice}, \emph{efficace} da utilizzare, permette la scrittura di codice abbastanza \emph{compatto}, possiede una collezione di \emph{librerie} praticamente illimitata, si adatta bene alla programmazione \emph{concorrente}. Unico punto debole è l'\emph{efficienza}, minore rispetto al C++, ma comunque più che sufficiente per lo scopo. 
+\paragraph{} Il linguaggio scelto per implementare client, dataserver e metaserver è \textbf{Python 3}\footnote{\url{https://www.python.org/download/releases/3.0/}}. Questo linguaggio ha numerosi vantaggi: è \emph{platform-independent}, è \emph{semplice}, \emph{efficace} da utilizzare, permette la scrittura di codice abbastanza \emph{compatto}, possiede una collezione di \emph{librerie} praticamente illimitata, si adatta bene alla programmazione \emph{concorrente}. Unico punto debole è l'\emph{efficienza}, minore rispetto al C++, ma comunque più che sufficiente per lo scopo. 
 
-\paragraph{} Come dbms per il \underline{metaserver} ho scelto \textbf{Apache Cassandra}, uno dei più famosi sistemi \emph{NoSQL} distribuiti in commercio. Gestisce automaticamente la \emph{replicazione} e \emph{concorrenza} all'interno del cluster, con efficacia, in modo da assicurare \emph{disponibilità} e \emph{affidabilità}. Le \emph{prestazioni} sono ottime, come il supporto della \emph{community} e la \emph{documentazione}. \emph{Cql} (Cassandra Query Language) una sintassi molto simile a SQL, cosa che agevola molto l'intervento di programmatori non specializzati.  
+\paragraph{} Come dbms per il \underline{metaserver} ho scelto \textbf{Apache Cassandra}\footnote{\url{https://cassandra.apache.org/}}, uno dei più famosi sistemi \emph{NoSQL} distribuiti in commercio. Gestisce automaticamente la \emph{replicazione} e \emph{concorrenza} all'interno del cluster, con efficacia, in modo da assicurare \emph{disponibilità} e \emph{affidabilità}. Le \emph{prestazioni} sono ottime, come il supporto della \emph{community} e la \emph{documentazione}. \emph{Cql} (Cassandra Query Language) una sintassi molto simile a SQL, cosa che agevola molto l'intervento di programmatori non specializzati.  
 
-\paragraph{} Dato che i \underline{dataserver} devono essere più leggeri possibile, come dbms per i dataserver ho scelto \textbf{SQLite3}. E' completamente integrato nella libreria standard di Python 3, quindi non necessita dell'installazione di software aggiuntivo. Tutti i dati vengono memorizzati all'interno di un \emph{unico file compresso}. Le \emph{performances} sono più che adatte per le operazioni richieste. Sia buona \emph{documentazione} che \emph{facilità} di utilizzo sono punti a favore. Il linguaggio è un \emph{dialetto SQL}, molto simile a quello degli altri sistemi (l'unica differenza importante sta nei tipi di dato, che sono semplificati).  
+\paragraph{} Dato che i \underline{dataserver} devono essere più leggeri possibile, come dbms per i dataserver ho scelto \textbf{SQLite3}\footnote{\url{https://www.sqlite.org/index.html}}. E' completamente integrato nella libreria standard di Python 3, quindi non necessita dell'installazione di software aggiuntivo. Tutti i dati vengono memorizzati all'interno di un \emph{unico file compresso}. Le \emph{performances} sono più che adatte per le operazioni richieste. Sia buona \emph{documentazione} che \emph{facilità} di utilizzo sono punti a favore. Il linguaggio è un \emph{dialetto SQL}, molto simile a quello degli altri sistemi (l'unica differenza importante sta nei tipi di dato, che sono semplificati).  
 
-\paragraph{} I \emph{file di configurazione} sono in formato \textbf{YAML}: un formato \emph{open}, \emph{human-readable} tra i più diffusi al mondo e intuitivi. 
+\paragraph{} I \emph{file di configurazione} sono in formato \textbf{YAML}\cite{yaml}: un formato \emph{open}, \emph{human-readable} tra i più diffusi al mondo e intuitivi. 
 
 
 \subsection{Struttura del codice}
@@ -655,7 +651,7 @@ metaserver: localhost:10000
 
 \subsection{Interfaccia di connessione e scambio dati}
 
-\paragraph{} L'interfaccia è unica per client, metaserver e dataserver. E' implementata come \emph{decorator} per la classe socket e StreamRequestHandler. Utilizza gli oggetti \emph{rfile} (lettura) e \emph{wfile} (scrittura), ottenuti dal socket, per effettuare i trasferimenti. 
+\paragraph{} L'interfaccia è unica per client, metaserver e dataserver. E' implementata come \emph{adapter}\cite{adapter} per la classe socket e StreamRequestHandler. Utilizza gli oggetti \emph{rfile} (lettura) e \emph{wfile} (scrittura), ottenuti dal socket, per effettuare i trasferimenti. 
 
 \paragraph{} Il trasferimento dati avviene in \emph{modalità binaria}, per ragioni di efficienza. 
 
@@ -1837,7 +1833,7 @@ def unlockPath(self, args):
     self.write("ok")
 \end{lstlisting}
 
-\paragraph{} Gestire i lock su repository, piuttosto che su singoli documenti, è tutt'altro che banale. Non avendo a disposizione all'interno di Cassandra l'operatore ILIKE, non ho trovato una soluzione efficiente per interrogare il database in modo da controllare se uno dei lock presenti sia prefisso del path che voglio controllare. 
+\paragraph{} Gestire i lock su repository, piuttosto che su singoli documenti, è tutt'altro che banale. Non ho trovato una soluzione efficiente per interrogare il database in modo da controllare se uno dei lock presenti sia prefisso del path che voglio controllare. 
 
 \subsubsection{Modificare la priorità di un documento}
 
@@ -1943,7 +1939,7 @@ def getStoredData(self, args):
 
 \paragraph{} È interessante notare che il sistema può benissimo essere utilizzato come sistema di versionamento. Dato che i documenti non vengono mai eliminati, ma la modifica presuppone la creazione di un nuovo uid (quindi vecchia e nuova versione sono effettivamente documenti a se stanti che condividono solo il path), è possibile andare a selezionare una particolare versione di ogni documento basandosi sulla data di creazione. L'unico accorgimento è quello di effettuare dal client una richiesta del tipo \emph{getUid}, al posto di \emph{getPath}.
 
-\paragraph{} La creazione di una repository, a differenza di \emph{git}, è trasparente, in quanto ogni path è in sè una repository (oppure da un altro punto di vista l'intero filesystem è una grande repository). L'eliminazione di un documento tramite \emph{deletePath} agisce soltanto sul fs, marcandolo come eliminato, ma non rimuove i dati dai dataserver. Quindi è sempre possibile recuperare i dati di un documento eliminato in questo modo. Invece \emph{permanentlyDeletePath} elimina definitivamente un documento (o repository), permettendo la liberazione di spazio. 
+\paragraph{} La creazione di una repository, a differenza di sistemi come \emph{git}, è trasparente, in quanto ogni path è in sè una repository (oppure da un altro punto di vista l'intero filesystem è una grande repository). L'eliminazione di un documento tramite \emph{deletePath} agisce soltanto sul fs, marcandolo come eliminato, ma non rimuove i dati dai dataserver. Quindi è sempre possibile recuperare i dati di un documento eliminato in questo modo. Invece \emph{permanentlyDeletePath} elimina definitivamente un documento (o repository), permettendo la liberazione di spazio. 
 
 \paragraph{Cosa ho imparato con questo progetto?}
 
@@ -1955,9 +1951,7 @@ def getStoredData(self, args):
 
 \paragraph{} L'imprevedibilità elevata riduce drasticamente l'efficacia del testing. E' quindi ancora più fondamentale stabilire contratti, vincoli, invarianti, diagrammi di flusso, meccanismi di controllo, meccanismi di logging e criteri di scrittura del codice che aiutino a minimizzare sia la probabilità di errore che i danni a seguito di un errore. 
 
-\cite{adams1995hitchhiker}
-
 \bibliographystyle{unsrt}
-\bibliography[title=Sitography]{references}
+\bibliography{references}
 
 \end{document}
