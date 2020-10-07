@@ -1,0 +1,91 @@
+This is BibTeX, Version 0.99d (TeX Live 2015/Debian)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: main.aux
+The style file: unsrt.bst
+Database file #1: references.bib
+Warning--entry type for "distributedfs" isn't style-file defined
+--line 1 of file references.bib
+Warning--entry type for "raid" isn't style-file defined
+--line 5 of file references.bib
+Warning--entry type for "vm" isn't style-file defined
+--line 9 of file references.bib
+Warning--entry type for "backuptypes" isn't style-file defined
+--line 13 of file references.bib
+Warning--entry type for "ddbms" isn't style-file defined
+--line 17 of file references.bib
+Warning--entry type for "fs" isn't style-file defined
+--line 21 of file references.bib
+Warning--entry type for "path" isn't style-file defined
+--line 25 of file references.bib
+Warning--entry type for "utc" isn't style-file defined
+--line 29 of file references.bib
+Warning--entry type for "utf" isn't style-file defined
+--line 33 of file references.bib
+Warning--entry type for "uuid" isn't style-file defined
+--line 37 of file references.bib
+Warning--entry type for "comproto" isn't style-file defined
+--line 41 of file references.bib
+Warning--entry type for "logfile" isn't style-file defined
+--line 45 of file references.bib
+Warning--entry type for "tls" isn't style-file defined
+--line 49 of file references.bib
+Warning--entry type for "sha1" isn't style-file defined
+--line 53 of file references.bib
+Warning--entry type for "key" isn't style-file defined
+--line 57 of file references.bib
+Warning--entry type for "consistency" isn't style-file defined
+--line 61 of file references.bib
+Warning--entry type for "quorum" isn't style-file defined
+--line 65 of file references.bib
+Warning--entry type for "paxos" isn't style-file defined
+--line 69 of file references.bib
+Warning--entry type for "lwt" isn't style-file defined
+--line 73 of file references.bib
+Warning--entry type for "conslevel" isn't style-file defined
+--line 77 of file references.bib
+Warning--entry type for "yaml" isn't style-file defined
+--line 81 of file references.bib
+Warning--entry type for "adapter" isn't style-file defined
+--line 85 of file references.bib
+You've used 22 entries,
+            1791 wiz_defined-function locations,
+            510 strings with 5139 characters,
+and the built_in function-call counts, 2222 in all, are:
+= -- 176
+> -- 22
+< -- 0
++ -- 22
+- -- 0
+* -- 2
+:= -- 209
+add.period$ -- 44
+call.type$ -- 22
+change.case$ -- 22
+chr.to.int$ -- 0
+cite$ -- 22
+duplicate$ -- 110
+empty$ -- 397
+format.name$ -- 0
+if$ -- 595
+int.to.chr$ -- 0
+int.to.str$ -- 22
+missing$ -- 0
+newline$ -- 91
+num.names$ -- 0
+pop$ -- 132
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 131
+stack$ -- 0
+substring$ -- 0
+swap$ -- 22
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 0
+while$ -- 0
+width$ -- 24
+write$ -- 156
+(There were 22 warnings)

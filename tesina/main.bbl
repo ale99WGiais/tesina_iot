@@ -1,0 +1,96 @@
+\begin{thebibliography}{10}
+
+\bibitem{distributedfs}
+Distributed file system.
+\newblock
+  https://en.wikipedia.org/wiki/Clustered\_file\_system\#Distributed\_file\_systems.
+
+\bibitem{raid}
+Raid.
+\newblock https://en.wikipedia.org/wiki/RAID.
+
+\bibitem{vm}
+Virtual machine.
+\newblock https://www.vmware.com/topics/glossary/content/virtual-machine.
+
+\bibitem{backuptypes}
+Backup types.
+\newblock
+  https://www.acronis.com/en-eu/articles/incremental-differential-backups/.
+
+\bibitem{ddbms}
+Distributed database.
+\newblock
+  https://www.tutorialspoint.com/distributed\_dbms/distributed\_dbms\_databases.htm.
+
+\bibitem{fs}
+File system.
+\newblock https://en.wikipedia.org/wiki/File\_system.
+
+\bibitem{path}
+Path.
+\newblock https://en.wikipedia.org/wiki/Path\_(computing).
+
+\bibitem{uuid}
+Uuid.
+\newblock https://en.wikipedia.org/wiki/Universally\_unique\_identifier.
+
+\bibitem{utf}
+Utf.
+\newblock https://en.wikipedia.org/wiki/UTF-8.
+
+\bibitem{utc}
+Utc.
+\newblock https://en.wikipedia.org/wiki/Coordinated\_Universal\_Time.
+
+\bibitem{comproto}
+Communication protocol.
+\newblock https://en.wikipedia.org/wiki/Communication\_protocol.
+
+\bibitem{logfile}
+Log file.
+\newblock https://en.wikipedia.org/wiki/Log\_file.
+
+\bibitem{tls}
+Tls.
+\newblock https://hpbn.co/transport-layer-security-tls/.
+
+\bibitem{sha1}
+Sha-1.
+\newblock https://en.wikipedia.org/wiki/SHA-1.
+
+\bibitem{key}
+Surrogate key.
+\newblock https://en.wikipedia.org/wiki/Surrogate\_key.
+
+\bibitem{consistency}
+Consistency.
+\newblock https://en.wikipedia.org/wiki/Consistency\_(database\_systems).
+
+\bibitem{quorum}
+Quorum.
+\newblock https://en.wikipedia.org/wiki/Quorum\_(distributed\_computing).
+
+\bibitem{paxos}
+Paxos.
+\newblock https://en.wikipedia.org/wiki/Paxos\_(computer\_science).
+
+\bibitem{lwt}
+Lightweight transactions (cassandra).
+\newblock https://blog.pythian.com/lightweight-transactions-cassandra/.
+
+\bibitem{conslevel}
+Consistency level (cassandra).
+\newblock
+  https://docs.datastax.com/en/cassandra-oss/3.0/cassandra/dml/dmlConfigConsistency.html.
+
+\bibitem{yaml}
+Yaml.
+\newblock https://en.wikipedia.org/wiki/YAML.
+
+\bibitem{adapter}
+Adapter design pattern.
+\newblock
+  https://www.tutorialspoint.com/python\_design\_patterns/python\_design\_patterns\_adapter.htm.
+
+\end{thebibliography}

@@ -123,72 +123,74 @@
 \contentsline {subsection}{\numberline {10.5}Interfaccia al database}{21}{subsection.10.5}
 \contentsline {paragraph}{}{21}{section*.105}
 \contentsline {subsubsection}{\numberline {10.5.1}Metaserver}{22}{subsubsection.10.5.1}
+\contentsline {paragraph}{}{22}{section*.106}
 \contentsline {subsubsection}{\numberline {10.5.2}Dataserver}{27}{subsubsection.10.5.2}
-\contentsline {subsection}{\numberline {10.6}Operazioni periodiche}{29}{subsection.10.6}
-\contentsline {paragraph}{}{29}{section*.106}
-\contentsline {paragraph}{}{29}{section*.107}
-\contentsline {subsubsection}{\numberline {10.6.1}Metaserver}{29}{subsubsection.10.6.1}
-\contentsline {paragraph}{}{29}{section*.108}
-\contentsline {subsubsection}{\numberline {10.6.2}Dataserver}{32}{subsubsection.10.6.2}
-\contentsline {paragraph}{}{32}{section*.109}
-\contentsline {paragraph}{}{33}{section*.110}
-\contentsline {subsection}{\numberline {10.7}ServerSocket e relativo handler}{33}{subsection.10.7}
+\contentsline {paragraph}{}{27}{section*.107}
+\contentsline {subsection}{\numberline {10.6}Operazioni periodiche}{30}{subsection.10.6}
+\contentsline {paragraph}{}{30}{section*.108}
+\contentsline {paragraph}{}{30}{section*.109}
+\contentsline {subsubsection}{\numberline {10.6.1}Metaserver}{30}{subsubsection.10.6.1}
+\contentsline {paragraph}{}{30}{section*.110}
+\contentsline {subsubsection}{\numberline {10.6.2}Dataserver}{33}{subsubsection.10.6.2}
 \contentsline {paragraph}{}{33}{section*.111}
-\contentsline {paragraph}{}{34}{section*.112}
+\contentsline {paragraph}{}{33}{section*.112}
+\contentsline {subsection}{\numberline {10.7}ServerSocket e relativo handler}{34}{subsection.10.7}
 \contentsline {paragraph}{}{34}{section*.113}
-\contentsline {subsubsection}{\numberline {10.7.1}Caricamento di un documento}{34}{subsubsection.10.7.1}
 \contentsline {paragraph}{}{34}{section*.114}
-\contentsline {paragraph}{}{34}{section*.115}
+\contentsline {paragraph}{}{35}{section*.115}
+\contentsline {subsubsection}{\numberline {10.7.1}Caricamento di un documento}{35}{subsubsection.10.7.1}
 \contentsline {paragraph}{}{35}{section*.116}
 \contentsline {paragraph}{}{35}{section*.117}
-\contentsline {paragraph}{}{36}{section*.118}
+\contentsline {paragraph}{}{35}{section*.118}
 \contentsline {paragraph}{}{36}{section*.119}
-\contentsline {paragraph}{}{38}{section*.120}
-\contentsline {paragraph}{}{38}{section*.121}
-\contentsline {subsubsection}{\numberline {10.7.2}Trasferimento di un documento}{38}{subsubsection.10.7.2}
+\contentsline {paragraph}{}{37}{section*.120}
+\contentsline {paragraph}{}{37}{section*.121}
 \contentsline {paragraph}{}{38}{section*.122}
 \contentsline {paragraph}{}{38}{section*.123}
+\contentsline {subsubsection}{\numberline {10.7.2}Trasferimento di un documento}{39}{subsubsection.10.7.2}
 \contentsline {paragraph}{}{39}{section*.124}
-\contentsline {subsubsection}{\numberline {10.7.3}Scaricamento sul client di un documento (dato il path)}{39}{subsubsection.10.7.3}
 \contentsline {paragraph}{}{39}{section*.125}
 \contentsline {paragraph}{}{39}{section*.126}
-\contentsline {paragraph}{}{40}{section*.127}
-\contentsline {paragraph}{}{41}{section*.128}
+\contentsline {subsubsection}{\numberline {10.7.3}Scaricamento sul client di un documento (dato il path)}{39}{subsubsection.10.7.3}
+\contentsline {paragraph}{}{39}{section*.127}
+\contentsline {paragraph}{}{40}{section*.128}
+\contentsline {paragraph}{}{40}{section*.129}
+\contentsline {paragraph}{}{41}{section*.130}
 \contentsline {subsubsection}{\numberline {10.7.4}Scaricamento di un documento dato l'uid}{42}{subsubsection.10.7.4}
-\contentsline {paragraph}{}{42}{section*.129}
-\contentsline {subsubsection}{\numberline {10.7.5}Eliminazione di un path}{42}{subsubsection.10.7.5}
-\contentsline {paragraph}{}{42}{section*.130}
 \contentsline {paragraph}{}{42}{section*.131}
-\contentsline {paragraph}{}{43}{section*.132}
-\contentsline {subsubsection}{\numberline {10.7.6}Eliminazione permanente di un path}{43}{subsubsection.10.7.6}
+\contentsline {subsubsection}{\numberline {10.7.5}Eliminazione di un path}{42}{subsubsection.10.7.5}
+\contentsline {paragraph}{}{42}{section*.132}
 \contentsline {paragraph}{}{43}{section*.133}
 \contentsline {paragraph}{}{43}{section*.134}
-\contentsline {paragraph}{}{44}{section*.135}
-\contentsline {subsubsection}{\numberline {10.7.7}Lock}{44}{subsubsection.10.7.7}
-\contentsline {paragraph}{}{44}{section*.136}
+\contentsline {subsubsection}{\numberline {10.7.6}Eliminazione permanente di un path}{43}{subsubsection.10.7.6}
+\contentsline {paragraph}{}{43}{section*.135}
+\contentsline {paragraph}{}{43}{section*.136}
 \contentsline {paragraph}{}{44}{section*.137}
-\contentsline {paragraph}{}{45}{section*.138}
-\contentsline {paragraph}{}{45}{section*.139}
+\contentsline {subsubsection}{\numberline {10.7.7}Lock}{44}{subsubsection.10.7.7}
+\contentsline {paragraph}{}{44}{section*.138}
+\contentsline {paragraph}{}{44}{section*.139}
 \contentsline {paragraph}{}{45}{section*.140}
 \contentsline {paragraph}{}{45}{section*.141}
-\contentsline {subsubsection}{\numberline {10.7.8}Modificare la priorit\IeC {\`a} di un documento}{45}{subsubsection.10.7.8}
 \contentsline {paragraph}{}{45}{section*.142}
 \contentsline {paragraph}{}{45}{section*.143}
-\contentsline {subsubsection}{\numberline {10.7.9}Aggiungere un dataserver}{46}{subsubsection.10.7.9}
-\contentsline {paragraph}{}{46}{section*.144}
+\contentsline {subsubsection}{\numberline {10.7.8}Modificare la priorit\IeC {\`a} di un documento}{45}{subsubsection.10.7.8}
+\contentsline {paragraph}{}{45}{section*.144}
 \contentsline {paragraph}{}{46}{section*.145}
+\contentsline {subsubsection}{\numberline {10.7.9}Aggiungere un dataserver}{46}{subsubsection.10.7.9}
+\contentsline {paragraph}{}{46}{section*.146}
+\contentsline {paragraph}{}{46}{section*.147}
 \contentsline {section}{\numberline {11}Considerazioni finali}{47}{section.11}
-\contentsline {paragraph}{Perch\IeC {\`e} questo approccio \IeC {\`e} migliore rispetto ad usare direttamente un database distribuito?}{47}{section*.146}
-\contentsline {paragraph}{}{47}{section*.147}
-\contentsline {paragraph}{}{47}{section*.148}
-\contentsline {paragraph}{Sviluppi futuri?}{48}{section*.149}
-\contentsline {paragraph}{}{48}{section*.150}
-\contentsline {paragraph}{Sistema di versionamento}{48}{section*.151}
+\contentsline {paragraph}{Perch\IeC {\`e} questo approccio \IeC {\`e} migliore rispetto ad usare direttamente un database distribuito?}{47}{section*.148}
+\contentsline {paragraph}{}{47}{section*.149}
+\contentsline {paragraph}{}{47}{section*.150}
+\contentsline {paragraph}{Sviluppi futuri?}{48}{section*.151}
 \contentsline {paragraph}{}{48}{section*.152}
-\contentsline {paragraph}{}{48}{section*.153}
-\contentsline {paragraph}{Cosa ho imparato con questo progetto?}{48}{section*.154}
+\contentsline {paragraph}{Sistema di versionamento}{48}{section*.153}
+\contentsline {paragraph}{}{48}{section*.154}
 \contentsline {paragraph}{}{48}{section*.155}
-\contentsline {paragraph}{}{48}{section*.156}
-\contentsline {paragraph}{}{49}{section*.157}
-\contentsline {paragraph}{}{49}{section*.158}
-\contentsline {section}{Bibliography}{49}{section*.159}
+\contentsline {paragraph}{Cosa ho imparato con questo progetto?}{48}{section*.156}
+\contentsline {paragraph}{}{48}{section*.157}
+\contentsline {paragraph}{}{48}{section*.158}
+\contentsline {paragraph}{}{49}{section*.159}
+\contentsline {paragraph}{}{49}{section*.160}
+\contentsline {section}{Bibliography}{49}{section*.161}

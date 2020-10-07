@@ -722,51 +722,52 @@ class DataServerHandler(StreamRequestHandler):
 
 \subsubsection{Metaserver}
 
+\paragraph{} Di seguito la struttura del database utilizzato dal metaserver assieme ad una parte di implementazione dell'oggetto Database. 
 
 
-\begin{lstlisting}[title=Struttura]
-//il fattore di replicazione deve essere <= al numero di server a disposizione
+\begin{lstlisting}[language=SQL, title=Struttura]
+--il fattore di replicazione deve essere <= al numero di server a disposizione
 create keyspace metaserver with replication = {'class' : 'SimpleStrategy', 'replication_factor' : 1};
 
 
 use metaserver;
 
 
-//un metaserver
+/*un metaserver*/
 create table dataserver(
-	server text,      //indirizzo in formato host:port del dataserver
-	online boolean,     //se in questo momento (all'ultima rilevazione) e' online
-	capacity bigint,     //capacita' in byte totale
-	remaining_capacity bigint,     //capacita' in byte disponibile (totale-utilizzata)
-	available_down float,     //banda in Mb/s disponibile per il download
-	available_up float,       //banda in Mb/s disponibile per l'upload
+	server text,      --indirizzo in formato host:port del dataserver
+	online boolean,     --se in questo momento (all'ultima rilevazione) e' online
+	capacity bigint,     --capacita' in byte totale
+	remaining_capacity bigint,     --capacita' in byte disponibile (totale-utilizzata)
+	available_down float,     --banda in Mb/s disponibile per il download
+	available_up float,       --banda in Mb/s disponibile per l'upload
 	primary key(server)
 );
 
-//un documento
+/*un documento*/
 create table object(
     uid uuid,
-    path text,        //path associato al documento
-    created timestamp,     //istante di creazione (nel metaserver)
-    owner text,     //proprietario (colui che l'ha creato)
-    size bigint,     //dimensione in byte
-    priority int,     //livello di priorita' (di replicazione)
+    path text,        --path associato al documento
+    created timestamp,     --istante di creazione (nel metaserver)
+    owner text,     --proprietario (colui che l'ha creato)
+    size bigint,     --dimensione in byte
+    priority int,     --livello di priorita' (di replicazione)
     checksum text,      
-    deleted timestamp,       //istante di eliminazione (NULL se non eliminato)
+    deleted timestamp,       --istante di eliminazione (NULL se non eliminato)
     primary key(uid)
 );
 
-//lock attivi
+/*lock attivi*/
 create table object_lock(
-    path text,    //path del documento
-    user text,      //utente che detiene il lock
+    path text,    --path del documento
+    user text,      --utente che detiene il lock
     primary key(path)
 );
 
-//log delle performance dei dataserver
+/*log delle performance dei dataserver*/
 create table performance_log(
-    server text,            //indirizzo del dataserver nel formato host:port
-    time timestamp,     //istante di registrazione del record
+    server text,           --indirizzo del dataserver nel formato host:port
+    time timestamp,     --istante di registrazione del record
     online boolean,         
 	capacity bigint,
 	remaining_capacity bigint,
@@ -775,27 +776,27 @@ create table performance_log(
 	primary key(server, time)
 );
 
-//oggetti che vanno verificati
+/*oggetti che vanno verificati*/
 create table pending_object(
-    uid uuid,           //uid dell'oggetto
-    enabled boolean,       //se false, l'oggetto non puo essere attualmente processato perche' non e' disponibile o non sono disponibili server in cui replicarlo
+    uid uuid,           --uid dell'oggetto
+    enabled boolean,       --se false, l'oggetto non puo essere attualmente processato perche' non e' disponibile o non sono disponibili server in cui replicarlo
     primary key(uid)
 );
 
-//documenti salvati nei dataserver
+/*documenti salvati nei dataserver*/
 create table stored_object(
-    uid uuid,       //documento
-    server text,       //indirizzo del server in cui e' salvato, nel formato host:port
+    uid uuid,       --documento
+    server text,       --indirizzo del server in cui e' salvato, nel formato host:port
     created timestamp,
     complete boolean,
     primary key(uid, server)
 );
 
-//utilizzato per le ricerche di prefissi del tipo "where path like '<prefix>%'"
+/*utilizzato per le ricerche di prefissi del tipo "where path like '<prefix>%'"*/
 create custom index object_path_idx on object(path)
 using 'org.apache.cassandra.index.sasi.SASIIndex';
 
-//utilizzato per selezionare l'ultima versione di un documento, dato il path (con cql non e' possibile ordinare nella query)
+/*utilizzato per selezionare l'ultima versione di un documento, dato il path (con cql non e' possibile ordinare nella query) */
 create materialized view pathToObject as select * from object where path is not null
 primary key (path, uid)
 with clustering order by (uid desc);
@@ -807,113 +808,117 @@ with clustering order by (uid desc);
 \begin{lstlisting}[language=Python, title=Codice]
 class Database:
     def __init__(self):
-        from cassandra import ConsistencyLevel
-        from cassandra.cluster import Cluster, ExecutionProfile, EXEC_PROFILE_DEFAULT
-        from cassandra.policies import WhiteListRoundRobinPolicy, DowngradingConsistencyRetryPolicy
-        from cassandra.query import tuple_factory
-
+  		#livello di consistenza delle query
         profile = ExecutionProfile(
             consistency_level=ConsistencyLevel.QUORUM,
-            serial_consistency_level=ConsistencyLevel.SERIAL
+            serial_consistency_level=ConsistencyLevel.SERIAL  #LWT
         )
-
-        cluster = Cluster(execution_profiles={EXEC_PROFILE_DEFAULT: profile})
-        self.cluster = Cluster(protocol_version=4)
-
+		
+		#connessione al cluster
+        self.cluster = Cluster(protocol_version=4, execution_profiles={EXEC_PROFILE_DEFAULT: profile})
         self.session = self.cluster.connect("metaserver")
 
-
+	#aggiunta di un nuovo dataserver. inizialmente stato=disconnesso
     def addDataServer(self, addr):
         self.session.execute("insert into dataserver(server, online) values (%s, false)", (addr, ))
 
+	#creazione di un nuovo documento
     def addObject(self, uid, path, owner, size, priority, checksum):
-        if type(uid) == "str":
-            uid = UUID(uid)
-        created = datetime_from_uuid1(uid)
-        size = int(size)
-        priority = int(priority)
+        created = datetime_from_uuid1(uid)  #l'istante di creazione del documento coincide con l'istante di creazione del suo uid
+        
         self.session.execute("insert into object(uid, path, created, owner, size, priority, checksum) "
                              "values (%s, %s, %s, %s, %s, %s, %s)"
                              , (uid, path, created, owner, size, priority, checksum))
         return uid
 
+	#una nuova copia fisica di un documento viene creata in un dataserver
     def addStoredObject(self, uid, server, complete=False, created=None):
-        uid = makeUUID(uid)
-        if created is None: created = datetime.now()
+        if created is None: created = datetime.now() #istante di creazione della replica, non del documento
+        
         self.session.execute("insert into stored_object(uid, server, created, complete) values (%s, %s, %s, %s)",
                              (uid, server, created, complete))
         return id
 
+	#effettua il lock di un path (singolo documento)
     def lockPath(self, path, user="root"):
+    	#se il path che si intende bloccare e' gia' presente nella tabella, il constraint INSERT IF NOT EXISTS fallisce e applied viene settato a False (altrimenti True)
         return self.session.execute("insert into object_lock(path, user) values (%s, %s) if not exists",
                                     (path, user)).one().applied
 
+	#unlock di un path
     def unlockPath(self, path):
         self.session.execute("delete from object_lock where path = %s", (path, ))
 
+	#ottiene lo stato di lock di un path e l'identificativo dell'utente che detiene il lock (se bloccato, altrimenti "")
     def getPathLock(self, path):
         r = self.session.execute("select * from object_lock where path = %s", (path, )).one()
-        if r is None:
+        
+        if r is None:    #none se non presente nel db l'entry relativa al path specificato (quindi e' sbloccato)
             return False, ""
         else:
             return True, r.user
 
+	#ottiene i metadati di un documento dato l'uid
     def getObjectByUid(self, uid):
-        uid = makeUUID(uid)
         return self.session.execute("select * from object where uid = %s", (uid, )).one()
 
+	#lista di tutti i documenti appartenenti ad un determinato path (singolo o repository)
     def list(self, path):
         if path == "" or path == '%':
             return self.session.execute("select * from object").all()
         else:
             return self.session.execute("select * from object where path like %s", (path, )).all()
 
+	#lista dei dataserver
     def getDataServers(self, onlyOnline=True):
-        if onlyOnline:
+        if onlyOnline:   #solo i dataserver online (secondo l'ultima rilevazione)
             return self.session.execute("select * from dataserver where online=true allow filtering").all()
         return self.session.execute("select * from dataserver").all()
 
+    #update dello status di un dataserver (ottenuto a seguito di una rilevazione)
     def updateDataServerStatus(self, addr, online, remaining_capacity=0, capacity=0, available_down=.0, available_up=.0):
         self.session.execute("update dataserver "
                              "set capacity=%s, remaining_capacity=%s, available_down=%s, "
                              "available_up=%s, online=%s where server=%s",
                              (capacity, remaining_capacity,
                               available_down, available_up, online, addr))
+        #performances dei dataserver loggate per eventuali analisi
         self.session.execute("insert into performance_log(server, time, capacity, remaining_capacity, available_down,"
                              "available_up, online) values (%s, %s, %s, %s, %s, %s, %s)",
                              (addr, datetime.now(), capacity, remaining_capacity,
                               available_up, available_down, online))
 
+    #rimuove una replica fisica di un documento
     def removeStoredObject(self, uid, server):
-        uid = makeUUID(uid)
         self.session.execute("delete from stored_object where uid = %s and server = %s", (uid, server))
 
+    #rimuove un documento dato l'uid
     def removeObject(self, uid):
-        uid = makeUUID(uid)
         self.session.execute("delete from object where uid = %s", (uid, ))
 
+    #ottiene la lista di dataserver che contengono l'uid specificato
     def getServersForUid(self, uid, complete=True, online=True):
-        uid = makeUUID(uid)
-        if complete:
+        if complete:   #solo dataserver la cui replica e' completa (trasferita completamente e validata)
             res = self.session.execute(
                 "select server from stored_object where uid = %s and complete = true allow filtering", (uid, )).all()
         else:
             res = self.session.execute(
                 "select server from stored_object where uid = %s allow filtering", (uid, )).all()
-        if online:
+        if online:  #solo dataserver online (secondo ultima rilevazione)
             def f(srv):
                 return self.session.execute("select online from dataserver where server = %s", (srv.server, )).one().online
             res = list(filter(f, res))
-        print("getServersForUid", uid, res)
         return res
 
+    #testa se un dataserver e' online
     def isServerOnline(self, server):
         return self.session.execute("select online from dataserver where server = %s", (server, )).one().online
 
+    #setta una replica di un documento come completa
     def setComplete(self, uid, server):
-        uid = makeUUID(uid)
         self.session.execute("update stored_object set complete = true where uid = %s and server = %s", (uid, server))
 
+    #marca come eliminato l'ultimo uid (in ordine di creazione) relativo ad un path singolo specificato.
     def markDeleted(self, path):
         res = self.getUidForPath(path)
         timestamp = datetime.now()
@@ -921,45 +926,45 @@ class Database:
             self.session.execute("update object set deleted = %s where uid = %s",
                                  (timestamp, res.uid))
 
+    #marca come eliminato uno specifico uid
     def markUidDeleted(self, uid):
-        uid = makeUUID(uid)
         timestamp = datetime.now()
         self.session.execute("update object set deleted = %s where uid = %s",
                              (timestamp, uid))
 
+    #ottiene l'uid dell'ultima versione del documento relativo ad un path singolo
     def getUidForPath(self, path):
-        print("path", path)
         path = str(path)
         return self.session.execute("select * from pathToObject where path = %s", (path, )).one()
 
+    #ottiene la lista di tutti gli uid relativi ad un path singolo (tutte le versioni di un documento)
     def getUidsForPath(self, path):
-        print("path", path)
-        path = str(path)
-
         return self.session.execute("select * from object where path like %s", (path, )).all()
 
+    #gli uid di tutti i documenti che hanno una replica all'interno del dataserver specificato
     def getUidsForServer(self, server):
         return self.session.execute("select uid from stored_object where server = %s allow filtering", (server, ))
 
+    #aggiunge un uid alla lista di quelli da verificare (per azioni periodiche)
     def addPendingUid(self, uid):
-        uid = makeUUID(uid)
         self.session.execute("insert into pending_object(uid, enabled) values (%s, True)", (uid, ))
 
+    #aggiorna la priorita' di un documento (dato l'uid)
     def updatePriority(self, uid, priority):
-        uid = makeUUID(uid)
         self.session.execute("update object set priority=%s where uid=%s", (priority, uid))
 
+    #lista di tutti gli uid pendenti
     def getPendingUids(self, onlyEnabled=True):
-        if onlyEnabled:
+        if onlyEnabled:  #solo quelli attivi
             return self.session.execute("select uid from pending_object where enabled=True allow filtering").all()
         return self.session.execute("select uid from pending_object").all()
 
+    #disabilita un uid pendente. utilizzato ad esempio quando un documento va replicato ma non ci sono dataserver disponibili.
     def disablePendingUid(self, uid):
-        uid = makeUUID(uid)
         self.session.execute("update pending_object set enabled=False where uid = %s", (uid, ))
 
+    #rimuove un uid pendente
     def removePendingUid(self, uid):
-        uid = makeUUID(uid)
         self.session.execute("delete from pending_object where uid = %s", (uid, ))
 
 
@@ -970,28 +975,30 @@ database = Database()
 
 \subsubsection{Dataserver}
 
-\begin{lstlisting}[title=Struttura]
+\paragraph{} Di seguito struttura e implementazione del database relativo ai dataserver.
 
-//un oggetto
+\begin{lstlisting}[language=SQL, title=Struttura]
+
+--un oggetto
 create table object(
     uid text primary key,
-    local_path text,   //percorso del file system dov'e' salvato
-    size integer,   //dimensione in byte (totale)
-    complete integer,    //true se e' completo, false se deve ancora essere totalmente trasferito
-    created text,       //istante di creazione (nel dataserver)
+    local_path text,   --percorso del file system dov'e' salvato
+    size integer,   --dimensione in byte (totale)
+    complete integer,    --true se e' completo, false se deve ancora essere totalmente trasferito
+    created text,       --istante di creazione (nel dataserver)
     checksum text
 );
 
-//configurazione del dataserver
+--configurazione del dataserver
 create table stats(
-    storage int,        //storage totale in byte
-    downspeed int,      //banda totale in download, in Mb/s
-    upspeed int         //banda totale in upload, in Mb/s 
+    storage int,        --storage totale in byte
+    downspeed int,      --banda totale in download, in Mb/s
+    upspeed int         --banda totale in upload, in Mb/s 
 );
 
-//documenti che vanno eliminati
+--documenti che vanno eliminati
 create table toBeDeleted(
-    uid text primary key        //uid del documento
+    uid text primary key        --uid del documento
 );
 
 
@@ -1001,43 +1008,45 @@ create table toBeDeleted(
 class Database:
     def __init__(self):
         try:
+            #connessione al database
             self.connection = sqlite3.connect('database.db')
             self.cursor = self.connection.cursor()
-            print("connected to database")
 
         except sqlite3.Error as error:
             print("error while connecting to database", error)
 
+    #ottiene i metadati relativi ad un documento, dato l'uid
     def getObject(self, uid):
-        print("getObject ------>", (str(uid), ))
         return self.cursor.execute("select * from object where uid = ?", (str(uid), )).fetchone()
 
-
+    #elimina i dati relativi ad un documento
     def deleteUid(self, uid):
         self.cursor.execute("delete from object where uid = ?", (uid, ))
         self.cursor.execute("delete from transfer where uid = ?", (uid, ))
         self.cursor.execute("delete from toBeDeleted where uid = ?", (uid, ))
         self.connection.commit()
 
-    def nodeStats(self):
-        return self.cursor.execute("select * from stats").fetchone()
-
+    #lista di tutti i documenti (anche non completi)
     def getStoredData(self):
         return self.cursor.execute("select uid, created, complete from object").fetchall()
 
+    #spazio complessivo riservato ai documenti attualmente salvati (per i documenti parziali si conta comunque la dimensione totale)
     def reservedSpace(self):
         res = self.cursor.execute("select sum(size) from object").fetchone()[0]
         if res is None:
             res = 0
         return res
 
+    #aggiunge un documento alla coda di eliminazione
     def addToBeDeleted(self, uid):
         self.cursor.execute("insert into toBeDeleted(uid) values (?)", (uid, ))
         self.connection.commit()
 
+    #ottiene tutti i documenti in coda di eliminazione
     def getToBeDeleted(self):
         return self.cursor.execute("select * from toBeDeleted").fetchall()
 
+    #crea una nuova replica di un documento
     def addObject(self, uid, local_path, size, checksum):
         complete = 0
         created = datetime.now()
@@ -1046,12 +1055,18 @@ class Database:
                             (uid, local_path, size, complete, checksum, created))
         self.connection.commit()
 
-        return self.cursor.lastrowid
+        return self.cursor.lastrowid   #primary key dell'entry inserita
 
+    #setta un documento come completo
     def setComplete(self, uid):
         self.cursor.execute("update object set complete=1 where uid = ?", (uid, ))
         self.connection.commit()
 
+    #ottiene le impostazioni del nodo (banda, capacita', ecc)
+    def nodeStats(self):
+        return self.cursor.execute("select * from stats").fetchone()
+
+    #modifica le impostazioni del nodo
     def setStats(self, storage, downspeed, upspeed):
         self.cursor.execute("delete from stats")
         self.cursor.execute("insert into stats(storage, downspeed, upspeed) values (?, ?, ?)",
@@ -1086,37 +1101,30 @@ def onDataServerConnect(addr):
         database.addPendingUid(elem.uid)
 
 def onDataServerDisconnect(addr):
-    if database.isServerOnline(addr):
-        database.updateDataServerStatus(addr, False)
+    database.updateDataServerStatus(addr, False)
 
-        for elem in database.getUidsForServer(addr):
-            database.addPendingUid(elem.uid)
+    for elem in database.getUidsForServer(addr):
+        database.addPendingUid(elem.uid)
 
-        print("server", addr, "disconnected")
+    print("server", addr, "disconnected")
 
 
 def checkDataServerStatus(addr):
-    wasOnline = database.isServerOnline(addr)
+    wasOnline = database.isServerOnline(addr)   #status dell'ultima rilevazione
     
     try:
-        with Connection(addr) as conn:
+        with Connection(addr) as conn:  #richiesta dello status al dataserver
             conn.write("status")
             res = conn.readline()
 
         status, reservedCapacity, totCapacity, downSpeed, bandDown, upspeed, bandUp = res
-        reservedCapacity = int(reservedCapacity)
-        totCapacity = int(totCapacity)
-        downSpeed = float(downSpeed)
-        bandDown = float(bandDown)
-        upspeed = float(upspeed)
-        bandUp = float(bandUp)
+       	
         database.updateDataServerStatus(addr, True, totCapacity - reservedCapacity, totCapacity,
                                         downSpeed - bandDown, upspeed - bandUp)
 
         if not wasOnline:
             onDataServerConnect(addr)
-    except ConnectionRefusedError as err:
-        print(err)
+    except ConnectionRefusedError as err:  #accade quando il dataserver non e' raggiungibile
         if wasOnline:
             onDataServerDisconnect(addr)
 
@@ -1131,82 +1139,75 @@ def processPendingUids():
         processPendingUid(database, elem.uid)
 
 def processPendingUid(database, uid):
-    res = database.getObjectByUid(uid)
-    print(res)
+	#metadati dell'uid
+    res = database.getObjectByUid(uid)  
+    
     priority = res.priority
     size = res.size
     checksum = res.checksum
-    print("priority", priority)
-
+    
+    #repliche attualmente disponibili (solo online)
     serversContaining = {x.server for x in database.getServersForUid(uid)}
     numCopies = len(serversContaining)
 
-    print("serversContaining", serversContaining)
-    availableServers = [x.server for x in database.getDataServers() if x.server not in serversContaining
-                        and x.remaining_capacity > size]
-
-    print("availableServers", availableServers)
-
-    serversContaining = list(serversContaining)
-
-    if numCopies == priority:
+    if numCopies == priority:  #se la priorita' coincide con il numero di repliche disponibili non serve fare nulla
         database.removePendingUid(uid)
         return
 
-    if numCopies > priority:
+	#server liberi per ricevere una nuova replica 
+	availableServers = [x.server for x in database.getDataServers() if x.server not in serversContaining and x.remaining_capacity > size]
+	
+	serversContaining = list(serversContaining)
+
+    if numCopies > priority:  #se il numero di copie disponibili supera la priorita' bisogna eliminarne una
         random.shuffle(serversContaining)
         target = serversContaining[0]
 
         print("remove", uid, "target", target)
 
         try:
-            with Connection(target) as conn:
+            with Connection(target) as conn:  #invia richiesta di eliminazione al dataserver
                 conn.write("deleteUid", uid)
-                res = conn.readline()
-                print(res)
+                print(conn.readline())
 
-            database.removeStoredObject(uid, target)
+            database.removeStoredObject(uid, target)  #eseguito solo se la richiesta di eliminazione (connessione) ha avuto successo
         except:
             pass
 
         return
 
-    if numCopies < priority:
+    if numCopies < priority:   #non ci sono abbastanza copie disponibili
 
-        if len(serversContaining) == 0:
+        if len(serversContaining) == 0 or len(availableServers) == 0:   #se non ci sono sorgenti o destinazioni disponibili bisogna attendere
             database.disablePendingUid(uid)
             return
 
-        if len(availableServers) > 0:
-            random.shuffle(availableServers)
-            random.shuffle(serversContaining)
+        try:
+	        #scegli una sorgente ed una destinazione
+	        random.shuffle(availableServers)
+	        random.shuffle(serversContaining)
+            source = serversContaining[0]
+            target = availableServers[0]
 
-            try:
-                source = serversContaining[0]
-                target = availableServers[0]
+            database.addStoredObject(uid, target) #crea una nuova replica
 
-                database.addStoredObject(uid, target)
+            def process():
+                try:
+                    with Connection(target) as conn:  #crea il documento sul server di destinazione
+                        conn.write("createUid", uid, size, checksum)
+                        print(conn.readline())
 
-                def process():
-                    try:
-                        with Connection(target) as conn:
-                            conn.write("createUid", uid, size, checksum)
-                            print(conn.readline())
+                    with Connection(source) as conn:   #ordina il trasferimento
+                        conn.write("transfer", uid, target)
+                        print(conn.readline())
+                except:
+                    database.removeStoredObject(uid, target) #la replica non e' stata creata con successo
+                    database.addPendingUid(uid)
 
-                        with Connection(source) as conn:
-                            conn.write("transfer", uid, target)
-                            print(conn.readline())
-                    except:
-                        database.removeStoredObject(uid, target)
-                        database.addPendingUid(uid)
+            _thread.start_new_thread(process)  #l'operazione, essendo lunga, viene eseguita su un thread separato
 
-                _thread.start_new_thread(process)
-
-                #database.removePendingUid(uid)
-            except:
-                print("ERROR")
-        else:
-            database.disablePendingUid(uid)
+        except:
+            print("ERROR")
 \end{lstlisting}
 
 \begin{lstlisting}[language=Python, title=Scheduling ed esecuzione]
@@ -1244,7 +1245,6 @@ def getPerformance():
     performances["banddown"] = (res.bytes_recv - performances["recv"]) / delta / 1000000
     performances["sent"] = res.bytes_sent
     performances["recv"] = res.bytes_recv
-    #print(performances)
 \end{lstlisting}
 
 
@@ -1252,18 +1252,15 @@ def getPerformance():
 
 \begin{lstlisting}[language=Python, title=Eliminazione dei documenti in coda]
 def processDeleteUids():
-    logging.info("processDeleteUids...")
 
     database = Database()
     uids = database.getToBeDeleted()
 
     with processingLock:
-        logging.info("uids %s", uids)
-
         for uid, in uids:
             if uid not in processing:
-                logging.info("delete %s", uid)
                 uid, localPath, size, complete, created, checksum = database.getObject(uid)
+                
                 if os.path.exists(localPath): os.remove(localPath)
                 database.deleteUid(uid)
 \end{lstlisting}
@@ -1313,7 +1310,6 @@ _thread.start_new_thread(runPeriodicTasks, (None,))
         print("handle request from " + str(self.client_address))
 
         data = self.readline()
-        print(data)
 
         switcher[data[0]](data[1:])
 
@@ -1333,8 +1329,7 @@ with MetaServer((HOST, PORT), MetaServerHandler, bind_and_activate=True) as serv
 def sendFile(localPath = "small_file.txt", remotePath="testfile.txt", priority=1, user="default"):
     with Connection(METASERVER) as conn:
         size = getsize(localPath)
-        print("file size", size)
-
+       
         checksum = hashFile(localPath)
 
         conn.write("pushPath", remotePath, size, checksum, priority, user)
@@ -1383,7 +1378,6 @@ def pushPath(self, args):
         response = dataServer.readline()
 
     if response[0] != "ok":
-        print("ERROR", response[0])
         self.write("err", response)
         return False
     ...
@@ -1393,8 +1387,6 @@ def pushPath(self, args):
 def createUid(self, args):
 	uid, size, checksum = args
 	local_path = os.getcwd() + "/" + uid
-	print("local_path", local_path)
-	size = int(size)
 	
 	with processingLock:
 		totCapacity, downSpeed, upspeed = self.database.nodeStats()
@@ -1450,8 +1442,6 @@ def pushUid(self, args):
             self.write("ERR", "uid info not found")
             return False
 
-        print(objinfo)
-
         uid, localpath, size, complete, created, checksum,  = objinfo
 
         if complete:
@@ -1480,7 +1470,6 @@ def pushUid(self, args):
 
         if file_checksum != checksum:
             os.remove(localpath)
-            print("ERROR checksum do not match")
             self.write("err", "checksum do not match")
             return False
 
@@ -1570,8 +1559,6 @@ def get(localPath = "testin.txt", remotePath = "ale/file1", newFile=True, user="
         conn.write("getPath", remotePath, user)
         res = conn.readline()
 
-    print(res)
-
     if res[0] != 'ok':
         print("ERR", res)
         return False
@@ -1584,7 +1571,6 @@ def get(localPath = "testin.txt", remotePath = "ale/file1", newFile=True, user="
 \begin{lstlisting}[language=Python, title=Metaserver]
 def _getServerForUid(self, uid):
 	res = self.database.getServersForUid(uid)
-	print("servers", res)
 	
 	if len(res) == 0:
 		self.write("err", "no copies available")
@@ -1614,7 +1600,6 @@ def getPath(self, args):
         return False
 
     uid, checksum = res.uid, res.checksum
-    print("uid", uid)
 
     addr = self._getServerForUid(uid)
 
@@ -1631,7 +1616,6 @@ def getPath(self, args):
     with Connection(addr) as conn:
         conn.write("getUid", uid, startIndex)
         res = conn.readline()
-        print(res)
         status, size = res
 
         with open(localPath, "a+b") as out:
@@ -1656,8 +1640,6 @@ def getUid(self, args):
             self.write("err", "specified uid not present")
             return False
 
-        print(res)
-
         uid, localPath, size, complete, created, checksum = res
 
         if not complete:
@@ -1680,7 +1662,6 @@ def getUid(self, args):
 \begin{lstlisting}[language=Python, title=Metaserver]
 def _getServerForUid(self, uid):
     res = self.database.getServersForUid(uid)
-    print("servers", res)
 
     if len(res) == 0:
         self.write("err", "no copies available")
@@ -1739,7 +1720,6 @@ def deletePath(self, args):
             lockedPaths.append(elem.path)
         else:
             uid = elem.uid
-            print("delete", uid)
             if elem.deleted is None:
                 self.database.markUidDeleted(uid)
 
@@ -1779,7 +1759,6 @@ def permanentlyDeletePath(self, args):
             lockedPaths.append(elem.path)
         else:
             uid = elem.uid
-            print("delete", uid)
             if elem.deleted is None:
                 self.database.markUidDeleted(uid)
             self.database.updatePriority(uid, 0)
@@ -1802,7 +1781,6 @@ def lockPath(path, user="default"):
     conn = Connection(METASERVER)
     conn.write("lockPath", path, user)
     res, = conn.readline()
-    print("lockPath", path, "lock", res, "by", user)
     return res
 \end{lstlisting}
 
@@ -1863,7 +1841,6 @@ def updatePriorityForPath(self, args):
             lockedPaths.append(elem.path)
         else:
             uid = elem.uid
-            print("delete", uid)
             self.database.updatePriority(uid, priority)
             self.database.addPendingUid(uid)
 

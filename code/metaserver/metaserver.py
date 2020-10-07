@@ -104,9 +104,7 @@ class Database:
             serial_consistency_level=ConsistencyLevel.SERIAL
         )
 
-        cluster = Cluster(execution_profiles={EXEC_PROFILE_DEFAULT: profile})
-        self.cluster = Cluster(protocol_version=4)
-
+        self.cluster = Cluster(protocol_version=4, execution_profiles={EXEC_PROFILE_DEFAULT: profile})
         self.session = self.cluster.connect("metaserver")
 
 
@@ -114,8 +112,7 @@ class Database:
         self.session.execute("insert into dataserver(server, online) values (%s, false)", (addr, ))
 
     def addObject(self, uid, path, owner, size, priority, checksum):
-        if type(uid) == "str":
-            uid = UUID(uid)
+        uid = makeUUID(uid)
         created = datetime_from_uuid1(uid)
         size = int(size)
         priority = int(priority)
@@ -271,6 +268,10 @@ def processPendingUid(database, uid):
     serversContaining = {x.server for x in database.getServersForUid(uid)}
     numCopies = len(serversContaining)
 
+    if numCopies == priority:
+        database.removePendingUid(uid)
+        return
+
     print("serversContaining", serversContaining)
     availableServers = [x.server for x in database.getDataServers() if x.server not in serversContaining
                         and x.remaining_capacity > size]
@@ -278,10 +279,6 @@ def processPendingUid(database, uid):
     print("availableServers", availableServers)
 
     serversContaining = list(serversContaining)
-
-    if numCopies == priority:
-        database.removePendingUid(uid)
-        return
 
     if numCopies > priority:
         random.shuffle(serversContaining)
