@@ -1895,6 +1895,41 @@ def getStoredData(self, args):
 \end{lstlisting}
 
 
+\subsection{Testing}
+
+\paragraph{} Al termine dello sviluppo è stata eseguita una sessione di \emph{testing}. Gli obiettivi di test sono: \begin{itemize}
+	\item Correttezza di esecuzione
+	\item Comportamento quando il protocollo viene violato (accidentalmente o in modo malevolo)
+	\item Performances 
+	\item Scalabilità
+\end{itemize}
+
+\subsubsection{Correttezza}
+
+\paragraph{} Per effettuare il controllo di correttezza è stato creato un client (benevolo) che effettua tutte le operazioni disponibili, con diversi ordinamenti e anche in modo concorrente. Ad ogni passaggio sono stati controllati manualmente gli stati di tutti i database, nonché tutti i log. 
+
+\paragraph{} I risultati, benché mostrino errori sporadici molto rari che solitamente non portano ad interruzioni del servizio, sono più che sufficienti per mostrare il funzionamento di quanto presentato nell'analisi. 
+
+\subsubsection{Resistenza agli attacchi}
+
+\paragraph{} In questo caso è stato ideato un client malevolo che intenzionalmente viola le regole di protocollo, tentando di portare il sistema in stato inconsistente o di errore. Un esempio è l'invio di richieste con argomenti di formato sbagliato.
+
+\paragraph{} I risultati non hanno messo in luce alcuna vulnerabilità specifica del protocollo e dell'implementazione. 
+
+\subsubsection{Performance} 
+
+\paragraph{} La valutazione delle performance viene effettuata attraverso l'utilizzo di benchmark che portino il sistema ad un sovraccarico. 
+
+\paragraph{} Dai dati rilevati una singola richiesta viene generalmente processata nell'arco del decimo di secondo. Effettuare richieste in modo concorrente riduce il tempo totale in modo rilevante: l'inserimento in parallelo di 100 file ha portato il tempo totale da 28 a 9 secondi. 
+
+\paragraph{} Si è osservato che l'avvio del metaserver è particolarmente oneroso nel caso in cui sia presente una grande quantità di documenti (>10k), in quanto esso deve controllare lo stato di ogni replica all'interno dei dataserver (sincronizzazione). Sviluppi futuri dovrebbero migliorare questo passaggio in modo da poter supportare quantità di documenti maggiori. 
+
+\subsubsection{Scalabilità}
+
+\paragraph{} Il test di scalabilità consiste nel valutare il consumo di risorse e le performance del sistema all'aumentare del numero di nodi. 
+
+\paragraph{} Il consumo di risorse è stato valutato eseguendo fino a 400 istanze di dataserver concorrenti nello stesso dispositivo. L'utilizzo di ram di ogni singola istanza è stimata a 8 MB (costanti). Il tempo di avvio del sistema è di 4 secondi ogni 100 nodi (ma questo dato dipende fortemente dall'hardware a disposizione). Il tempo di accesso al singolo documento rimane pressoché costante.
+
 \section{Considerazioni finali}
 
 \paragraph{Perchè questo approccio è migliore rispetto ad usare direttamente un database distribuito?} 
@@ -1910,7 +1945,11 @@ def getStoredData(self, args):
 
 \paragraph{Sviluppi futuri?}
 
-\paragraph{} Alcuni sviluppi potrebbero essere la creazione di un client grafico, per l'utilizzo da parte del pubblico. Inoltre dovrebbe essere aggiunto un livello di protezione, sia dal punto di vista della cifratura che dei permessi (con eventuale login). Vanno effettuati test approfonditi e migliorata la gestione degli errori, soprattutto per quanto riguarda i corner case. Una compressione lato client permetterebbe un risparmio di risorse (memoria e rete) non indifferente. 
+\paragraph{} Lo sviluppo principale consiste nell'implementazione dell'algoritmo che muove e replica i documenti per bilanciare il carico.
+
+\paragraph{} Altri sviluppi potrebbero essere la creazione di un client grafico, per l'utilizzo da parte del pubblico. Inoltre dovrebbe essere implementato un livello di protezione, sia dal punto di vista della cifratura che dei permessi (con eventuale login). Vanno effettuati test più approfonditi e migliorata la gestione degli errori, soprattutto per quanto riguarda i corner case. Una compressione lato client potrebbe permettere un risparmio di risorse (memoria e rete) non indifferente. 
+
+\paragraph{} Come ultima cosa si potrebbe provare a modificare leggermente il metaserver in modo che possano essere eseguite concorrentemente più istanze. Usando già un dbms distribuito (Cassandra) ed essendo implementato in modo sessionless, la transizione dovrebbe essere estremamente semplice e veloce da implementare.
 
 \paragraph{Sistema di versionamento}
 

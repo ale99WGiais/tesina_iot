@@ -247,6 +247,21 @@ def updatePriorityForPath(path, priority, user="default"):
 
 
 
+from chrono import Timer
+from concurrent.futures import *
+
+ex = ThreadPoolExecutor(max_workers=50)
+
+with Timer() as timer:
+    def f(i):
+        sendFile("small_file.txt", "test/" + str(i))
+    ex.map(f, range(100))
+    ex.shutdown()
+
+
+print("elapsed", timer.elapsed)
+
+exit(0)
 
 
 sendFile("small_file.txt", "ale/file1")

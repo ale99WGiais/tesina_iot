@@ -179,18 +179,35 @@
 \contentsline {subsubsection}{\numberline {10.7.9}Aggiungere un dataserver}{46}{subsubsection.10.7.9}
 \contentsline {paragraph}{}{46}{section*.146}
 \contentsline {paragraph}{}{46}{section*.147}
-\contentsline {section}{\numberline {11}Considerazioni finali}{47}{section.11}
-\contentsline {paragraph}{Perch\IeC {\`e} questo approccio \IeC {\`e} migliore rispetto ad usare direttamente un database distribuito?}{47}{section*.148}
+\contentsline {subsection}{\numberline {10.8}Testing}{47}{subsection.10.8}
+\contentsline {paragraph}{}{47}{section*.148}
+\contentsline {subsubsection}{\numberline {10.8.1}Correttezza}{47}{subsubsection.10.8.1}
 \contentsline {paragraph}{}{47}{section*.149}
 \contentsline {paragraph}{}{47}{section*.150}
-\contentsline {paragraph}{Sviluppi futuri?}{48}{section*.151}
+\contentsline {subsubsection}{\numberline {10.8.2}Resistenza agli attacchi}{48}{subsubsection.10.8.2}
+\contentsline {paragraph}{}{48}{section*.151}
 \contentsline {paragraph}{}{48}{section*.152}
-\contentsline {paragraph}{Sistema di versionamento}{48}{section*.153}
+\contentsline {subsubsection}{\numberline {10.8.3}Performance}{48}{subsubsection.10.8.3}
+\contentsline {paragraph}{}{48}{section*.153}
 \contentsline {paragraph}{}{48}{section*.154}
 \contentsline {paragraph}{}{48}{section*.155}
-\contentsline {paragraph}{Cosa ho imparato con questo progetto?}{48}{section*.156}
+\contentsline {subsubsection}{\numberline {10.8.4}Scalabilit\IeC {\`a}}{48}{subsubsection.10.8.4}
+\contentsline {paragraph}{}{48}{section*.156}
 \contentsline {paragraph}{}{48}{section*.157}
-\contentsline {paragraph}{}{48}{section*.158}
-\contentsline {paragraph}{}{49}{section*.159}
+\contentsline {section}{\numberline {11}Considerazioni finali}{48}{section.11}
+\contentsline {paragraph}{Perch\IeC {\`e} questo approccio \IeC {\`e} migliore rispetto ad usare direttamente un database distribuito?}{48}{section*.158}
+\contentsline {paragraph}{}{48}{section*.159}
 \contentsline {paragraph}{}{49}{section*.160}
-\contentsline {section}{Bibliography}{49}{section*.161}
+\contentsline {paragraph}{Sviluppi futuri?}{49}{section*.161}
+\contentsline {paragraph}{}{49}{section*.162}
+\contentsline {paragraph}{}{49}{section*.163}
+\contentsline {paragraph}{}{49}{section*.164}
+\contentsline {paragraph}{Sistema di versionamento}{49}{section*.165}
+\contentsline {paragraph}{}{49}{section*.166}
+\contentsline {paragraph}{}{50}{section*.167}
+\contentsline {paragraph}{Cosa ho imparato con questo progetto?}{50}{section*.168}
+\contentsline {paragraph}{}{50}{section*.169}
+\contentsline {paragraph}{}{50}{section*.170}
+\contentsline {paragraph}{}{50}{section*.171}
+\contentsline {paragraph}{}{50}{section*.172}
+\contentsline {section}{Bibliography}{50}{section*.173}

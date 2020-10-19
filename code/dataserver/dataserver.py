@@ -158,7 +158,7 @@ logging.info("work on %s", os.getcwd())
 #create db if not exists
 if not os.path.exists("database.db"):
     with sqlite3.connect('database.db') as conn:
-        with open("../../dataserver/create_db.sqlite3", "r") as sql:
+        with open("/home/ale/Dropbox/tesina iot/code/dataserver/create_db.sqlite3", "r") as sql:
             conn.executescript(sql.read())
 
 database = Database()
